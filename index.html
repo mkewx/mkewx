@@ -1,0 +1,1265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>MKE WX - Milwaukee Weather Reimagined</title>
+  
+  <style>
+    /* MKE WX - Amber Phosphor Version */
+    
+    @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+    
+    :root {
+      --phosphor-amber: #FFAA00;
+      --phosphor-glow: #FF8800;
+      --terminal-bg: #000000;
+      --dim-amber: #AA6600;
+      --bright-amber: #FFCC33;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    html {
+      -webkit-text-size-adjust: 100%;
+    }
+    
+    body {
+      background-color: var(--terminal-bg);
+      color: var(--phosphor-amber);
+      font-family: 'VT323', 'Courier New', monospace;
+      font-size: 20px;
+      line-height: 1.5;
+      overflow-x: hidden;
+      position: relative;
+      width: 100%;
+    }
+    
+    /* Very Visible Scanlines */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        repeating-linear-gradient(
+          0deg,
+          rgba(255, 170, 0, 0.25) 0px,
+          rgba(255, 170, 0, 0.25) 1px,
+          transparent 1px,
+          transparent 3px
+        );
+      pointer-events: none;
+      z-index: 1000;
+      animation: scanlines 12s linear infinite;
+    }
+    
+    @keyframes scanlines {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(12px); }
+    }
+    
+    body::after {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(ellipse at center, transparent 0%, rgba(0, 0, 0, 0.3) 100%);
+      pointer-events: none;
+      z-index: 998;
+    }
+    
+    /* CRT Screen Effects */
+    
+    /* Screen Curvature */
+    .container {
+      transform: perspective(800px) rotateX(2deg);
+      transform-style: preserve-3d;
+      border-radius: 8px;
+    }
+    
+    /* Amber Screen Glare - Top Center (main glare) */
+    body::after {
+      content: "";
+      position: fixed;
+      top: 8%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(
+        circle at center,
+        rgba(255, 200, 100, 0.4) 0%,
+        rgba(255, 180, 80, 0.25) 10%,
+        rgba(255, 170, 0, 0.15) 25%,
+        rgba(255, 140, 0, 0.08) 45%,
+        transparent 70%
+      );
+      pointer-events: none;
+      z-index: 999;
+      mix-blend-mode: screen;
+      border-radius: 50%;
+    }
+    
+    /* Second Amber Glare - Top Right */
+    html::before {
+      content: "";
+      position: fixed;
+      top: 12%;
+      right: 5%;
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(
+        circle at center,
+        rgba(255, 190, 90, 0.35) 0%,
+        rgba(255, 170, 70, 0.2) 15%,
+        rgba(255, 150, 50, 0.12) 35%,
+        rgba(255, 130, 30, 0.06) 55%,
+        transparent 75%
+      );
+      pointer-events: none;
+      z-index: 1001;
+      mix-blend-mode: screen;
+      border-radius: 50%;
+    }
+    
+    /* Edge Vignette (CRT Glass) */
+    html::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(
+        ellipse at center,
+        transparent 0%,
+        transparent 60%,
+        rgba(0, 0, 0, 0.15) 80%,
+        rgba(0, 0, 0, 0.4) 100%
+      );
+      pointer-events: none;
+      z-index: 997;
+    }
+    
+    /* Screen Texture/Phosphor Grid */
+    html::after {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        repeating-linear-gradient(
+          0deg,
+          rgba(0, 0, 0, 0.08) 0px,
+          rgba(0, 0, 0, 0.08) 2px,
+          transparent 2px,
+          transparent 4px
+        ),
+        repeating-linear-gradient(
+          90deg,
+          rgba(0, 0, 0, 0.08) 0px,
+          rgba(0, 0, 0, 0.08) 2px,
+          transparent 2px,
+          transparent 4px
+        );
+      pointer-events: none;
+      z-index: 996;
+      opacity: 0.6;
+    }
+    
+    .container {
+      max-width: 100%;
+      width: 100%;
+      padding: 10px;
+      position: relative;
+      z-index: 1;
+    }
+    
+    h1, h2, h3 {
+      text-shadow: 0 0 5px var(--phosphor-glow), 0 0 10px var(--phosphor-glow);
+    }
+    
+    .site-header {
+      border: 3px double var(--phosphor-amber);
+      padding: 20px 10px;
+      margin-bottom: 20px;
+      background: rgba(170, 100, 0, 0.05);
+      text-align: center;
+      position: relative;
+      box-shadow: 0 0 20px rgba(255, 170, 0, 0.3);
+    }
+    
+    .header-border-top {
+      position: absolute;
+      top: -3px;
+      left: 0;
+      right: 0;
+      text-align: center;
+      font-size: 11px;
+      color: var(--bright-amber);
+      text-shadow: 0 0 8px var(--phosphor-glow);
+      white-space: pre;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    
+    .header-border-bottom {
+      position: absolute;
+      bottom: -3px;
+      left: 0;
+      right: 0;
+      text-align: center;
+      font-size: 11px;
+      color: var(--bright-amber);
+      text-shadow: 0 0 8px var(--phosphor-glow);
+      white-space: pre;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    
+    .ascii-logo {
+      font-family: 'VT323', monospace;
+      font-size: 10px;
+      line-height: 1.1;
+      white-space: pre;
+      color: var(--bright-amber);
+      text-align: center;
+      margin: 10px auto;
+      text-shadow: 0 0 8px var(--phosphor-glow), 0 0 15px var(--phosphor-glow);
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    
+    .site-title-text {
+      font-size: 16px;
+      color: var(--phosphor-amber);
+      letter-spacing: 6px;
+      margin: 10px 0 5px 0;
+    }
+    
+    .site-subtitle {
+      font-size: 14px;
+      color: var(--dim-amber);
+      margin-top: 8px;
+      font-style: italic;
+      line-height: 1.4;
+    }
+    
+    .site-subtitle::before {
+      content: "░▒▓ ";
+      color: var(--phosphor-amber);
+    }
+    
+    .site-subtitle::after {
+      content: " ▓▒░";
+      color: var(--phosphor-amber);
+    }
+    
+    .site-nav {
+      margin-top: 12px;
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    
+    .site-nav a {
+      color: var(--phosphor-amber);
+      text-decoration: none;
+      padding: 8px 20px;
+      border: 2px solid var(--phosphor-amber);
+      transition: all 0.2s ease;
+      background: rgba(170, 100, 0, 0.1);
+      font-size: 16px;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    
+    .site-nav a::before { content: "[ "; }
+    .site-nav a::after { content: " ]"; }
+    
+    .site-nav a:hover, .site-nav a:active {
+      background: var(--dim-amber);
+      box-shadow: 0 0 15px var(--phosphor-glow);
+      color: var(--bright-amber);
+    }
+    
+    .welcome-section {
+      padding: 20px 5px;
+      margin: 20px 0;
+      text-align: center;
+    }
+    
+    .welcome-section .title {
+      font-size: 22px;
+      margin-bottom: 15px;
+      color: var(--bright-amber);
+      text-shadow: 0 0 10px var(--phosphor-glow);
+    }
+    
+    .welcome-section .title::before { content: ">>> "; }
+    .welcome-section .title::after { content: " <<<"; }
+    
+    .welcome-section p {
+      color: var(--phosphor-amber);
+      font-size: 16px;
+      line-height: 1.6;
+    }
+    
+    /* Weather Section */
+    .weather-section {
+      padding: 25px 10px 10px 10px;
+      margin: 30px 0 5px 0;
+      text-align: center;
+      background: rgba(170, 100, 0, 0.03);
+    }
+    
+    .weather-title {
+      font-size: 20px;
+      color: var(--bright-amber);
+      margin-bottom: 20px;
+      text-shadow: 0 0 10px var(--phosphor-glow);
+      letter-spacing: 4px;
+    }
+    
+    .live-clock {
+      font-size: 32px;
+      color: var(--bright-amber);
+      text-shadow: 0 0 15px var(--phosphor-glow);
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+    
+    .live-date {
+      font-size: 16px;
+      color: var(--dim-amber);
+      margin-bottom: 25px;
+    }
+    
+    .weather-display {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 30px;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+    
+    .weather-left {
+      text-align: center;
+    }
+    
+    .temp-display {
+      font-size: 56px;
+      color: var(--bright-amber);
+      text-shadow: 0 0 20px var(--phosphor-glow);
+      font-weight: bold;
+      margin-bottom: 15px;
+      line-height: 1;
+    }
+    
+    .temp-range {
+      font-size: 20px;
+      color: var(--phosphor-amber);
+      margin-bottom: 10px;
+    }
+    
+    .conditions-display {
+      font-size: 18px;
+      color: var(--phosphor-amber);
+      max-width: 250px;
+    }
+    
+    .weather-ascii {
+      font-family: 'VT323', monospace;
+      font-size: 11px;
+      line-height: 1.0;
+      white-space: pre;
+      color: var(--phosphor-amber);
+      text-shadow: 0 0 8px var(--phosphor-glow);
+      margin: 20px 0;
+      text-align: left;
+    }
+    
+    .separator {
+      text-align: center;
+      color: var(--phosphor-amber);
+      font-size: 12px;
+      margin: 25px 0;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+    
+    .separator.gradient {
+      background: linear-gradient(
+        to right,
+        transparent,
+        var(--dim-amber) 20%,
+        var(--phosphor-amber) 50%,
+        var(--dim-amber) 80%,
+        transparent
+      );
+      height: 2px;
+      border: none;
+    }
+    
+    .post-list {
+      list-style: none;
+      margin: 20px 0;
+    }
+    
+    .post-item {
+      padding: 20px 5px;
+      margin-bottom: 10px;
+      background: rgba(170, 100, 0, 0.02);
+    }
+    
+    .post-meta {
+      color: var(--dim-amber);
+      font-size: 14px;
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px dotted var(--dim-amber);
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    
+    .post-meta::before {
+      content: ">> ";
+      color: var(--phosphor-amber);
+    }
+    
+    .post-title {
+      font-size: 22px;
+      margin: 12px 0;
+      color: var(--bright-amber);
+      line-height: 1.3;
+    }
+    
+    .post-title a {
+      color: var(--bright-amber);
+      text-decoration: none;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    
+    .post-title a:hover, .post-title a:active {
+      text-shadow: 0 0 10px var(--phosphor-glow), 0 0 20px var(--phosphor-glow);
+    }
+    
+    .post-excerpt {
+      color: var(--phosphor-amber);
+      line-height: 1.6;
+      margin: 12px 0;
+      padding-left: 10px;
+      border-left: 2px solid var(--dim-amber);
+      font-size: 16px;
+    }
+    
+    .read-more {
+      color: var(--phosphor-amber);
+      text-decoration: none;
+      border: 2px solid var(--phosphor-amber);
+      padding: 8px 20px;
+      display: inline-block;
+      transition: all 0.2s ease;
+      background: rgba(170, 100, 0, 0.1);
+      cursor: pointer;
+      margin-top: 10px;
+      font-size: 16px;
+      -webkit-tap-highlight-color: transparent;
+    }
+    
+    .read-more::before { content: "[ "; }
+    .read-more::after { content: " ]"; }
+    
+    .read-more:hover, .read-more:active {
+      background: var(--dim-amber);
+      box-shadow: 0 0 10px var(--phosphor-glow);
+      color: var(--bright-amber);
+    }
+    
+    .pagination {
+      text-align: center;
+      margin: 30px 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 15px;
+      flex-wrap: nowrap;
+    }
+    
+    .pagination .read-more {
+      margin: 0;
+      white-space: nowrap;
+    }
+    
+    .page-indicator {
+      color: var(--dim-amber);
+      font-size: 14px;
+      white-space: nowrap;
+    }
+    
+    .post-category {
+      display: inline-block;
+      padding: 4px 10px;
+      border: 1px solid var(--phosphor-amber);
+      font-size: 12px;
+      background: rgba(170, 100, 0, 0.2);
+    }
+    
+    .post-category.forecast {
+      color: var(--bright-amber);
+      border-color: var(--bright-amber);
+    }
+    
+    .post-category::before { content: "▓ "; }
+    .post-category::after { content: " ▓"; }
+    
+    .cursor {
+      display: inline-block;
+      width: 8px;
+      height: 16px;
+      background-color: var(--phosphor-amber);
+      animation: blink 1s infinite;
+      margin-left: 4px;
+      vertical-align: middle;
+    }
+    
+    @keyframes blink {
+      0%, 49% { opacity: 1; }
+      50%, 100% { opacity: 0; }
+    }
+    
+    .site-footer {
+      text-align: center;
+      padding: 25px 10px;
+      margin-top: 5px;
+      color: var(--dim-amber);
+      font-size: 14px;
+    }
+    
+    .site-footer p {
+      margin: 8px 0;
+    }
+    
+    a {
+      color: var(--phosphor-amber);
+      transition: all 0.2s ease;
+    }
+    
+    a:hover, a:active {
+      color: var(--bright-amber);
+      text-shadow: 0 0 8px var(--phosphor-glow);
+    }
+    
+    @media (min-width: 768px) {
+      body { font-size: 22px; }
+      .container { max-width: 960px; margin: 0 auto; padding: 20px; }
+      .site-header { padding: 25px 15px; }
+      .ascii-logo { font-size: 14px; }
+      .site-title-text { font-size: 18px; letter-spacing: 10px; }
+      .site-subtitle { font-size: 16px; }
+      .welcome-section .title { font-size: 26px; }
+      .live-clock { font-size: 42px; }
+      .temp-display { font-size: 72px; }
+      .temp-range { font-size: 24px; }
+      .conditions-display { font-size: 20px; }
+      .weather-ascii { font-size: 12px; }
+      .post-title { font-size: 26px; }
+      .post-excerpt { font-size: 18px; }
+    }
+    
+    /* MOBILE-SPECIFIC GLARE ADJUSTMENTS */
+    @media (max-width: 767px) {
+      body::after {
+        width: 300px;
+        height: 300px;
+      }
+      
+      html::before {
+        top: 8%;
+        right: 3%;
+        width: 180px;
+        height: 180px;
+      }
+    }
+  </style>
+</head>
+<body>
+  
+  <div class="container">
+    
+    <header class="site-header">
+      <div class="header-border-top">╔═══════════════════════════════════════════════════════════════════════════════╗</div>
+      
+      <div class="ascii-logo">
+ ███╗   ███╗██╗  ██╗███████╗    ██╗    ██╗██╗  ██╗
+ ████╗ ████║██║ ██╔╝██╔════╝    ██║    ██║╚██╗██╔╝
+ ██╔████╔██║█████╔╝ █████╗      ██║ █╗ ██║ ╚███╔╝ 
+ ██║╚██╔╝██║██╔═██╗ ██╔══╝      ██║███╗██║ ██╔██╗ 
+ ██║ ╚═╝ ██║██║  ██╗███████╗    ╚███╔███╔╝██╔╝ ██╗
+ ╚═╝     ╚═╝╚═╝  ╚═╝╚══════╝     ╚══╝╚══╝ ╚═╝  ╚═╝</div>
+      <div class="site-title-text">MILWAUKEE WEATHER<span class="cursor"></span></div>
+      <p class="site-subtitle">Weather Forecasts Reimagined</p>
+      
+      <nav class="site-nav">
+        <a href="#home">HOME</a>
+        <a href="#rss">RSS</a>
+      </nav>
+      
+      <div class="header-border-bottom">╚═══════════════════════════════════════════════════════════════════════════════╝</div>
+    </header>
+    
+    <main class="site-content">
+      
+      <div class="welcome-section">
+        <div class="title">WELCOME TO MKE WX</div>
+        <p>
+          A NEW way to look at Milwaukee weather.<br>
+          Fun. Mystery. Action. Drama. Experience it!<br>
+          Weather coverage deserves more than bullet points.
+        </p>
+      </div>
+      
+      <div class="separator gradient"></div>
+      
+      <!-- Recent Posts -->
+      <div class="posts">
+        <ul class="post-list">
+          
+          <li class="post-item">
+            <div class="post-meta">
+              <span>Jan 14, 2025</span>
+              <span class="post-category forecast">FORECAST</span>
+            </div>
+            
+            <h2 class="post-title">
+              <a href="#post1">Arctic Assault: Milwaukee Braces for the Deep Freeze</a>
+            </h2>
+            
+            <div class="post-excerpt">
+              The stage is set. Milwaukee, bathed in the pale winter morning light, stands at the precipice of another meteorological showdown...
+            </div>
+            
+            <a href="#post1" class="read-more">READ MORE</a>
+          </li>
+          
+          <div class="separator gradient"></div>
+          
+          <li class="post-item">
+            <div class="post-meta">
+              <span>Jan 13, 2025</span>
+              <span class="post-category forecast">FORECAST</span>
+            </div>
+            
+            <h2 class="post-title">
+              <a href="#post2">Cold Front Showdown: The Battle for Milwaukee</a>
+            </h2>
+            
+            <div class="post-excerpt">
+              It was a cold January morning in Milwaukee. The kind of morning where the lake doesn't just whisper—it threatens...
+            </div>
+            
+            <a href="#post2" class="read-more">READ MORE</a>
+          </li>
+          
+          <div class="separator gradient"></div>
+          
+          <li class="post-item">
+            <div class="post-meta">
+              <span>Jan 12, 2025</span>
+              <span class="post-category story">STORY</span>
+            </div>
+            
+            <h2 class="post-title">
+              <a href="#post3">The First Milwaukee Snow</a>
+            </h2>
+            
+            <div class="post-excerpt">
+              I remember the first real snow I experienced in Milwaukee. It was December 2021, fresh from my magical year in Kenai, Alaska...
+            </div>
+            
+            <a href="#post3" class="read-more">READ MORE</a>
+          </li>
+          
+          <div class="separator gradient"></div>
+          
+          <li class="post-item">
+            <div class="post-meta">
+              <span>Jan 11, 2025</span>
+              <span class="post-category forecast">FORECAST</span>
+            </div>
+            
+            <h2 class="post-title">
+              <a href="#post4">Winter's Last Stand Before the Thaw</a>
+            </h2>
+            
+            <div class="post-excerpt">
+              The old farmer checked his almanac one last time. "Snow's coming," he muttered to no one in particular...
+            </div>
+            
+            <a href="#post4" class="read-more">READ MORE</a>
+          </li>
+          
+        </ul>
+        
+        <!-- Pagination -->
+        <div class="pagination">
+          <a href="#older" class="read-more">← OLDER POSTS</a>
+          <span class="page-indicator">Page 1 of 3</span>
+          <a href="#newer" class="read-more" style="opacity: 0.5; pointer-events: none;">NEWER POSTS →</a>
+        </div>
+      </div>
+      
+      <div class="separator gradient"></div>
+      
+      <!-- Weather Section -->
+      <div class="weather-section" id="weatherSection">
+        <div class="weather-title" id="weatherTitle">═══ CURRENT CONDITIONS ═══</div>
+        
+        <div class="live-clock" id="clock">--:--:--</div>
+        <div class="live-date" id="date">Loading...</div>
+        
+        <div class="weather-display">
+          <div class="weather-ascii" id="weatherAscii">
+            Loading weather data...
+          </div>
+          
+          <div class="weather-left">
+            <div class="temp-display" id="temp">--°</div>
+            <div class="temp-range" id="tempRange"></div>
+            <div class="conditions-display" id="conditions">
+              Fetching Milwaukee weather...
+            </div>
+          </div>
+        </div>
+      </div>
+      
+    </main>
+    
+    <div class="separator gradient"></div>
+    
+    <footer class="site-footer">
+      <p>MKE WX &copy; 2025 | Milwaukee Weather Reimagined</p>
+      <p>Built with &#9829; for the 414 by Jason Lee</p>
+      <p><a href="#rss">Subscribe via RSS</a></p>
+    </footer>
+    
+  </div>
+  
+  <script>
+    // Configuration - EDIT THESE FOR MANUAL MODE
+    const MANUAL_MODE = false; // Set to true to use manual daily forecast
+    const MANUAL_DATA = {
+      tempHigh: 23,
+      tempLow: 13,
+      conditions: "Snow and wind",
+      conditionType: "snow", // Options: mixed, rain, thunderstorm, snow, flurries, blizzard, wind, clouds, partlycloudy, partlysunny, overcast, clear, clearnight, extremecold, fog, smoke
+      commentary: "Bundle up out there!"
+    };
+    
+    // Milwaukee timezone - works worldwide!
+    const MKE_TIMEZONE = 'America/Chicago';
+    const MKE_LAT = 43.038902;
+    const MKE_LON = -87.906471;
+    
+    // Live Clock - 12-hour format with AM/PM - ALWAYS shows Milwaukee time
+    function updateClock() {
+      const now = new Date();
+      const mkeTime = new Date(now.toLocaleString('en-US', { timeZone: MKE_TIMEZONE }));
+      
+      let hours = mkeTime.getHours();
+      const minutes = String(mkeTime.getMinutes()).padStart(2, '0');
+      const seconds = String(mkeTime.getSeconds()).padStart(2, '0');
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      
+      // Convert to 12-hour format
+      hours = hours % 12;
+      hours = hours ? hours : 12; // 0 becomes 12
+      
+      document.getElementById('clock').textContent = `${hours}:${minutes}:${seconds} ${ampm}`;
+      
+      const options = { 
+        weekday: 'long', 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric',
+        timeZone: MKE_TIMEZONE
+      };
+      document.getElementById('date').textContent = mkeTime.toLocaleDateString('en-US', options);
+    }
+    
+    // Weather ASCII Art
+    function getWeatherAscii(type) {
+      const art = {
+        mixed: `
+      ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒
+    ▒▒░░░░░░░░░░░░░░░░▒▒
+  ▒▒░░                ░░▒▒
+ ▒░░    ▓▓▓▓▓▓▓▓▓▓▓▓    ░░▒
+▒░░   ▓▓░░░░░░░░░░░░▓▓   ░░▒
+▒░   ▓░░  ░░  ░░  ░░  ░▓   ░▒
+░░  ▓░  ░░  ░░  ░░  ░░  ░▓  ░░
+ ▒░░  ▓▓░░░░░░░░░░░░░░▓▓  ░░▒
+  ▒▒░░  ▓▓▓▓▓▓▓▓▓▓▓▓▓▓  ░░▒▒
+    ▒▒░░░░░░░░░░░░░░░░░░▒▒
+      ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒
+       ║ *║  ║ *║  ║  ║
+        ║  ║ *║  ║ *║  ║
+       ║ *║  ║ *║  ║ *║
+        ║  ║ *║  ║  ║  ║`,
+        
+        rain: `
+      ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒
+    ▒▒░░░░░░░░░░░░░░░░▒▒
+  ▒▒░░                ░░▒▒
+ ▒░░    ▓▓▓▓▓▓▓▓▓▓▓▓    ░░▒
+▒░░   ▓▓░░░░░░░░░░░░▓▓   ░░▒
+▒░   ▓░░  ░░  ░░  ░░  ░▓   ░▒
+░░  ▓░  ░░  ░░  ░░  ░░  ░▓  ░░
+ ▒░░  ▓▓░░░░░░░░░░░░░░▓▓  ░░▒
+  ▒▒░░  ▓▓▓▓▓▓▓▓▓▓▓▓▓▓  ░░▒▒
+    ▒▒░░░░░░░░░░░░░░░░░░▒▒
+      ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒
+       ║  ║  ║  ║  ║  ║
+        ║  ║  ║  ║  ║  ║
+       ║  ║  ║  ║  ║  ║
+        ║  ║  ║  ║  ║  ║`,
+        
+        thunderstorm: `
+      ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒
+    ▒▒░░░░░░░░░░░░░░░░▒▒
+  ▒▒░░                ░░▒▒
+ ▒░░    ▓▓▓▓▓▓▓▓▓▓▓▓    ░░▒
+▒░░   ▓▓░░░░░░░░░░░░▓▓   ░░▒
+▒░   ▓░░  ░░  ░░  ░░  ░▓   ░▒
+░░  ▓░  ░░  ░░  ░░  ░░  ░▓  ░░
+ ▒░░  ▓▓░░░░░░░░░░░░░░▓▓  ░░▒
+  ▒▒░░  ▓▓▓▓▓▓▓▓▓▓▓▓▓▓  ░░▒▒
+    ▒▒░░░░░░░░░░░░░░░░░░▒▒
+      ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒
+       ║  ╲   ║  ╱  ║  ║
+        ║  ╲ ║ ╱   ║  ║
+      ⚡ ║  ╲║╱   ║ ⚡ ║
+        ║   ║    ║  ║  ║`,
+        
+        snow: `
+        *      *      *
+     *     *      *     *
+   ░░░░░░░░░░░░░░░░░░░░░░░
+  ░░▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒░░
+ ░░▒▒░░░░░░░░░░░░░░░░░░▒▒░░
+░░▒▒░░                ░░▒▒░░
+░▒▒░   ▓▓▓▓▓▓▓▓▓▓▓▓▓   ░▒▒░
+░▒░  ▓▓░░░░░░░░░░░░░▓▓  ░▒░
+░▒  ▓░░  ░  ░  ░  ░  ░▓  ▒░
+ ▒  ▓░  ░  ░  ░  ░  ░ ▓  ▒
+  ▒░ ▓▓░░░░░░░░░░░░░▓▓ ░▒
+   ▒░░ ▓▓▓▓▓▓▓▓▓▓▓▓▓ ░░▒
+     ░░░░░░░░░░░░░░░░░
+       *   *   *   *
+    *   *   *   *   *
+       *   *   *   *`,
+        
+        flurries: `
+         *      *      *
+      *     *      *     *
+        ░░░░░░░░░░░░░
+     ░░░▒▒▒▒▒▒▒▒▒▒▒░░░
+   ░░▒▒▓▓▓▓▓▓▓▓▓▓▓▓▒▒░░
+  ░▒▒▓▓░░░░░░░░░░░░▓▓▒▒░
+ ░▒▓▓░░            ░░▓▓▒░
+░▒▓░░  ████████████  ░░▓▒░
+░▒▓░ ██░░░░░░░░░░░░██ ░▓▒░
+░▒▓░ ██░░          ░░██ ░▓▒
+ ░▒▓░ ██░░░░░░░░░░██ ░▓▒░
+  ░▒▓░░ ████████████ ░░▓▒
+   ░░▒▒▓░░░░░░░░░░▓▒▒░░
+     ░░▒▒▓▓▓▓▓▓▓▓▒▒░░
+      *  *  *  *  *  *
+         *  *  *  *`,
+        
+        blizzard: `
+    * * * * * * * * * * *
+  * * * * * * * * * * * * *
+ ░░░░░░░░░░░░░░░░░░░░░░░░░
+░░▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒░░
+░▒▒░░░░░░░░░░░░░░░░░░░░▒▒░
+░▒░   ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓   ░▒
+░░  ▓▓░░░░░░░░░░░░░░░▓▓  ░░
+░  ▓░░  ░  ░  ░  ░  ░ ░▓  ░
+   ▓░  ░  ░  ░  ░  ░  ░▓
+ ░  ▓▓░░░░░░░░░░░░░░▓▓  ░
+  ░░  ▓▓▓▓▓▓▓▓▓▓▓▓▓▓  ░░
+ * * * * * * * * * * * * *
+* * * * * * * * * * * * * *
+ * * * * * * * * * * * * *
+* * * * * * * * * * * * * *`,
+        
+        wind: `
+    ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈→
+   ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈→
+  ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈→
+ 
+    ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈→
+   ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈→
+      ≈≈≈≈≈≈≈≈≈≈≈≈≈→
+ 
+       ≈≈≈≈≈≈≈≈≈≈≈≈≈≈→
+      ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈→
+     ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈→
+ 
+        ≈≈≈≈≈≈≈≈≈≈≈≈→
+       ≈≈≈≈≈≈≈≈≈≈≈≈≈→
+      ≈≈≈≈≈≈≈≈≈≈≈≈≈≈→`,
+        
+        clouds: `
+       ░░░░░░░░░░░░░░
+     ░░▒▒▒▒▒▒▒▒▒▒▒▒░░
+    ░▒▒▓▓▓▓▓▓▓▓▓▓▓▓▒▒░
+   ░▒▓▓░░░░░░░░░░░░▓▓▒░
+  ░▒▓░░            ░░▓▒░
+  ░▒▓  ░░░░░░░░░░░░  ▓▒░
+  ░▒▓ ░▒▒▒▒▒▒▒▒▒▒▒░ ▓▒░
+  ░▒▓ ░▒▓▓▓▓▓▓▓▓▓▒░ ▓▒░
+  ░▒▓ ░▒▓       ▓▒░ ▓▒░
+  ░▒▓░ ░▒▓▓▓▓▓▓▓▒░ ░▓▒░
+   ░▒▓░ ░▒▒▒▒▒▒▒░ ░▓▒░
+    ░▒▓░  ░░░░░  ░▓▒░
+     ░▒▓▓░░░░░░░▓▓▒░
+       ░▒▒▓▓▓▓▓▒▒░
+         ░░░░░░░`,
+        
+        partlycloudy: `
+           \\    |    /
+             \\ | ░░░░░
+          ───  \\░▒▒▒▒▒░  ───
+              ░▒▒▓▓▓▓▓▒░
+             ░▒▓▓░░░░▓▓▒░
+            ░▒▓░      ░▓▒░
+           ░▒▓  ░░░░░░  ▓▒░
+          ░▒▓  ░▒▒▒▒▒░  ▓▒░
+          ░▒▓ ░▒▓▓▓▓▓▒░ ▓▒░
+          ░▒▓░ ░▒▒▒▒▒░ ░▓▒░
+           ░▒▓░ ░░░░░ ░▓▒░
+            ░▒▓▓░░░░░▓▓▒░
+              ░▒▒▓▓▓▒▒░`,
+        
+        partlysunny: `
+         \\     |     /
+           \\   |   /
+        ---  ░░░░░  ---
+            ░▒▒▒▒▒░
+         --- ▒▓▓▓▓▒ ---
+            ░▒▓ ░▓▒░
+           / ░▒░▒░ \\
+         /   ░░░   \\
+            ░▒▒▒░
+           ░▒▓▓▓▒░
+            ░▒▒▒░
+             ░░░`,
+        
+        overcast: `
+    ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓
+   ▓▓▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▓▓
+  ▓▒▒░░░░░░░░░░░░░░░▒▒▓
+ ▓▒░░              ░░▒▓
+ ▓▒░ ░░░░░░░░░░░░░░ ░▒▓
+ ▓▒ ░▒▒▒▒▒▒▒▒▒▒▒▒▒░ ▒▓
+ ▓▒ ░▒▓▓▓▓▓▓▓▓▓▓▓▒░ ▒▓
+ ▓▒ ░▒▓         ▓▒░ ▒▓
+ ▓▒░ ░▒▓▓▓▓▓▓▓▓▓▒░ ░▒▓
+ ▓▒░░ ░▒▒▒▒▒▒▒▒▒░ ░░▒▓
+  ▓▒░░  ░░░░░░░  ░░▒▓
+   ▓▒▒░░░░░░░░░░░▒▒▓
+    ▓▓▒▒▒▒▒▒▒▒▒▒▒▓▓
+      ▓▓▓▓▓▓▓▓▓▓▓`,
+        
+        clear: `
+              ║
+         \\    ║    /
+           \\  ║  /
+       ───  ░░░░░  ───
+           ░▒▒▒▒▒░
+        ══ ░▒▓▓▓▒░ ══
+           ░▒▓█▓▒░
+        ══ ░▒▓▓▓▒░ ══
+           ░▒▒▒▒▒░
+       ───  ░░░░░  ───
+           /  ║  \\
+         /    ║    \\
+              ║`,
+        
+        fog: `
+  ≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈
+ ≈ ░░░░░░░░░░░░░░░░░░ ≈
+≈ ░▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒░ ≈
+ ≈░▒▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▒░≈
+  ≈▒▓░░░░░░░░░░░░░░▓▒≈
+ ≈≈▓░              ░▓≈≈
+≈≈▓░  ████████████  ░▓≈≈
+≈▓░ ██░░░░░░░░░░░░██ ░▓≈
+≈▓ ██░░          ░░██ ▓≈
+≈▓ █░   ░  ░  ░  ░  █ ▓≈
+ ≈▓░ ██░░░░░░░░░░██ ░▓≈
+  ≈▓░░ ████████ ░░▓≈
+ ≈≈≈▒▓░░░░░░░░░░▓▒≈≈≈
+  ≈≈≈▒▒▓▓▓▓▓▓▓▓▒▒≈≈≈
+ ≈≈≈≈≈░░▒▒▒▒▒▒░░≈≈≈≈≈
+≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈`,
+        
+        clearnight: `
+                *
+           *
+         ░░░░
+        ░▒▒░            *
+       ░▒▓▓░
+      ░▒▓██░      *
+      ░▒▓██░
+   *  ░▒▓██░
+      ░▒▓██░         *
+      ░▒▓██░
+       ░▒▓▓░
+        ░▒▒░      *
+         ░░░░
+                *
+    *         *
+         *              *`,
+        
+        extremecold: `
+      ❄ ╔════════════════╗ ❄
+        ║░░░░░░░░░░░░░░░░║
+      ❄ ║░░░ DANGER! ░░░░║ ❄
+        ║░░░░░░░░░░░░░░░░║
+        ║▒▒ EXTREME ░░▒▒▒║
+      ❄ ║▒▒▒░ COLD ░░▒▒▒║ ❄
+        ║▒▒▒▒░░░░░░▒▒▒▒▒║
+        ║▓▓ Wind Chill ▓▓║
+      ❄ ║▓▓ Below Zero! ▓║ ❄
+        ║▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓║
+        ║█ Limit Outdoor █║
+      ❄ ║█░ Exposure! ░░█║ ❄
+        ╚════════════════╝
+      ❄   ❄   ❄   ❄   ❄`,
+        
+        smoke: `
+  ░▒▓█ SMOKE ALERT █▓▒░
+ ≋≋≋≋≋≋≋≋≋≋≋≋≋≋≋≋≋≋≋≋≋≋
+≋ ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒ ≋
+ ≋▒▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▒≋
+≋ ▒▓░░░░░░░░░░░░░░░▓▒ ≋
+ ≋▓░░            ░░▓≋
+≋ ▓░  ████████████  ░▓ ≋
+ ≋░ ██▒▒▒▒▒▒▒▒▒▒██ ░≋
+≋ ░ ██▒▒        ▒▒██ ░ ≋
+ ≋  █▒░  ░░  ░░  ▒█  ≋
+≋   █▒  ░  ░  ░  ▒█   ≋
+ ≋ ░ ██▒░░░░░░░▒██ ░ ≋
+≋ ░░ ████████████ ░░ ≋
+ ≋▒░░░░░░░░░░░░░░░▒≋
+≋ ▒▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▒ ≋
+ ≋≋≋≋≋≋≋≋≋≋≋≋≋≋≋≋≋≋≋≋≋`
+      };
+      
+      return art[type] || art.clear;
+    }
+    
+    // Commentary lines for each condition
+    function getCommentary(type) {
+      const commentary = {
+        mixed: "Watch for icy conditions!",
+        rain: "Don't forget your umbrella!",
+        thunderstorm: "Stay indoors if you can!",
+        snow: "Bundle up out there!",
+        flurries: "Just a dusting today.",
+        blizzard: "Avoid travel if possible!",
+        wind: "Hold onto your hat!",
+        clouds: "Gray skies overhead.",
+        partlycloudy: "Breaking through the clouds.",
+        partlysunny: "Breaks in the clouds.",
+        overcast: "Welcome to the gray ceiling.",
+        clear: "Perfect day for a walk!",
+        clearnight: "Clear skies for stargazing.",
+        extremecold: "Dangerously cold - limit exposure!",
+        fog: "Drive carefully today.",
+        smoke: "Air quality alert - stay inside!"
+      };
+      
+      return commentary[type] || "Stay weather aware!";
+    }
+    
+    // Display manual forecast mode
+    function displayManualForecast() {
+      document.getElementById('weatherTitle').textContent = '═══ TODAY\'S FORECAST ═══';
+      document.getElementById('temp').textContent = MANUAL_DATA.tempHigh + '°F';
+      document.getElementById('tempRange').textContent = `High: ${MANUAL_DATA.tempHigh}°F / Low: ${MANUAL_DATA.tempLow}°F`;
+      document.getElementById('conditions').innerHTML = `
+        ${MANUAL_DATA.conditions}<br>
+        <span style="color: var(--dim-amber); font-size: 16px;">${MANUAL_DATA.commentary}</span>
+      `;
+      document.getElementById('weatherAscii').textContent = getWeatherAscii(MANUAL_DATA.conditionType);
+    }
+    
+    // Try to fetch live weather data
+    async function fetchLiveWeather() {
+      try {
+        console.log('Attempting to fetch live weather...');
+        
+        const API_KEY = 'ce1d2c145faba567da6b19e317a7ab8e';
+        const response = await fetch(
+          `https://api.openweathermap.org/data/2.5/weather?lat=${MKE_LAT}&lon=${MKE_LON}&appid=${API_KEY}&units=imperial`
+        );
+        
+        if (!response.ok) throw new Error('API request failed');
+        
+        const data = await response.json();
+        console.log('✓ Live weather data fetched successfully');
+        
+        // Display current conditions
+        document.getElementById('weatherTitle').textContent = '═══ CURRENT CONDITIONS ═══';
+        const temp = Math.round(data.main.temp);
+        const feelsLike = Math.round(data.main.feels_like);
+        const conditions = data.weather[0].description;
+        const mainWeather = data.weather[0].main;
+        const weatherId = data.weather[0].id; // More specific ID
+        const windSpeed = data.wind.speed; // mph
+        const cloudiness = data.clouds.all; // percentage
+        
+        // Check if it's nighttime (sunset/sunrise times from API)
+        const now = Math.floor(Date.now() / 1000);
+        const isNight = now < data.sys.sunrise || now > data.sys.sunset;
+        
+        // Smart weather type detection
+        let conditionType;
+        
+        // EXTREME COLD CHECK (overrides everything except smoke alerts)
+        if (feelsLike <= 0) {
+          conditionType = 'extremecold';
+        }
+        // SMOKE/HAZE CHECK (air quality issues)
+        else if (['Smoke', 'Ash'].includes(mainWeather)) {
+          conditionType = 'smoke';
+        }
+        // Check for high winds (>20 mph)
+        else if (windSpeed > 20) {
+          conditionType = 'wind';
+        }
+        // MIXED PRECIPITATION (freezing rain, sleet, rain/snow mix)
+        else if (weatherId >= 611 && weatherId <= 616) {
+          // 611=sleet, 612=light rain/sleet, 613=rain/sleet, 615=light rain/snow, 616=rain/snow
+          conditionType = 'mixed';
+        }
+        // Thunderstorm
+        else if (mainWeather === 'Thunderstorm') {
+          conditionType = 'thunderstorm';
+        }
+        // Snow conditions
+        else if (mainWeather === 'Snow') {
+          // Check description for intensity
+          if (conditions.includes('heavy') || conditions.includes('blizzard')) {
+            conditionType = 'blizzard';
+          } else if (conditions.includes('light') || conditions.includes('flurries')) {
+            conditionType = 'flurries';
+          } else {
+            conditionType = 'snow';
+          }
+        }
+        // Rain (but not thunderstorm)
+        else if (mainWeather === 'Rain' || mainWeather === 'Drizzle') {
+          conditionType = 'rain';
+        }
+        // Cloud conditions (need to differentiate based on cloudiness %)
+        else if (mainWeather === 'Clouds') {
+          if (cloudiness > 85) {
+            conditionType = 'overcast'; // Heavy overcast
+          } else if (cloudiness > 50) {
+            conditionType = 'partlycloudy'; // Mostly cloudy
+          } else {
+            conditionType = 'partlysunny'; // Partly cloudy
+          }
+        }
+        // Clear conditions - check for night
+        else if (mainWeather === 'Clear') {
+          if (isNight) {
+            conditionType = 'clearnight';
+          } else {
+            conditionType = 'clear';
+          }
+        }
+        // Fog/Mist (but not smoke)
+        else if (['Mist', 'Haze', 'Dust', 'Fog', 'Sand'].includes(mainWeather)) {
+          conditionType = 'fog';
+        }
+        // Default fallback
+        else {
+          conditionType = isNight ? 'clearnight' : 'clear';
+        }
+        
+        // Build temperature display with feels like
+        let tempDisplay = temp + '°F';
+        let tempRangeText = '';
+        
+        // Show "feels like" if different from actual temp
+        if (Math.abs(temp - feelsLike) >= 3) {
+          tempRangeText = `Feels like ${feelsLike}°F`;
+        }
+        
+        document.getElementById('temp').textContent = tempDisplay;
+        document.getElementById('tempRange').textContent = tempRangeText;
+        document.getElementById('conditions').innerHTML = `
+          ${conditions.charAt(0).toUpperCase() + conditions.slice(1)}<br>
+          <span style="color: var(--dim-amber); font-size: 16px;">${getCommentary(conditionType)}</span>
+        `;
+        document.getElementById('weatherAscii').textContent = getWeatherAscii(conditionType);
+        
+        return true;
+      } catch (error) {
+        console.log('✗ Live weather fetch failed:', error.message);
+        return false;
+      }
+    }
+    
+    // Initialize weather display
+    async function initWeather() {
+      if (MANUAL_MODE) {
+        console.log('Manual mode enabled - displaying daily forecast');
+        displayManualForecast();
+      } else {
+        console.log('Attempting live weather mode...');
+        const success = await fetchLiveWeather();
+        
+        if (!success) {
+          console.log('Falling back to manual forecast mode');
+          displayManualForecast();
+        }
+      }
+    }
+    
+    // Start everything
+    updateClock();
+    setInterval(updateClock, 1000);
+    initWeather();
+    
+    // Refresh weather every 3 minutes if in live mode
+    if (!MANUAL_MODE) {
+      setInterval(initWeather, 180000);
+    }
+  </script>
+  
+</body>
+</html>
