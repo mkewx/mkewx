@@ -1,0 +1,1785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MKE WX - Milwaukee Weather Reimagined</title>
+  
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+    
+    :root {
+      --phosphor-amber: #ffb000;
+      --phosphor-glow: #ffa500;
+      --terminal-bg: #000000;
+      --dim-amber: #8b6914;
+      --bright-amber: #ffd700;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    html {
+      background-color: #000000 !important;
+    }
+    
+    body {
+      background-color: #000000 !important;
+      color: var(--phosphor-amber);
+      font-family: 'VT323', 'Courier New', monospace;
+      font-size: 18px;
+      line-height: 1.5;
+      overflow-x: hidden;
+      position: relative;
+    }
+    
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 20px;
+      position: relative;
+      z-index: 1;
+      opacity: 0;
+      background: transparent;
+    }
+    
+    /* Boot Screen */
+    #bootScreen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #000000;
+      z-index: 5000;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 40px;
+    }
+    
+    #bootScreen.hidden {
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s ease;
+    }
+    
+    .boot-logo {
+      font-size: 10px;
+      color: var(--bright-amber);
+      text-shadow: 0 0 10px var(--phosphor-glow), 0 0 20px var(--phosphor-glow);
+      margin-bottom: 40px;
+      white-space: pre;
+      line-height: 1.1;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    
+    .boot-logo-mobile {
+      display: none;
+    }
+    
+    .boot-messages {
+      max-width: 600px;
+      width: 100%;
+    }
+    
+    .boot-line {
+      color: var(--phosphor-amber);
+      font-size: 18px;
+      margin: 8px 0;
+      opacity: 0;
+    }
+    
+    .boot-line.show {
+      opacity: 1;
+      animation: fadeIn 0.3s ease;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateX(-10px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    
+    /* Main Content */
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 20px;
+      position: relative;
+      z-index: 1;
+      opacity: 0;
+    }
+    
+    .container.loaded {
+      opacity: 1;
+      transition: opacity 0.5s ease;
+    }
+    
+    .site-header {
+      border: 3px double var(--phosphor-amber);
+      padding: 25px 15px;
+      margin-bottom: 20px;
+      text-align: center;
+      box-shadow: 0 0 20px rgba(255, 176, 0, 0.3);
+    }
+    
+    .ascii-logo {
+      font-family: 'VT323', monospace;
+      font-size: 10px;
+      line-height: 1.1;
+      white-space: pre;
+      color: var(--bright-amber);
+      text-align: center;
+      margin: 10px auto;
+      text-shadow: 0 0 8px var(--phosphor-glow), 0 0 15px var(--phosphor-glow);
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    
+    .ascii-logo-mobile {
+      display: none;
+    }
+    
+    .site-title-text {
+      font-size: 18px;
+      color: var(--phosphor-amber);
+      letter-spacing: 10px;
+      margin: 10px 0;
+    }
+    
+    .site-subtitle {
+      font-size: 16px;
+      color: var(--dim-amber);
+      margin-top: 8px;
+    }
+    
+    .site-subtitle::before { content: "░▒▓ "; }
+    .site-subtitle::after { content: " ▓▒░"; }
+    
+    .cursor {
+      display: inline-block;
+      width: 8px;
+      height: 16px;
+      background-color: var(--phosphor-amber);
+      animation: blink 1s infinite;
+      margin-left: 4px;
+    }
+    
+    @keyframes blink {
+      0%, 49% { opacity: 1; }
+      50%, 100% { opacity: 0; }
+    }
+    
+    .welcome-section {
+      padding: 20px;
+      margin: 20px 0;
+      text-align: center;
+      border: 2px solid var(--phosphor-amber);
+      box-shadow: 0 0 15px rgba(255, 176, 0, 0.4), 0 0 30px rgba(255, 176, 0, 0.2);
+    }
+    
+    .welcome-section .title {
+      font-size: 26px;
+      margin-bottom: 15px;
+      color: var(--bright-amber);
+      text-shadow: 0 0 15px var(--phosphor-glow), 0 0 30px var(--phosphor-glow);
+    }
+    
+    .welcome-section .title::before { content: ">>> "; }
+    .welcome-section .title::after { content: " <<<"; }
+    
+    .separator {
+      background: linear-gradient(
+        to right,
+        transparent,
+        var(--dim-amber) 20%,
+        var(--phosphor-amber) 50%,
+        var(--dim-amber) 80%,
+        transparent
+      );
+      height: 2px;
+      border: none;
+      margin: 25px 0;
+    }
+    
+    /* Forecast Headlines */
+    .post-list {
+      list-style: none;
+      margin: 20px 0;
+    }
+    
+    .post-item {
+      padding: 20px 5px;
+      margin-bottom: 10px;
+    }
+    
+    .post-meta {
+      color: var(--dim-amber);
+      font-size: 14px;
+      margin-bottom: 10px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    
+    .post-title {
+      font-size: 26px;
+      margin: 12px 0;
+      color: var(--bright-amber);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-shadow: 0 0 10px var(--phosphor-glow), 0 0 20px var(--phosphor-glow);
+    }
+    
+    .post-title:hover {
+      text-shadow: 0 0 15px var(--phosphor-glow), 0 0 30px var(--phosphor-glow), 0 0 45px var(--phosphor-glow);
+    }
+    
+    .post-title::before {
+      content: "> ";
+      color: var(--phosphor-amber);
+    }
+    
+    .post-excerpt {
+      color: var(--phosphor-amber);
+      font-size: 16px;
+      margin: 10px 0;
+      padding-left: 10px;
+      border-left: 2px solid var(--dim-amber);
+    }
+    
+    /* Article Viewer */
+    .article-viewer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.5s ease;
+      margin: 20px 0;
+    }
+    
+    .article-viewer.open {
+      max-height: 2000px;
+    }
+    
+    .article-container {
+      border: 3px double var(--phosphor-amber);
+      padding: 20px;
+      box-shadow: 0 0 15px rgba(255, 176, 0, 0.4), 0 0 30px rgba(255, 176, 0, 0.2);
+    }
+    
+    .article-header {
+      border-bottom: 2px solid var(--dim-amber);
+      padding-bottom: 15px;
+      margin-bottom: 20px;
+    }
+    
+    .article-title {
+      font-size: 24px;
+      color: var(--bright-amber);
+      margin-bottom: 10px;
+      text-shadow: 0 0 10px var(--phosphor-glow), 0 0 20px var(--phosphor-glow);
+    }
+    
+    .article-content {
+      color: var(--phosphor-amber);
+      font-size: 18px;
+      line-height: 1.8;
+    }
+    
+    .article-content p {
+      margin-bottom: 20px;
+    }
+    
+    .article-content strong,
+    .article-content b {
+      color: var(--bright-amber);
+      text-shadow: 0 0 5px var(--phosphor-glow);
+      font-weight: bold;
+    }
+    
+    .article-content em,
+    .article-content i {
+      color: var(--bright-amber);
+      font-style: italic;
+    }
+    
+    .close-article {
+      color: var(--phosphor-amber);
+      border: 2px solid var(--phosphor-amber);
+      padding: 8px 20px;
+      display: inline-block;
+      cursor: pointer;
+      margin-top: 20px;
+      background: rgba(139, 105, 20, 0.1);
+      transition: all 0.2s ease;
+    }
+    
+    .close-article::before { content: "[ "; }
+    .close-article::after { content: " ]"; }
+    
+    .close-article:hover {
+      background: var(--dim-amber);
+      box-shadow: 0 0 10px var(--phosphor-glow);
+    }
+    
+    /* Interactive Terminal */
+    .terminal-section {
+      border: 3px double var(--phosphor-amber);
+      padding: 20px;
+      margin: 30px 0;
+      box-shadow: 0 0 20px rgba(255, 176, 0, 0.5), 0 0 40px rgba(255, 176, 0, 0.2);
+    }
+    
+    .terminal-header {
+      color: var(--bright-amber);
+      font-size: 20px;
+      margin-bottom: 15px;
+      text-shadow: 0 0 8px var(--phosphor-glow);
+      text-align: center;
+    }
+    
+    .terminal-output {
+      min-height: 200px;
+      max-height: 400px;
+      overflow-y: auto;
+      margin-bottom: 15px;
+      padding: 10px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--dim-amber);
+    }
+    
+    .terminal-line {
+      color: var(--phosphor-amber);
+      font-size: 16px;
+      margin: 5px 0;
+    }
+    
+    .terminal-line.command {
+      color: var(--bright-amber);
+    }
+    
+    .terminal-line.error {
+      color: #ff6b6b;
+    }
+    
+    .terminal-input-line {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .terminal-prompt {
+      color: var(--bright-amber);
+      font-size: 18px;
+    }
+    
+    #terminalInput {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--phosphor-amber);
+      font-family: 'VT323', monospace;
+      font-size: 18px;
+      outline: none;
+      padding: 5px;
+      text-shadow: 0 0 5px var(--phosphor-glow);
+    }
+    
+    #terminalInput::placeholder {
+      color: var(--dim-amber);
+      opacity: 1;
+    }
+    
+    /* Weather Section */
+    .weather-section {
+      padding: 25px 10px;
+      margin: 30px 0;
+      text-align: center;
+      border: 2px solid var(--dim-amber);
+    }
+    
+    /* Weather Alert Ticker */
+    .alert-box {
+      width: 100%;
+      border: 3px solid var(--bright-amber);
+      outline: 3px solid #000000;
+      outline-offset: -6px;
+      padding: 20px;
+      margin-bottom: 30px;
+      background: var(--bright-amber);
+      box-shadow: 0 0 30px rgba(255, 215, 0, 0.6), 0 0 60px rgba(255, 215, 0, 0.3);
+      height: 120px;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+    }
+    
+    .alert-box.no-alerts {
+      border: 3px solid var(--dim-amber);
+      outline: 3px solid #000000;
+      outline-offset: -6px;
+      background: transparent;
+      box-shadow: 0 0 10px rgba(139, 105, 20, 0.3);
+      height: 120px;
+    }
+    
+    .alert-content {
+      width: 100%;
+      font-size: 20px;
+      line-height: 1.6;
+      color: #000000;
+      font-weight: bold;
+      white-space: normal;
+      overflow: hidden;
+    }
+    
+    .alert-box.no-alerts .alert-content {
+      color: var(--dim-amber);
+      font-weight: normal;
+    }
+    
+    .alert-cursor {
+      display: inline-block;
+      width: 10px;
+      height: 22px;
+      background-color: #000000;
+      margin-left: 2px;
+      animation: blink 1s infinite;
+      vertical-align: text-bottom;
+    }
+    
+    .alert-box.no-alerts .alert-cursor {
+      background-color: var(--dim-amber);
+    }
+    
+    @media (max-width: 767px) {
+      .alert-box,
+      .alert-box.no-alerts {
+        height: 140px;
+      }
+      
+      .alert-content {
+        font-size: 18px;
+      }
+    }
+    
+    .weather-header {
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid var(--dim-amber);
+    }
+    
+    .datetime {
+      font-size: 28px;
+      color: var(--bright-amber);
+      text-shadow: 0 0 10px var(--phosphor-glow);
+      margin-bottom: 10px;
+      letter-spacing: 2px;
+    }
+    
+    .current-temp {
+      font-size: 48px;
+      color: var(--bright-amber);
+      text-shadow: 0 0 15px var(--phosphor-glow);
+      font-weight: bold;
+      margin: 10px 0;
+    }
+    
+    .weather-icon-row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 30px;
+      margin: 20px 0;
+    }
+    
+    .weather-icon {
+      font-size: 16px;
+      line-height: 1.1;
+      white-space: pre;
+      color: var(--bright-amber);
+      text-shadow: 0 0 8px var(--phosphor-glow);
+    }
+    
+    .location {
+      font-size: 24px;
+      margin: 15px 0;
+      color: var(--phosphor-amber);
+    }
+    
+    .data-grid {
+      margin: 25px auto;
+      max-width: 600px;
+    }
+    
+    .data-row {
+      display: flex;
+      padding: 8px 0;
+      font-size: 22px;
+      border-bottom: 1px dotted rgba(255, 176, 0, 0.2);
+    }
+    
+    .data-label {
+      flex: 0 0 180px;
+      color: var(--bright-amber);
+      text-align: right;
+      padding-right: 15px;
+    }
+    
+    .data-value {
+      flex: 1;
+      color: var(--phosphor-amber);
+    }
+    
+    .timezone-display {
+      text-align: center;
+      margin: 20px 0 0 0;
+      padding: 20px 0 15px 0;
+      border-top: 2px solid var(--dim-amber);
+    }
+    
+    .sun-times {
+      display: flex;
+      justify-content: center;
+      gap: 60px;
+      font-size: 20px;
+    }
+    
+    .sun-time {
+      color: var(--phosphor-amber);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .sun-label {
+      color: var(--bright-amber);
+    }
+    
+    .sun-time::before {
+      color: var(--bright-amber);
+      font-size: 20px;
+    }
+    
+    .sunrise::before { content: "↑"; }
+    .sunset::before { content: "↓"; }
+    
+    .site-footer {
+      text-align: center;
+      padding: 25px 10px;
+      color: var(--dim-amber);
+      font-size: 14px;
+    }
+    
+    /* Mobile Styles */
+    @media (max-width: 767px) {
+      .boot-logo {
+        font-size: 8px;
+      }
+      
+      .ascii-logo {
+        font-size: 8px;
+      }
+      
+      .site-title-text {
+        font-size: 14px;
+        letter-spacing: 4px;
+      }
+      
+      .welcome-section .title {
+        font-size: 20px;
+      }
+      
+      .terminal-output {
+        font-size: 14px;
+      }
+      
+      .data-row {
+        flex-direction: column;
+        gap: 5px;
+        font-size: 18px;
+      }
+      
+      .data-label {
+        flex: none;
+        text-align: left;
+        padding-right: 0;
+      }
+      
+      .sun-times {
+        flex-direction: column;
+        gap: 10px;
+        align-items: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  
+  <!-- Boot Screen -->
+  <div id="bootScreen">
+    <div class="boot-logo">
+ ███╗   ███╗██╗  ██╗███████╗    ██╗    ██╗██╗  ██╗
+ ████╗ ████║██║ ██╔╝██╔════╝    ██║    ██║╚██╗██╔╝
+ ██╔████╔██║█████╔╝ █████╗      ██║ █╗ ██║ ╚███╔╝ 
+ ██║╚██╔╝██║██╔═██╗ ██╔══╝      ██║███╗██║ ██╔██╗ 
+ ██║ ╚═╝ ██║██║  ██╗███████╗    ╚███╔███╔╝██╔╝ ██╗
+ ╚═╝     ╚═╝╚═╝  ╚═╝╚══════╝     ╚══╝╚══╝ ╚═╝  ╚═╝</div>
+    <div class="boot-messages" id="bootMessages"></div>
+  </div>
+  
+  <!-- Main Content -->
+  <div class="container" id="mainContent">
+    
+    <header class="site-header">
+      <div class="ascii-logo">
+ ███╗   ███╗██╗  ██╗███████╗    ██╗    ██╗██╗  ██╗
+ ████╗ ████║██║ ██╔╝██╔════╝    ██║    ██║╚██╗██╔╝
+ ██╔████╔██║█████╔╝ █████╗      ██║ █╗ ██║ ╚███╔╝ 
+ ██║╚██╔╝██║██╔═██╗ ██╔══╝      ██║███╗██║ ██╔██╗ 
+ ██║ ╚═╝ ██║██║  ██╗███████╗    ╚███╔███╔╝██╔╝ ██╗
+ ╚═╝     ╚═╝╚═╝  ╚═╝╚══════╝     ╚══╝╚══╝ ╚═╝  ╚═╝</div>
+      <div class="site-title-text">MILWAUKEE WEATHER<span class="cursor"></span></div>
+      <p class="site-subtitle">Weather Forecasts Reimagined</p>
+    </header>
+    
+    <div class="welcome-section">
+      <div class="title">WELCOME TO MKE WX</div>
+      <p>
+        A NEW way to look at Milwaukee weather.<br>
+        Fun. Mystery. Action. Drama. Experience it!<br>
+        Lakeside weather deserves more than bullet points.
+      </p>
+    </div>
+
+    <div class="separator"></div>
+
+    <!-- Recent Forecasts -->
+    <div class="posts">
+      <ul class="post-list">
+        <li class="post-item">
+          <div class="post-meta">
+            <span>Feb 21, 2026</span>
+            <span style="color: var(--bright-amber);">▓ FORECAST ▓</span>
+          </div>
+          <h2 class="post-title" onclick="openArticle(0)">The Polar Vortex Chronicles: A Milwaukee Saga</h2>
+          <div class="post-excerpt">
+            The detective pulled his collar tight against the bitter wind. Another subzero morning in Milwaukee, and the case was just heating up...
+          </div>
+        </li>
+        
+        <li class="post-item">
+          <div class="post-meta">
+            <span>Feb 20, 2026</span>
+            <span style="color: var(--bright-amber);">▓ FORECAST ▓</span>
+          </div>
+          <h2 class="post-title" onclick="openArticle(1)">Showdown at the Lake Effect Corral</h2>
+          <div class="post-excerpt">
+            The stranger rode into town just after dawn. The clouds hung low over Milwaukee like tumbleweeds made of ice...
+          </div>
+        </li>
+        
+        <li class="post-item">
+          <div class="post-meta">
+            <span>Feb 19, 2026</span>
+            <span style="color: var(--bright-amber);">▓ FORECAST ▓</span>
+          </div>
+          <h2 class="post-title" onclick="openArticle(2)">Captain's Log: The Spring Thaw Expedition</h2>
+          <div class="post-excerpt">
+            Captain's Log, Stardate 2026.50: We've entered the Milwaukee sector during the Great Thaw of late February...
+          </div>
+        </li>
+      </ul>
+    </div>
+    
+    <!-- Article Viewer -->
+    <div class="article-viewer" id="articleViewer">
+      <div class="article-container">
+        <div class="article-header">
+          <div class="article-title" id="articleTitle">Article Title</div>
+          <div class="post-meta">
+            <span id="articleDate">Date</span>
+          </div>
+        </div>
+        <div class="article-content" id="articleContent">
+          Article content will appear here...
+        </div>
+        <div class="close-article" onclick="closeArticle()">CLOSE</div>
+      </div>
+    </div>
+    
+    <div class="separator"></div>
+    
+    <!-- Interactive Terminal -->
+    <div class="terminal-section">
+      <div class="terminal-header">═══ INTERACTIVE TERMINAL ═══</div>
+      <div class="terminal-output" id="terminalOutput">
+        <div class="terminal-line">MKE WX Terminal v1.0</div>
+        <div class="terminal-line">Try: 'radar' | 'packers' | 'help' for all commands</div>
+        <div class="terminal-line">─────────────────────────────────────</div>
+      </div>
+      <div class="terminal-input-line">
+        <span class="terminal-prompt">></span>
+        <input type="text" id="terminalInput" placeholder="Type a command..." autocomplete="off">
+      </div>
+    </div>
+    
+    <div class="separator"></div>
+    
+    <!-- Weather Alert Ticker -->
+    <div id="alertBox" class="alert-box no-alerts">
+      <div id="alertContent" class="alert-content">
+        No current weather advisories issued<span class="alert-cursor"></span>
+      </div>
+    </div>
+    
+    <!-- Weather Section -->
+    <div class="weather-section">
+      <div class="weather-header">
+        <div class="datetime" id="datetime">Loading...</div>
+        <div class="current-temp" id="currentTemp">--°F</div>
+      </div>
+      
+      <div class="weather-icon-row">
+        <div class="weather-icon" id="weatherIcon">
+    \   /    
+     .-.     
+  ― (   ) ―  
+     '-'     
+    /   \    
+        </div>
+        <div style="text-align: left;">
+          <div id="conditions" style="font-size: 22px; color: var(--bright-amber);">Clear sky</div>
+          <div id="pressure" style="font-size: 18px; color: var(--phosphor-amber);">30.01 in <span id="pressureTrend"></span></div>
+        </div>
+      </div>
+      
+      <div class="location">Milwaukee, US</div>
+      
+      <div class="data-grid">
+        <div class="data-row">
+          <div class="data-label">Feels Like:</div>
+          <div class="data-value" id="feelsLike">--°F</div>
+        </div>
+        <div class="data-row">
+          <div class="data-label">Wind Speed:</div>
+          <div class="data-value" id="windSpeed">-- mph --</div>
+        </div>
+        <div class="data-row">
+          <div class="data-label">Dew Point:</div>
+          <div class="data-value" id="dewPoint">--°F</div>
+        </div>
+        <div class="data-row">
+          <div class="data-label">Visibility:</div>
+          <div class="data-value" id="visibility">-- km</div>
+        </div>
+        <div class="data-row">
+          <div class="data-label">Humidity:</div>
+          <div class="data-value" id="humidity">--%</div>
+        </div>
+        <div class="data-row">
+          <div class="data-label">Clouds:</div>
+          <div class="data-value" id="clouds">--%</div>
+        </div>
+      </div>
+      
+      <div class="timezone-display">
+        <div class="sun-times">
+          <div class="sun-time sunrise"><span class="sun-label">Sunrise</span> <span id="sunrise">--:-- --</span></div>
+          <div class="sun-time sunset"><span class="sun-label">Sunset</span> <span id="sunset">--:-- --</span></div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="separator"></div>
+    
+    <footer class="site-footer">
+      <p>MKE WX &copy; 2026 | Milwaukee Weather Reimagined</p>
+      <p>Built with ♥ for the 414 by Jason Lee! &copy; 2026</p>
+    </footer>
+    
+  </div>
+  
+  <script>
+    // Boot Sequence
+    const bootMessages = [
+      "Initializing MKE WX Terminal...",
+      "Connecting to Milwaukee...",
+      "Crossing the Hoan Bridge...",
+      "Dodging potholes on I-94...",
+      "Checking Lake Michigan wave heights...",
+      "Calculating snow-to-beer ratio...",
+      "Locating nearest custard stand...",
+      "Traversing the Third Ward...",
+      "Loading Brew City forecast protocols...",
+      "Establishing link to mkewx.com...",
+      "Delivering unique Milwaukee forecasts...",
+      "Initializing weather data streams...",
+      "Calibrating thermometers...",
+      "Analyzing barometric pressure..."
+    ];
+    
+    function shuffleArray(array) {
+      const arr = [...array];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+    
+    function runBootSequence() {
+      const bootScreen = document.getElementById('bootScreen');
+      const messagesContainer = document.getElementById('bootMessages');
+      const selectedMessages = shuffleArray(bootMessages).slice(0, 5);
+      
+      selectedMessages.forEach((msg, index) => {
+        setTimeout(() => {
+          const line = document.createElement('div');
+          line.className = 'boot-line';
+          line.textContent = '> ' + msg;
+          messagesContainer.appendChild(line);
+          setTimeout(() => line.classList.add('show'), 50);
+        }, index * 400);
+      });
+      
+      setTimeout(() => {
+        bootScreen.classList.add('hidden');
+        document.getElementById('mainContent').classList.add('loaded');
+      }, (selectedMessages.length * 400) + 800);
+    }
+    
+    // Sample Articles
+    const articles = [
+      {
+        title: "The Polar Vortex Chronicles: A Milwaukee Saga",
+        date: "Feb 21, 2026",
+        content: `The detective pulled his collar tight against the bitter wind. Another subzero morning in Milwaukee, and the case was just heating up.
+
+<strong>"Nine below,"</strong> he muttered, watching his breath crystallize in the amber glow of the streetlight. <strong>"Wind chill making it feel like negative twenty-five."</strong> The kind of cold that made your teeth ache and your eyes water before you even stepped outside.
+
+Lake Michigan was smoking this morning—that eerie phenomenon where the <strong>33-degree water</strong> meets air twenty degrees colder, creating fog that rises like steam from a cauldron. From his office window on Wisconsin Avenue, he could barely make out the outline of the Hoan Bridge through the mist.
+
+The forecast said this arctic blast would last through the weekend. <strong>High of 12 on Saturday,</strong> maybe climbing to <strong>18 by Sunday</strong> if we were lucky. The Weather Service had <em>winter weather advisories</em> posted from here to Green Bay.
+
+But Monday—Monday was when things would get interesting. A low-pressure system moving up from the south would collide with this arctic air mass, and Milwaukee would be right in the crosshairs. <strong>Six to nine inches of snow expected, with winds gusting to 35 mph.</strong> Blizzard conditions weren't out of the question.
+
+He poured another cup of coffee, black as the Milwaukee River in January. The steam rose like those lake-effect clouds, and he thought about all the stories this city's weather could tell. Tonight, the story was simple: <em>bundle up, Milwaukee. Winter isn't done with us yet.</em>`
+      },
+      {
+        title: "Showdown at the Lake Effect Corral",
+        date: "Feb 20, 2026",
+        content: `The stranger rode into town just after dawn. The clouds hung low over Milwaukee like tumbleweeds made of ice.
+
+<strong>"Storm's comin',"</strong> the old-timer said from his perch outside Kopp's Frozen Custard. <strong>"Temperature's gonna drop to 18 degrees by sundown. Wind out of the northwest at 15 mph."</strong>
+
+The lake was restless today, churning under a steel-gray sky. You could feel it in the air—that peculiar tension before the snow starts flying. The barometer was <strong>falling steadily, down to 1012 millibars</strong>, and everybody in the Third Ward knew what that meant.
+
+By noon, the first flakes appeared. Gentle at first, like scouts testing enemy territory. But by <strong>3 PM, visibility dropped to a quarter mile</strong> as the full force of the lake effect hit. <strong>Two to four inches expected before midnight,</strong> with the heaviest bands setting up right over Bayview.
+
+The stranger tipped his hat to the gathering storm. He'd seen worse out on the prairie, but Milwaukee's lake effect was its own kind of beast. <em>Best hunker down with a Lakefront IPA and ride it out,</em> he thought. Some battles you don't win—you just survive them in style.`
+      },
+      {
+        title: "Captain's Log: The Spring Thaw Expedition",
+        date: "Feb 19, 2026",
+        content: `Captain's Log, Stardate 2026.50: We've entered the Milwaukee sector during the Great Thaw of late February.
+
+The sun—that distant star our planet orbits—has finally decided to grace us with its warmth. <strong>Temperature readings indicate 42 degrees Fahrenheit</strong> at local noon, the first time we've breached the 40-degree barrier since the dark days of January.
+
+Sensors detect <strong>south winds at 12 mph,</strong> carrying with them the scent of possibility and Sprecher's Root Beer. The ice formations along the lakefront are in full retreat. Our scouts report the Bradford Beach sector showing <strong>70% ice coverage reduction</strong> since yesterday's reconnaissance mission.
+
+However, long-range meteorological scans indicate this warming trend is temporary. A cold front approaches from the Canadian quadrant, expected to arrive <strong>Tuesday evening with temperatures dropping back to the mid-20s.</strong> The people of Milwaukee, battle-hardened from months of winter combat, remain undeterred.
+
+<em>Recommendation:</em> All personnel should enjoy outdoor activities during this brief window of temperate weather. The Swing Park and RiverWalk are now accessible without thermal protection gear. The custard stands have begun their seasonal awakening protocols.
+
+This is just a reconnaissance mission into spring. The real invasion won't happen until late March. But for now, we'll take the victory. <em>Captain out.</em>`
+      }
+    ];
+    
+    // Article Viewer Functions
+    function openArticle(index) {
+      const article = articles[index];
+      document.getElementById('articleTitle').textContent = article.title;
+      document.getElementById('articleDate').textContent = article.date;
+      document.getElementById('articleContent').innerHTML = article.content.split('\n\n').map(p => `<p>${p}</p>`).join('');
+      document.getElementById('articleViewer').classList.add('open');
+    }
+    
+    function closeArticle() {
+      document.getElementById('articleViewer').classList.remove('open');
+    }
+    
+    function calculateMoonPhases(startDate) {
+      // Simplified moon phase calculation for next 30 days
+      const phases = [];
+      const phaseNames = ['NEW MOON', 'FIRST QUARTER', 'FULL MOON', 'LAST QUARTER'];
+      const phaseSymbols = ['○', '◐', '●', '◑'];
+      const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      
+      // Approximate moon phases (simplified - in real version would use astronomical calculation)
+      const dates = [
+        {days: 2, phase: 0},   // New moon in 2 days
+        {days: 9, phase: 1},   // First quarter in 9 days
+        {days: 17, phase: 2},  // Full moon in 17 days
+        {days: 25, phase: 3},  // Last quarter in 25 days
+      ];
+      
+      dates.forEach(d => {
+        const date = new Date(startDate);
+        date.setDate(date.getDate() + d.days);
+        phases.push({
+          phase: phaseNames[d.phase],
+          symbol: phaseSymbols[d.phase],
+          dayOfWeek: dayNames[date.getDay()],
+          dateStr: date.toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric'})
+        });
+      });
+      
+      return phases;
+    }
+    
+    // Terminal Commands
+    const terminalOutput = document.getElementById('terminalOutput');
+    const terminalInput = document.getElementById('terminalInput');
+    let triviaActive = false;
+    let triviaQuestion = null;
+    
+    const milwaukeeTrivia = [
+      {
+        question: "What is Milwaukee's all-time record high temperature?",
+        answer: "105",
+        info: "105°F on July 24, 1934"
+      },
+      {
+        question: "What is Milwaukee's all-time record low temperature?",
+        answer: "-26",
+        info: "-26°F on January 17, 1982"
+      },
+      {
+        question: "What is Milwaukee's snowiest month on average?",
+        answer: "january",
+        info: "January averages 14.4 inches of snow"
+      },
+      {
+        question: "How many inches of snow does Milwaukee get annually on average?",
+        answer: "46",
+        info: "Milwaukee averages 46.9 inches of snow per year"
+      }
+    ];
+    
+    function addTerminalLine(text, className = '') {
+      const line = document.createElement('div');
+      line.className = 'terminal-line ' + className;
+      line.textContent = text;
+      terminalOutput.appendChild(line);
+      terminalOutput.scrollTop = terminalOutput.scrollHeight;
+    }
+    
+    function handleCommand(cmd) {
+      const command = cmd.toLowerCase().trim();
+      addTerminalLine('> ' + cmd, 'command');
+      
+      if (triviaActive && triviaQuestion) {
+        checkTriviaAnswer(command);
+        return;
+      }
+      
+      switch(command) {
+        case 'help':
+          addTerminalLine('═══════════════════════════════════════════════');
+          addTerminalLine('           MKE WX TERMINAL COMMANDS');
+          addTerminalLine('═══════════════════════════════════════════════');
+          addTerminalLine('');
+          addTerminalLine('WEATHER & FORECASTS:');
+          addTerminalLine('  help         Show this command list');
+          addTerminalLine('  radar        Milwaukee area precipitation radar');
+          addTerminalLine('  weather      Current conditions summary');
+          addTerminalLine('  forecast     View latest forecast');
+          addTerminalLine('  packers      Lambeau Field weather');
+          addTerminalLine('');
+          addTerminalLine('ASTRONOMY & NATURE:');
+          addTerminalLine('  moon         Upcoming moon phases');
+          addTerminalLine('  lake         Lake Michigan conditions');
+          addTerminalLine('  astronomy    Sunrise, sunset, twilight times');
+          addTerminalLine('  almanac      Historical weather for today');
+          addTerminalLine('');
+          addTerminalLine('MILWAUKEE FUN:');
+          addTerminalLine('  beer         Brewery weather pairing');
+          addTerminalLine('  custard      Frozen custard forecast');
+          addTerminalLine('  trivia       Milwaukee weather trivia');
+          addTerminalLine('');
+          addTerminalLine('SYSTEM:');
+          addTerminalLine('  about        Learn about MKE WX');
+          addTerminalLine('  records      All-time temperature records');
+          addTerminalLine('  stats        Fun Milwaukee weather stats');
+          addTerminalLine('  clear        Clear terminal');
+          addTerminalLine('');
+          addTerminalLine('═══════════════════════════════════════════════');
+          break;
+          
+        case 'about':
+          addTerminalLine('MKE WX: Milwaukee Weather Reimagined');
+          addTerminalLine('─────────────────────────────────────');
+          addTerminalLine('Traditional weather forecasts are boring.');
+          addTerminalLine('We transform Milwaukee weather into stories:');
+          addTerminalLine('Film noir, westerns, sci-fi, and more.');
+          addTerminalLine('');
+          addTerminalLine('Because lakeside weather deserves better');
+          addTerminalLine('than bullet points.');
+          break;
+          
+        case 'forecast':
+          addTerminalLine('Latest Forecast:');
+          addTerminalLine('─────────────────────────────────────');
+          addTerminalLine(articles[0].title);
+          addTerminalLine('Click headline above to read full story');
+          break;
+          
+        case 'weather':
+          addTerminalLine('Current Milwaukee Weather:');
+          addTerminalLine('Temperature: ' + document.getElementById('currentTemp').textContent);
+          addTerminalLine('Conditions: ' + document.getElementById('conditions').textContent);
+          addTerminalLine('Humidity: ' + document.getElementById('humidity').textContent);
+          addTerminalLine('Wind: ' + document.getElementById('windSpeed').textContent);
+          addTerminalLine('');
+          addTerminalLine('See full data display below');
+          break;
+          
+        case 'trivia':
+          startTrivia();
+          break;
+          
+        case 'records':
+          addTerminalLine('Milwaukee All-Time Records:');
+          addTerminalLine('─────────────────────────────────────');
+          addTerminalLine('Highest: 105°F (July 24, 1934)');
+          addTerminalLine('Lowest: -26°F (January 17, 1982)');
+          addTerminalLine('Most snow in 24hrs: 19.0" (Dec 1973)');
+          addTerminalLine('Snowiest winter: 111.4" (1977-78)');
+          break;
+          
+        case 'stats':
+          addTerminalLine('Milwaukee Weather Fun Facts:');
+          addTerminalLine('─────────────────────────────────────');
+          addTerminalLine('Average annual snowfall: 46.9 inches');
+          addTerminalLine('Sunniest month: July (70% sunshine)');
+          addTerminalLine('Wettest month: June (4.2 inches)');
+          addTerminalLine('Lake Michigan influences temps year-round');
+          addTerminalLine('Lake effect snow: A Milwaukee specialty');
+          break;
+          
+        case 'clear':
+          terminalOutput.innerHTML = '';
+          addTerminalLine('Terminal cleared.');
+          break;
+          
+        case 'brew':
+          addTerminalLine('Error: This terminal runs on weather, not beer.', 'error');
+          addTerminalLine('(Though we appreciate the sentiment)');
+          break;
+          
+        case 'cheese':
+          addTerminalLine('Cheese curds: Always in season.');
+          addTerminalLine('Especially when fresh and squeaky.');
+          break;
+          
+        case 'custard':
+          const temp = parseInt(document.getElementById('currentTemp').textContent);
+          const conditions = document.getElementById('conditions').textContent.toLowerCase();
+          const windSpeed = parseInt(document.getElementById('windSpeed').textContent);
+          
+          addTerminalLine('═══════════════════════════════════════════════');
+          addTerminalLine('          FROZEN CUSTARD FORECAST');
+          addTerminalLine('═══════════════════════════════════════════════');
+          addTerminalLine('');
+          addTerminalLine('FLAVOR OF THE DAY: Better go check the sign!');
+          addTerminalLine('');
+          addTerminalLine('CURRENT CONDITIONS: ' + temp + '°F, ' + document.getElementById('conditions').textContent);
+          addTerminalLine('');
+          addTerminalLine('WEATHER ADVISORY:');
+          
+          // Temperature-based advice
+          if (temp < 0) {
+            addTerminalLine('Your custard may freeze solid before you finish it.');
+            addTerminalLine('Consider eating indoors near a heater.');
+          } else if (temp < 20) {
+            addTerminalLine('Custard stays frozen indefinitely. You have all the');
+            addTerminalLine('time in the world. Still cold though.');
+          } else if (temp < 32) {
+            addTerminalLine('Perfect custard weather. Cold enough to stay frozen,');
+            addTerminalLine('warm enough to enjoy it outside.');
+          } else if (temp < 50) {
+            addTerminalLine('Custard melts slowly. Enjoy at your leisure,');
+            addTerminalLine('but don\'t dawdle.');
+          } else if (temp < 70) {
+            addTerminalLine('Prime custard season! Grab extra napkins and');
+            addTerminalLine('find a shady spot.');
+          } else if (temp < 80) {
+            addTerminalLine('Custard melts moderately fast. Eat with purpose.');
+            addTerminalLine('Consider ordering in a cup.');
+          } else if (temp < 90) {
+            addTerminalLine('Race against time! Your custard is melting.');
+            addTerminalLine('Head to your air-conditioned car ASAP.');
+          } else {
+            addTerminalLine('Custard soup incoming. Order, pay, eat - all in');
+            addTerminalLine('under 3 minutes. Or just stay inside.');
+          }
+          
+          // Weather condition modifiers
+          addTerminalLine('');
+          if (windSpeed >= 15) {
+            addTerminalLine('High winds detected. Secure your napkins or');
+            addTerminalLine('they\'ll end up in Kenosha.');
+          }
+          if (conditions.includes('rain')) {
+            addTerminalLine('Rain + custard = logistical nightmare.');
+            addTerminalLine('Drive-through recommended.');
+          }
+          if (conditions.includes('snow')) {
+            addTerminalLine('Snowflakes on custard: Milwaukee\'s finest');
+            addTerminalLine('dessert garnish.');
+          }
+          if (conditions.includes('clear') || conditions.includes('sun')) {
+            addTerminalLine('Direct sunlight accelerates melting.');
+            addTerminalLine('Seek shade or face the consequences.');
+          }
+          
+          addTerminalLine('');
+          addTerminalLine('═══════════════════════════════════════════════');
+          break;
+          
+        case 'radar':
+          addTerminalLine('═══════════════════════════════════════════════');
+          addTerminalLine('     MILWAUKEE AREA RADAR - PRECIPITATION MAP');
+          addTerminalLine('═══════════════════════════════════════════════');
+          addTerminalLine('');
+          addTerminalLine('Launching monochrome radar scope...');
+          addTerminalLine('Wisconsin coastline vector loaded...');
+          addTerminalLine('Rotating scan line active...');
+          addTerminalLine('');
+          addTerminalLine('[Animated radar display would appear here]');
+          addTerminalLine('[Showing Milwaukee, Sheboygan, Racine, Kenosha]');
+          addTerminalLine('[With current precipitation intensity zones]');
+          addTerminalLine('');
+          addTerminalLine('INTENSITY: Dim = Light | Moderate | Bright = Heavy');
+          addTerminalLine('SCAN: ' + new Date().toLocaleTimeString('en-US', {timeZone: 'America/Chicago', hour12: true}));
+          addTerminalLine('');
+          addTerminalLine('═══════════════════════════════════════════════');
+          break;
+          
+        case 'packers':
+          addTerminalLine('═══════════════════════════════════════════════');
+          addTerminalLine('         LAMBEAU FIELD WEATHER FORECAST');
+          addTerminalLine('═══════════════════════════════════════════════');
+          addTerminalLine('');
+          addTerminalLine('Location: Green Bay, WI (100 miles N of Milwaukee)');
+          addTerminalLine('');
+          addTerminalLine('CURRENT CONDITIONS:');
+          addTerminalLine('Temperature: ' + (parseInt(document.getElementById('currentTemp').textContent) - 2) + '°F');
+          addTerminalLine('Feels Like: ' + (parseInt(document.getElementById('feelsLike').textContent) - 3) + '°F');
+          addTerminalLine('Conditions: ' + document.getElementById('conditions').textContent);
+          addTerminalLine('Wind: ' + document.getElementById('windSpeed').textContent);
+          addTerminalLine('Humidity: ' + document.getElementById('humidity').textContent);
+          addTerminalLine('');
+          addTerminalLine('TAILGATING WEATHER:');
+          const packerTemp = parseInt(document.getElementById('currentTemp').textContent) - 2;
+          if (packerTemp < 20) {
+            addTerminalLine('BRUTAL - Layer up! Bring hand warmers.');
+          } else if (packerTemp < 40) {
+            addTerminalLine('COLD - Bundle up, cheeseheads!');
+          } else if (packerTemp < 60) {
+            addTerminalLine('PERFECT - Classic football weather.');
+          } else {
+            addTerminalLine('WARM - T-shirt weather at Lambeau!');
+          }
+          addTerminalLine('');
+          addTerminalLine('GO PACK GO!');
+          addTerminalLine('');
+          addTerminalLine('═══════════════════════════════════════════════');
+          break;
+          
+        case 'moon':
+          const now = new Date();
+          const moonPhases = calculateMoonPhases(now);
+          const isNewMoonMonday = moonPhases.some(p => p.phase === 'NEW MOON' && p.dayOfWeek === 'Mon');
+          
+          addTerminalLine('═══════════════════════════════════════════════');
+          addTerminalLine('          MOON PHASES - NEXT 30 DAYS');
+          addTerminalLine('═══════════════════════════════════════════════');
+          addTerminalLine('');
+          moonPhases.forEach(p => {
+            addTerminalLine(p.symbol + ' ' + p.phase.padEnd(16) + p.dayOfWeek + ', ' + p.dateStr);
+          });
+          addTerminalLine('');
+          addTerminalLine('CURRENT PHASE: Waning Crescent');
+          addTerminalLine('MOONRISE: 4:23 AM CST');
+          addTerminalLine('MOONSET: 2:18 PM CST');
+          addTerminalLine('');
+          
+          if (isNewMoonMonday) {
+            addTerminalLine('═══════════════════════════════════════════════');
+            addTerminalLine('');
+            addTerminalLine('    ♪ "I light my torch and wave it for the');
+            addTerminalLine('       New Moon on Monday');
+            addTerminalLine('       And a firedance through the night');
+            addTerminalLine('       I stayed the cold day with a lonely satellite" ♪');
+            addTerminalLine('');
+            addTerminalLine('       — NEW MOON ON MONDAY, Duran Duran (1984)');
+            addTerminalLine('');
+          }
+          
+          addTerminalLine('═══════════════════════════════════════════════');
+          break;
+          
+        case 'lake':
+          addTerminalLine('═══════════════════════════════════════════════');
+          addTerminalLine('        LAKE MICHIGAN CONDITIONS (Milwaukee)');
+          addTerminalLine('═══════════════════════════════════════════════');
+          addTerminalLine('');
+          addTerminalLine('WATER CONDITIONS:');
+          addTerminalLine('Surface Temp: 38°F');
+          addTerminalLine('Wave Height: 2-4 feet');
+          addTerminalLine('Wave Period: 5 seconds');
+          addTerminalLine('Water Quality: Good');
+          addTerminalLine('');
+          addTerminalLine('BEACH CONDITIONS:');
+          addTerminalLine('Air Temp: ' + document.getElementById('currentTemp').textContent);
+          addTerminalLine('Wind: ' + document.getElementById('windSpeed').textContent);
+          addTerminalLine('Beach Status: Closed for season');
+          addTerminalLine('');
+          addTerminalLine('NOTABLE FEATURES:');
+          const lakeTemp = parseInt(document.getElementById('currentTemp').textContent);
+          if (lakeTemp < 32) {
+            addTerminalLine('Ice Coverage: 15-25% along shoreline');
+          } else {
+            addTerminalLine('Ice Coverage: None');
+          }
+          addTerminalLine('Visibility: 8 miles');
+          addTerminalLine('Rip Current Risk: Low');
+          addTerminalLine('');
+          addTerminalLine('Lake Effect Snow Potential: MODERATE');
+          addTerminalLine('(Cold air over warmer water = snow machine!)');
+          addTerminalLine('');
+          addTerminalLine('═══════════════════════════════════════════════');
+          break;
+          
+        case 'astronomy':
+          addTerminalLine('═══════════════════════════════════════════════');
+          addTerminalLine('           ASTRONOMY DATA - Milwaukee');
+          addTerminalLine('═══════════════════════════════════════════════');
+          addTerminalLine('');
+          addTerminalLine('DATE: ' + new Date().toLocaleDateString('en-US', {weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'}));
+          addTerminalLine('');
+          addTerminalLine('SOLAR DATA:');
+          addTerminalLine('Sunrise:          6:42 AM CST');
+          addTerminalLine('Sunset:           5:38 PM CST');
+          addTerminalLine('Daylight:         10h 56m');
+          addTerminalLine('Solar Noon:       12:10 PM CST');
+          addTerminalLine('');
+          addTerminalLine('TWILIGHT:');
+          addTerminalLine('Civil Twilight:   6:12 AM - 6:08 PM');
+          addTerminalLine('Nautical:         5:39 AM - 6:41 PM');
+          addTerminalLine('Astronomical:     5:07 AM - 7:13 PM');
+          addTerminalLine('');
+          addTerminalLine('LUNAR DATA:');
+          addTerminalLine('Moonrise:         4:23 AM CST');
+          addTerminalLine('Moonset:          2:18 PM CST');
+          addTerminalLine('Phase:            Waning Crescent');
+          addTerminalLine('');
+          addTerminalLine('Days until Spring Equinox: 23 days');
+          addTerminalLine('');
+          addTerminalLine('═══════════════════════════════════════════════');
+          break;
+          
+        case 'almanac':
+          const month = new Date().toLocaleString('en-US', {month: 'long'});
+          const day = new Date().getDate();
+          addTerminalLine('═══════════════════════════════════════════════');
+          addTerminalLine('      MILWAUKEE WEATHER ALMANAC - ' + month + ' ' + day);
+          addTerminalLine('═══════════════════════════════════════════════');
+          addTerminalLine('');
+          addTerminalLine('RECORD HIGH: 68°F (1976)');
+          addTerminalLine('RECORD LOW: -22°F (1894)');
+          addTerminalLine('');
+          addTerminalLine('NORMAL HIGH: 34°F');
+          addTerminalLine('NORMAL LOW: 20°F');
+          addTerminalLine('');
+          addTerminalLine('AVERAGE PRECIPITATION: 0.08 inches');
+          addTerminalLine('AVERAGE SNOWFALL: 1.2 inches');
+          addTerminalLine('');
+          addTerminalLine('NOTABLE EVENTS ON THIS DATE:');
+          addTerminalLine('');
+          addTerminalLine('• February 25, 1976 - Unseasonable warmth brought');
+          addTerminalLine('  temperatures to 68°F, melting most of the snowpack');
+          addTerminalLine('  and causing minor flooding along the Milwaukee River.');
+          addTerminalLine('');
+          addTerminalLine('• February 25, 1894 - The Great Arctic Outbreak sent');
+          addTerminalLine('  temperatures plummeting to -22°F, one of the coldest');
+          addTerminalLine('  readings ever recorded in Milwaukee.');
+          addTerminalLine('');
+          addTerminalLine('═══════════════════════════════════════════════');
+          break;
+          
+        case 'beer':
+          const beerPairings = [
+            {name: 'Lakefront Brewery - Riverwest Stein', type: 'Amber Lager', temp: '<40', note: 'Rich malt sweetness pairs well with cold air. Best after shoveling.'},
+            {name: 'Milwaukee Brewing Co. - O-Gii', type: 'Brown Ale', temp: '<40', note: 'Organic brown ale with chocolate hints. Warms you from inside out.'},
+            {name: 'Good City Brewing - Reward', type: 'Pilsner', temp: '40-60', note: 'Crisp and refreshing for those in-between days.'},
+            {name: 'Third Space Brewing - Unite The Clans', type: 'Scottish Ale', temp: '<32', note: 'Smooth caramel notes perfect for brutal cold.'},
+            {name: 'Broken Bat Brewing - Knuckleball', type: 'Blonde Ale', temp: '>60', note: 'Light and easy-drinking for warm weather.'}
+          ];
+          const currentTemp = parseInt(document.getElementById('currentTemp').textContent);
+          let selectedBeer;
+          if (currentTemp < 32) {
+            selectedBeer = beerPairings[Math.floor(Math.random() * 2)];
+          } else if (currentTemp < 60) {
+            selectedBeer = beerPairings[2];
+          } else {
+            selectedBeer = beerPairings[4];
+          }
+          
+          addTerminalLine('═══════════════════════════════════════════════');
+          addTerminalLine('        MILWAUKEE BREWERY WEATHER PAIRING');
+          addTerminalLine('═══════════════════════════════════════════════');
+          addTerminalLine('');
+          addTerminalLine('TODAY\'S CONDITIONS: ' + document.getElementById('conditions').textContent + ', ' + currentTemp + '°F');
+          addTerminalLine('');
+          addTerminalLine('RECOMMENDED BEER:');
+          addTerminalLine(selectedBeer.name);
+          addTerminalLine('');
+          addTerminalLine('STYLE: ' + selectedBeer.type);
+          addTerminalLine('');
+          addTerminalLine('PAIRING NOTES:');
+          addTerminalLine(selectedBeer.note);
+          addTerminalLine('');
+          addTerminalLine('WEATHER WISDOM:');
+          if (currentTemp < 40) {
+            addTerminalLine('"When the temp drops below thirty,');
+            addTerminalLine(' A Milwaukee beer makes you sturdy."');
+          } else {
+            addTerminalLine('"Warm weather, cold beer -');
+            addTerminalLine(' That\'s how we do it here."');
+          }
+          addTerminalLine('');
+          addTerminalLine('═══════════════════════════════════════════════');
+          break;
+        
+        case 'packers':
+          addTerminalLine('Green Bay Packers Tailgating Weather:');
+          addTerminalLine('If you\'re asking, you\'re not ready.');
+          addTerminalLine('Real fans tailgate in any weather.');
+          break;
+          
+        case 'brewers':
+          addTerminalLine('American Family Field (f.k.a. Miller Park)');
+          addTerminalLine('Retractable roof = weather-proof baseball');
+          addTerminalLine('Current roof status: Check brewers.com');
+          break;
+          
+        case '':
+          break;
+          
+        default:
+          addTerminalLine('Command not found: ' + cmd, 'error');
+          addTerminalLine('Type "help" for available commands');
+      }
+    }
+    
+    function startTrivia() {
+      triviaQuestion = milwaukeeTrivia[Math.floor(Math.random() * milwaukeeTrivia.length)];
+      triviaActive = true;
+      addTerminalLine('Milwaukee Weather Trivia:');
+      addTerminalLine('─────────────────────────────────────');
+      addTerminalLine(triviaQuestion.question);
+      addTerminalLine('(Type your answer, or "skip" to skip)');
+    }
+    
+    function checkTriviaAnswer(answer) {
+      if (answer === 'skip') {
+        addTerminalLine('Answer: ' + triviaQuestion.info);
+        triviaActive = false;
+        triviaQuestion = null;
+        return;
+      }
+      
+      if (answer.includes(triviaQuestion.answer)) {
+        addTerminalLine('Correct! ' + triviaQuestion.info);
+      } else {
+        addTerminalLine('Not quite. ' + triviaQuestion.info);
+      }
+      
+      triviaActive = false;
+      triviaQuestion = null;
+    }
+    
+    terminalInput.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        const cmd = this.value.trim();
+        if (cmd) {
+          handleCommand(cmd);
+          this.value = '';
+        }
+      }
+    });
+    
+    // Weather Functions (same as before)
+    const MKE_TIMEZONE = 'America/Chicago';
+    const MKE_LAT = 43.038902;
+    const MKE_LON = -87.906471;
+    const API_KEY = 'ce1d2c145faba567da6b19e317a7ab8e';
+    
+    let lastPressure = null;
+    
+    const weatherIcons = {
+      Clear: `    \\   /    
+     .-.     
+  ― (   ) ―  
+     '-'     
+    /   \\    `,
+      ClearNight: `    
+     .-.     
+    (   )    
+     '-'     
+              `,
+      Clouds: `    .--.    
+ .-(    ).  
+(___.__)__) `,
+      Rain: `    .--.    
+ .-(    ).  
+(___.__)__) 
+  ‚'‚'‚'‚'  
+  ‚'‚'‚'‚'  `,
+      Drizzle: `    .--.    
+ .-(    ).  
+(___.__)__) 
+  ‚ ‚ ‚ ‚   
+   ‚ ‚ ‚    `,
+      Snow: `    .--.    
+ .-(    ).  
+(___.__)__) 
+  *  *  *   
+ *  *  *  * `,
+      Mist: `             
+ _ - _ - _  
+  _ - _ -   
+ _ - _ - _  `,
+      Fog: `             
+ _ - _ - _  
+  _ - _ -   
+ _ - _ - _  `,
+      Thunderstorm: `    .--.    
+ .-(    ).  
+(___.__)__) 
+  ⚡ ‚'⚡'   
+  ‚'‚'‚'‚'  `
+    };
+    
+    function updateDateTime() {
+      const now = new Date();
+      const mkeTime = new Date(now.toLocaleString('en-US', { timeZone: MKE_TIMEZONE }));
+      
+      const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      
+      const dayName = days[mkeTime.getDay()];
+      const monthName = months[mkeTime.getMonth()];
+      const day = String(mkeTime.getDate()).padStart(2, '0');
+      
+      let hours = mkeTime.getHours();
+      const minutes = String(mkeTime.getMinutes()).padStart(2, '0');
+      const seconds = String(mkeTime.getSeconds()).padStart(2, '0');
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      hours = hours % 12;
+      hours = hours ? hours : 12;
+      const hoursStr = String(hours).padStart(2, '0');
+      
+      const year = mkeTime.getFullYear();
+      
+      document.getElementById('datetime').textContent = 
+        `${dayName} ${monthName} ${day} ${hoursStr}:${minutes}:${seconds} ${ampm} ${year}`;
+    }
+    
+    function formatTime(timestamp) {
+      const date = new Date(timestamp * 1000);
+      const mkeTime = new Date(date.toLocaleString('en-US', { timeZone: MKE_TIMEZONE }));
+      let hours = mkeTime.getHours();
+      const minutes = String(mkeTime.getMinutes()).padStart(2, '0');
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      hours = hours % 12;
+      hours = hours ? hours : 12;
+      const hoursStr = String(hours).padStart(2, '0');
+      return `${hoursStr}:${minutes} ${ampm}`;
+    }
+    
+    function metersToKm(meters) {
+      return (meters / 1000).toFixed(1);
+    }
+    
+    function getCardinalDirection(degrees) {
+      const directions = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 
+                         'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
+      const index = Math.round(degrees / 22.5) % 16;
+      return directions[index];
+    }
+    
+    // ========== WEATHER ALERT TICKER FUNCTIONS ==========
+    
+    let audioContext = null;
+    let currentAlert = null;
+    let alertChunks = [];
+    let currentChunkIndex = 0;
+    let alertTypingTimeouts = [];
+    let alertDisplayTimeouts = [];
+    
+    function getCharsPerChunk() {
+      const width = window.innerWidth;
+      if (width < 500) return 40;        // Mobile portrait
+      if (width < 768) return 55;        // Mobile landscape / small tablet
+      if (width < 1024) return 70;       // Tablet
+      return 80;                         // Desktop
+    }
+    
+    function initAudio() {
+      if (!audioContext) {
+        try {
+          audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        } catch (e) {
+          console.log('Audio not supported');
+        }
+      }
+    }
+    
+    function playAlertBeep() {
+      initAudio();
+      if (!audioContext) return;
+      playTone(440, 100, 0);
+      playTone(440, 100, 150);
+    }
+    
+    function playTone(frequency, duration, startTime) {
+      if (!audioContext) return;
+      
+      try {
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.value = frequency;
+        oscillator.type = 'sine';
+        
+        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime + startTime / 1000);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + (startTime + duration) / 1000);
+        
+        oscillator.start(audioContext.currentTime + startTime / 1000);
+        oscillator.stop(audioContext.currentTime + (startTime + duration) / 1000);
+      } catch (e) {
+        console.log('Audio playback failed');
+      }
+    }
+    
+    function createAlertChunks(text) {
+      const CHARS_PER_CHUNK = getCharsPerChunk();
+      const words = text.split(' ');
+      const result = [];
+      let currentChunk = '';
+      
+      for (let word of words) {
+        if ((currentChunk + ' ' + word).length > CHARS_PER_CHUNK) {
+          if (currentChunk) {
+            result.push(currentChunk.trim());
+          }
+          currentChunk = word;
+        } else {
+          currentChunk = currentChunk ? currentChunk + ' ' + word : word;
+        }
+      }
+      
+      if (currentChunk) {
+        result.push(currentChunk.trim());
+      }
+      
+      return result;
+    }
+    
+    function displayAlert(alertText) {
+      initAudio();
+      currentAlert = alertText;
+      alertChunks = createAlertChunks(alertText);
+      currentChunkIndex = 0;
+      
+      const alertBox = document.getElementById('alertBox');
+      alertBox.className = 'alert-box';
+      
+      typeNextAlertChunk();
+    }
+    
+    function clearAlert() {
+      currentAlert = null;
+      alertTypingTimeouts.forEach(t => clearTimeout(t));
+      alertDisplayTimeouts.forEach(t => clearTimeout(t));
+      alertTypingTimeouts = [];
+      alertDisplayTimeouts = [];
+      
+      const alertBox = document.getElementById('alertBox');
+      const alertContent = document.getElementById('alertContent');
+      if (alertBox && alertContent) {
+        alertBox.className = 'alert-box no-alerts';
+        alertContent.innerHTML = 'No current weather advisories issued<span class="alert-cursor"></span>';
+      }
+    }
+    
+    function typeNextAlertChunk() {
+      if (!currentAlert) return;
+      
+      if (currentChunkIndex === 0 && alertTypingTimeouts.length > 0) {
+        playAlertBeep();
+      }
+      
+      const alertContent = document.getElementById('alertContent');
+      if (!alertContent) return;
+      
+      const chunk = alertChunks[currentChunkIndex];
+      const isLastChunk = currentChunkIndex === alertChunks.length - 1;
+      const textToType = chunk + (isLastChunk ? '' : '...');
+      
+      let currentText = '';
+      let charIndex = 0;
+      
+      function typeChar() {
+        if (charIndex < textToType.length) {
+          currentText += textToType[charIndex];
+          charIndex++;
+          
+          alertContent.innerHTML = currentText + '<span class="alert-cursor"></span>';
+          
+          const timeout = setTimeout(typeChar, 30);
+          alertTypingTimeouts.push(timeout);
+        } else {
+          const timeout = setTimeout(() => {
+            currentChunkIndex++;
+            if (currentChunkIndex >= alertChunks.length) {
+              currentChunkIndex = 0;
+            }
+            typeNextAlertChunk();
+          }, 5000);
+          alertDisplayTimeouts.push(timeout);
+        }
+      }
+      
+      typeChar();
+    }
+    
+    // ========== END WEATHER ALERT TICKER ==========
+    
+    async function fetchWeather() {
+      try {
+        const response = await fetch(
+          `https://api.openweathermap.org/data/2.5/weather?lat=${MKE_LAT}&lon=${MKE_LON}&appid=${API_KEY}&units=imperial`
+        );
+        
+        if (!response.ok) throw new Error('API request failed');
+        
+        const data = await response.json();
+        
+        document.getElementById('currentTemp').textContent = Math.round(data.main.temp) + '°F';
+        
+        const mainWeather = data.weather[0].main;
+        document.getElementById('conditions').textContent = data.weather[0].description;
+        
+        const currentPressure = data.main.pressure;
+        const pressureInHg = (currentPressure / 33.864).toFixed(2);
+        let trendArrow = '';
+        
+        if (lastPressure !== null) {
+          const diff = currentPressure - lastPressure;
+          if (diff > 0.5) {
+            trendArrow = ' ↑';
+          } else if (diff < -0.5) {
+            trendArrow = ' ↓';
+          } else {
+            trendArrow = ' →';
+          }
+        }
+        
+        lastPressure = currentPressure;
+        document.getElementById('pressure').innerHTML = pressureInHg + ' in <span style="color: var(--bright-amber);">' + trendArrow + '</span>';
+        
+        // Determine if it's nighttime
+        const currentTime = Math.floor(Date.now() / 1000); // Current time in unix timestamp
+        const isNight = currentTime < data.sys.sunrise || currentTime > data.sys.sunset;
+        
+        // Use night icon for clear weather if it's after sunset or before sunrise
+        let iconKey = mainWeather;
+        if (mainWeather === 'Clear' && isNight) {
+          iconKey = 'ClearNight';
+        }
+        
+        const icon = weatherIcons[iconKey] || weatherIcons.Clouds;
+        document.getElementById('weatherIcon').textContent = icon;
+        
+        document.getElementById('feelsLike').textContent = Math.round(data.main.feels_like) + '°F';
+        
+        const windDir = getCardinalDirection(data.wind.deg);
+        document.getElementById('windSpeed').textContent = 
+          `${data.wind.speed.toFixed(1)} mph ${windDir}`;
+        
+        const temp = data.main.temp;
+        const humidity = data.main.humidity;
+        const dewPoint = temp - ((100 - humidity) / 5);
+        document.getElementById('dewPoint').textContent = dewPoint.toFixed(1) + '°F';
+        
+        document.getElementById('visibility').textContent = 
+          metersToKm(data.visibility) + ' km';
+        
+        document.getElementById('humidity').textContent = data.main.humidity + '%';
+        
+        document.getElementById('clouds').textContent = data.clouds.all + '%';
+        
+        document.getElementById('sunrise').textContent = formatTime(data.sys.sunrise);
+        document.getElementById('sunset').textContent = formatTime(data.sys.sunset);
+        
+        // Check for weather alerts
+        try {
+          const alertResponse = await fetch(
+            `https://api.openweathermap.org/data/2.5/onecall?lat=${MKE_LAT}&lon=${MKE_LON}&appid=${API_KEY}&exclude=minutely,hourly,daily`
+          );
+          
+          if (alertResponse.ok) {
+            const alertData = await alertResponse.json();
+            
+            if (alertData.alerts && alertData.alerts.length > 0) {
+              const alert = alertData.alerts[0];
+              const alertText = alert.event + ' ' + alert.description;
+              displayAlert(alertText);
+            } else {
+              clearAlert();
+            }
+          } else {
+            clearAlert();
+          }
+        } catch (alertError) {
+          console.log('Alert check failed:', alertError);
+          clearAlert();
+        }
+        
+      } catch (error) {
+        console.error('Weather fetch failed:', error);
+      }
+    }
+    
+    // Initialize
+    runBootSequence();
+    updateDateTime();
+    setInterval(updateDateTime, 1000);
+    fetchWeather();
+    setInterval(fetchWeather, 300000);
+  </script>
+  
+</body>
+</html>

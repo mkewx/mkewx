@@ -1,0 +1,83 @@
+help:
+  description: "Show available commands"
+  output:
+    - "Available commands:"
+    - "  help      - Show this help message"
+    - "  about     - Learn about MKE WX"
+    - "  forecast  - View latest forecast"
+    - "  weather   - Current conditions summary"
+    - "  trivia    - Milwaukee weather trivia"
+    - "  records   - All-time temperature records"
+    - "  stats     - Fun Milwaukee weather stats"
+    - "  clear     - Clear terminal screen"
+    - "  brew      - ???"
+    - "  cheese    - ???"
+    - "  custard   - ???"
+
+about:
+  description: "Learn about MKE WX"
+  output:
+    - "MKE WX: Milwaukee Weather Reimagined"
+    - "─────────────────────────────────────"
+    - "Traditional weather forecasts are boring."
+    - "We transform Milwaukee weather into stories:"
+    - "Film noir, westerns, sci-fi, and more."
+    - ""
+    - "Because lakeside weather deserves better"
+    - "than bullet points."
+
+records:
+  description: "All-time temperature records"
+  output:
+    - "Milwaukee All-Time Records:"
+    - "─────────────────────────────────────"
+    - "Highest: 105°F (July 24, 1934)"
+    - "Lowest: -26°F (January 17, 1982)"
+    - "Most snow in 24hrs: 19.0\" (Dec 1973)"
+    - "Snowiest winter: 111.4\" (1977-78)"
+
+stats:
+  description: "Fun Milwaukee weather facts"
+  output:
+    - "Milwaukee Weather Fun Facts:"
+    - "─────────────────────────────────────"
+    - "Average annual snowfall: 46.9 inches"
+    - "Sunniest month: July (70% sunshine)"
+    - "Wettest month: June (4.2 inches)"
+    - "Lake Michigan influences temps year-round"
+    - "Lake effect snow: A Milwaukee specialty"
+
+brew:
+  description: "Easter egg"
+  output:
+    - "Error: This terminal runs on weather, not beer."
+    - "(Though we appreciate the sentiment)"
+
+cheese:
+  description: "Easter egg"
+  output:
+    - "Cheese curds: Always in season."
+    - "Especially when fresh and squeaky."
+
+custard:
+  description: "Easter egg"
+  output:
+    - "Milwaukee's Finest Frozen Custard:"
+    - "  • Kopp's (multiple locations)"
+    - "  • Leon's (2131 S Kinnickinnic Ave)"
+    - "  • Gilles (7515 W Bluemound Rd)"
+    - "Temperature-appropriate year-round!"
+
+packers:
+  description: "Easter egg"
+  output:
+    - "Green Bay Packers Tailgating Weather:"
+    - "If you're asking, you're not ready."
+    - "Real fans tailgate in any weather."
+
+brewers:
+  description: "Easter egg"
+  output:
+    - "American Family Field (f.k.a. Miller Park)"
+    - "Retractable roof = weather-proof baseball"
+    - "Current roof status: Check brewers.com"
