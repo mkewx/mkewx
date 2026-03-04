@@ -1,0 +1,16 @@
+{
+  "commands": [
+    {"cmd":"HELP", "desc":"show commands"},
+    {"cmd":"LISTWX", "desc":"list dispatches with numbers"},
+    {"cmd":"READ N", "desc":"load dispatch #N into READER"},
+    {"cmd":"CUSTARD", "desc":"custard wisdom (temp-based)"},
+    {"cmd":"PACKERS", "desc":"Lambeau/Green Bay snapshot"},
+    {"cmd":"SUMMERFEST", "desc":"random 2026 set time + stage"},
+    {"cmd":"HISTORY", "desc":"random Milwaukee history fact"},
+    {"cmd":"FILM", "desc":"movie/trivia/vibe line"},
+    {"cmd":"RADAR", "desc":"scroll to radar"},
+    {"cmd":"RADAR REFRESH", "desc":"refresh radar frame"},
+    {"cmd":"RSS", "desc":"open RSS feed"},
+    {"cmd":"CLEAR", "desc":"clear terminal log"}
+  ]
+}

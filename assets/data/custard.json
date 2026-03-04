@@ -1,0 +1,116 @@
+{
+  "ranges": [
+    {
+      "min": -999,
+      "max": -20,
+      "lines": [
+        "Hard-mode custard. Eat it in your car with the heat blasting like you're hiding from the weather.",
+        "Below -20F? Respect. Custard still counts as a survival skill in Wisconsin."
+      ]
+    },
+    {
+      "min": -19,
+      "max": -10,
+      "lines": [
+        "Negative teens: get the custard, then immediately question your life choices. Correctly.",
+        "This is 'freeze your eyelashes' weather. Custard is the rebellion."
+      ]
+    },
+    {
+      "min": -9,
+      "max": 0,
+      "lines": [
+        "Single digits: custard in a waffle cone is basically a hand warmer with benefits.",
+        "Cold enough to squeak. Get something chocolate. It feels more serious."
+      ]
+    },
+    {
+      "min": 1,
+      "max": 10,
+      "lines": [
+        "Low teens-ish: eat it fast. Not because it melts\u2014because your fingers will quit first.",
+        "Pro tip: gloves off for exactly 90 seconds. Then regroup."
+      ]
+    },
+    {
+      "min": 11,
+      "max": 20,
+      "lines": [
+        "Classic 'Milwaukee says it's fine' weather. Custard is mandatory.",
+        "If the wind is rude, order extra toppings. It's called balance."
+      ]
+    },
+    {
+      "min": 21,
+      "max": 30,
+      "lines": [
+        "Just above freezing: the perfect 'I deserve a treat for existing' temperature.",
+        "Good for a walk-and-custard combo\u2026 until the lake breeze reminds you who's boss."
+      ]
+    },
+    {
+      "min": 31,
+      "max": 40,
+      "lines": [
+        "40-ish: this is when custard starts tasting like spring optimism.",
+        "If it's cloudy, go vanilla. If it's sunny, go something loud and reckless."
+      ]
+    },
+    {
+      "min": 41,
+      "max": 50,
+      "lines": [
+        "Jacket weather. Custard weather. Wisconsin math checks out.",
+        "Eat outside if you want to feel powerful. Eat inside if you want to feel smart."
+      ]
+    },
+    {
+      "min": 51,
+      "max": 60,
+      "lines": [
+        "Prime patio practice. Custard + sunglasses even if the sun is playing games.",
+        "This is when sprinkles stop feeling ironic."
+      ]
+    },
+    {
+      "min": 61,
+      "max": 70,
+      "lines": [
+        "Perfect melt rate. You can actually enjoy it like a civilized human.",
+        "Walk it off with a lap around the block\u2014then immediately don't."
+      ]
+    },
+    {
+      "min": 71,
+      "max": 80,
+      "lines": [
+        "Summer energy. Get the biggest size that won't ruin your dignity.",
+        "Napkin count: yes."
+      ]
+    },
+    {
+      "min": 81,
+      "max": 90,
+      "lines": [
+        "Hot enough that custard becomes a public service.",
+        "Eat it fast. Hydrate. Pretend you planned this."
+      ]
+    },
+    {
+      "min": 91,
+      "max": 99,
+      "lines": [
+        "This is 'why is the air touching me' weather. Custard is the only reasonable response.",
+        "Stay in the shade and commit to the bit."
+      ]
+    },
+    {
+      "min": 100,
+      "max": 999,
+      "lines": [
+        "Triple digits? Custard isn't dessert anymore. It's emergency equipment.",
+        "If your spoon feels warm, just accept that today is cursed."
+      ]
+    }
+  ]
+}
