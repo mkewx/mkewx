@@ -1,0 +1,1208 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>MKEWX Demo (Single File v0.4.4)</title>
+<style>:root{
+  --bg:#060a05;
+  --panel:#070d07;
+  --fg:#f2b24a;
+  --fg2:#c78f3b;
+  --border:#3a2a14;
+  --shadow: rgba(0,0,0,.75);
+  --glow1: rgba(242,178,74,.22);
+  --glow2: rgba(242,178,74,.11);
+  --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  background:
+    radial-gradient(1100px 650px at 50% 20%, #0b120a 0%, var(--bg) 62%, #020302 100%);
+  color:var(--fg);
+  font-family:var(--mono);
+  overflow-x:hidden;
+  -webkit-text-size-adjust:100%;
+}
+
+body::before{
+  content:"";
+  position:fixed; inset:0;
+  pointer-events:none;
+  opacity:.40;
+  background:repeating-linear-gradient(
+    to bottom,
+    rgba(0,0,0,0) 0px,
+    rgba(0,0,0,0) 2px,
+    rgba(0,0,0,.13) 3px,
+    rgba(0,0,0,0) 4px
+  );
+  animation:scan 7.5s linear infinite;
+}
+
+@keyframes scan{
+  from{transform:translateY(0)}
+  to{transform:translateY(18px)}
+}
+
+.frame{
+  width:min(1100px,96vw);
+  margin:14px auto 18px;
+  border:1px solid var(--border);
+  background:linear-gradient(180deg, rgba(5,9,5,.86), rgba(3,5,3,.86));
+  box-shadow:
+    0 0 0 1px var(--shadow),
+    0 0 22px rgba(242,178,74,.06);
+}
+
+.header{
+  padding:14px 16px 12px;
+  border-bottom:1px solid var(--border);
+  position:relative;
+}
+
+.logo-row{display:block; width:100%;}
+
+.logo-wrap{display:block; max-width:100%}
+.logo{
+  margin:0;
+  white-space:pre;
+  line-height:1.0;
+  letter-spacing:0.6px;
+  color:var(--fg);
+  text-shadow:
+    0 0 10px var(--glow1),
+    0 0 22px var(--glow2);
+}
+
+.logo--wide{
+  font-size:clamp(8px, 1.55vw, 16px);
+}
+.logo--narrow{
+  display:none;
+  font-size:clamp(12px, 3.8vw, 16px);
+  line-height:1.25;
+}
+
+
+
+.statusbar{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  padding:10px 12px;
+  border:1px solid rgba(58,42,20,.75);
+  background:rgba(2,3,2,.32);
+  box-shadow:0 0 14px rgba(242,178,74,.06);
+}
+
+.badge{
+  border:1px solid rgba(58,42,20,.85);
+  padding:2px 8px;
+  color:var(--fg);
+  text-shadow:0 0 10px rgba(242,178,74,.18);
+}
+
+.statusbar__loc{font-weight:700; letter-spacing:1px}
+.statusbar__time{margin-left:auto; font-weight:700; letter-spacing:1px}
+
+.subline{
+  margin-top:8px;
+  color:var(--fg2);
+  font-size:12px;
+  letter-spacing:1px;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  gap:12px;
+  padding:12px 16px 14px;
+}
+.grid--single{grid-template-columns:1fr;}
+
+@media (max-width: 920px){
+  .grid{grid-template-columns:1fr}
+}
+
+.panel{
+  border:1px solid var(--border);
+  background:rgba(5,9,5,.62);
+  padding:12px 12px 10px;
+  overflow:hidden;
+  box-shadow: 0 0 18px rgba(242,178,74,.05);
+}
+
+.panel-title{
+  font-size:12px;
+  color:var(--fg2);
+  letter-spacing:1.4px;
+  margin-bottom:10px;
+  font-weight:800;
+  text-shadow: 0 0 10px rgba(242,178,74,.10);
+}
+
+.muted{color:var(--fg2)}
+.link{color:var(--fg); text-decoration:none; border-bottom:1px dotted rgba(242,178,74,.35)}
+.link:hover{border-bottom-color:rgba(242,178,74,.8)}
+
+.dispatch{
+  padding:10px 0;
+  border-top:1px solid rgba(58,42,20,.45);
+}
+.dispatch:first-of-type{border-top:0; padding-top:0}
+.dispatch-title{
+  font-size:clamp(16px, 2.4vw, 24px);
+  font-weight:900;
+  letter-spacing:.6px;
+  text-shadow:
+    0 0 10px rgba(242,178,74,.14),
+    0 0 22px rgba(242,178,74,.07);
+}
+.dispatch-meta{
+  margin-top:6px;
+  font-size:13px;
+  color:var(--fg2);
+  letter-spacing:1px;
+}
+.dispatch-excerpt{
+  margin-top:8px;
+  font-size:13px;
+  color:rgba(242,178,74,.85);
+  line-height:1.5;
+}
+
+.reader-meta{margin-bottom:10px}
+.reader-title{
+  font-size:clamp(18px, 2.6vw, 28px);
+  font-weight:950;
+  text-shadow:0 0 14px rgba(242,178,74,.14);
+}
+.reader-sub{
+  margin-top:6px;
+  color:var(--fg2);
+  font-size:13px;
+  letter-spacing:1px;
+}
+.reader-box{
+  border:1px solid rgba(58,42,20,.55);
+  background:rgba(2,3,2,.35);
+  min-height:220px;
+  max-height:min(56vh, 520px);
+  overflow:auto;
+  padding:10px 12px;
+  line-height:1.55;
+}
+.reader-box h1, .reader-box h2, .reader-box h3{margin:0 0 10px}
+.reader-box p{margin:0 0 10px}
+.reader-placeholder{color:rgba(242,178,74,.65)}
+
+.terminal-log{
+  border:1px solid rgba(58,42,20,.55);
+  background:rgba(2,3,2,.35);
+  min-height:170px;
+  max-height:260px;
+  overflow:auto;
+  padding:8px 10px;
+  font-size:13px;
+  line-height:1.35;
+}
+
+.prompt{
+  display:flex; gap:10px; align-items:center;
+  margin-top:10px;
+}
+.prompt-label{color:var(--fg2);font-weight:900}
+.cmd{
+  width:100%;
+  font-family:var(--mono);
+  font-size:13px;
+  color:var(--fg);
+  background:transparent;
+  border:1px solid rgba(58,42,20,.55);
+  padding:8px 10px;
+  outline:none;
+  box-shadow:0 0 14px rgba(242,178,74,.05);
+}
+.cmd:focus{border-color:rgba(242,178,74,.75)}
+
+.boot{
+  position:fixed; inset:0;
+  background:radial-gradient(950px 520px at 50% 25%, #0b120a 0%, #040604 70%, #010101 100%);
+  color:var(--fg);
+  z-index:9999;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+}
+.boot.is-hidden{display:none;}
+.boot-inner{
+  width:min(980px, 96vw);
+  border:1px solid rgba(58,42,20,.8);
+  background:rgba(3,5,3,.80);
+  box-shadow:0 0 24px rgba(242,178,74,.10);
+  padding:14px 16px;
+}
+.boot pre{
+  margin:0;
+  white-space:pre-wrap;
+  line-height:1.35;
+  text-shadow:0 0 14px rgba(242,178,74,.16);
+}
+
+.radar{display:none;margin-top:12px;}
+.radar.is-on{display:block}
+
+.scope-box{
+  width:min(560px,100%);
+  aspect-ratio:1/1;
+  position:relative;
+  border:1px solid rgba(58,42,20,.65);
+  background:rgba(2,3,2,.3);
+  box-shadow:0 0 18px rgba(242,178,74,.05);
+}
+.scope-box canvas{position:absolute; inset:0; width:100%; height:100%;}
+
+.kbd{
+  display:inline-block;
+  border:1px solid rgba(58,42,20,.85);
+  padding:0 6px;
+  margin:0 2px;
+  font-size:12px;
+}
+
+.post-content{line-height:1.65; color:rgba(242,178,74,.88)}
+.post-content h1, .post-content h2, .post-content h3{color:var(--fg); text-shadow:0 0 10px rgba(242,178,74,.14)}
+.post-content a{color:var(--fg); border-bottom:1px dotted rgba(242,178,74,.35); text-decoration:none}
+.post-content a:hover{border-bottom-color:rgba(242,178,74,.85)}
+
+.post-nav{margin-top:12px; color:var(--fg2); display:flex; gap:10px; align-items:center}
+
+.footer{
+  border-top:1px solid var(--border);
+  padding:10px 16px 12px;
+  font-size:12px;
+  color:var(--fg2);
+}
+
+
+/* Logo: keep wide ASCII version on all viewports, scale down gracefully */
+.logo{
+  margin:0;
+  white-space:pre;
+  line-height:1.0;
+  letter-spacing:0.4px;
+  color:var(--fg);
+  text-shadow:0 0 10px var(--glow1), 0 0 22px var(--glow2);
+  font-size: clamp(9px, 2.6vw, 16px);
+}
+.logo-wrap{max-width:100%;}
+@media (max-width: 520px){
+  .logo{font-size: clamp(8px, 2.8vw, 13px);}
+}
+
+/* Force wide logo on all viewports */
+.logo--wide{display:block !important;}
+.logo--narrow{display:none !important;}
+
+
+/* --- Terminal prompt (visible echo + blinking cursor) --- */
+.prompt{
+  border:1px solid rgba(58,42,20,.55);
+  padding:8px 10px;
+  background:rgba(0,0,0,.12);
+  box-shadow:0 0 14px rgba(242,178,74,.06);
+}
+
+.cmd--hidden{
+  position:absolute;
+  left:-9999px;
+  width:1px;
+  height:1px;
+  opacity:0;
+}
+
+.cmd-echo{
+  font-family:var(--mono);
+  font-size:13px;
+  color:rgba(242,178,74,.55); /* faint "typed" amber */
+  min-height:1em;
+}
+
+.cmd-echo:empty::before{
+  content:"Type HELP";
+  color:rgba(242,178,74,.28);
+}
+
+.cmd-cursor{
+  display:inline-block;
+  margin-left:2px;
+  color:var(--fg);
+  text-shadow:0 0 8px var(--glow1), 0 0 18px var(--glow2);
+  animation: mkewxBlink 1s steps(1,end) infinite;
+}
+
+@keyframes mkewxBlink{
+  50%{ opacity:0; }
+}
+
+/* --- Current conditions "headline" --- */
+.conditions-head{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:baseline;
+  gap:12px;
+  margin:2px 0 10px 0;
+  font-family:var(--mono);
+}
+.conditions-temp{
+  font-size:22px;
+  color:var(--fg);
+  text-shadow:0 0 10px var(--glow1), 0 0 22px var(--glow2);
+}
+.conditions-feels{
+  color:rgba(242,178,74,.78);
+  text-shadow:0 0 6px rgba(242,178,74,.18);
+}
+.conditions-desc{
+  color:rgba(242,178,74,.88);
+  letter-spacing:0.8px;
+  text-transform:uppercase;
+}
+
+/* --- Phosphor glow accents (v0.4.3) --- */
+@keyframes phosphorPulse {
+  0%   { text-shadow: 0 0 6px rgba(255,186,90,.35), 0 0 16px rgba(255,186,90,.18); opacity: .92; }
+  50%  { text-shadow: 0 0 10px rgba(255,186,90,.55), 0 0 26px rgba(255,186,90,.28); opacity: 1; }
+  100% { text-shadow: 0 0 6px rgba(255,186,90,.35), 0 0 16px rgba(255,186,90,.18); opacity: .92; }
+}
+
+.glow-soft{
+  text-shadow: 0 0 6px rgba(255,186,90,.30), 0 0 14px rgba(255,186,90,.16);
+}
+.glow-strong{
+  text-shadow: 0 0 8px rgba(255,186,90,.46), 0 0 20px rgba(255,186,90,.24);
+}
+
+.logo{ animation: phosphorPulse 3.6s ease-in-out infinite; }
+
+/* ONLINE badge pulse (subtle) */
+.badge{ animation: phosphorPulse 2.6s ease-in-out infinite; }
+
+/* Dispatch titles: gentle glow */
+.dispatch-title{ text-shadow: 0 0 6px rgba(255,186,90,.24), 0 0 14px rgba(255,186,90,.12); }
+
+/* Conditions box + terminal box edge glow */
+#conditionsOut, .reader-box{
+  box-shadow: 0 0 10px rgba(255,186,90,.10), 0 0 24px rgba(255,186,90,.06);
+}
+.panel--terminal{
+  box-shadow: 0 0 12px rgba(255,186,90,.14), 0 0 28px rgba(255,186,90,.08);
+}
+
+/* Terminal input: faint phosphor */
+.cmd{
+  color: rgba(255,186,90,.55);
+}
+
+50%,100%{opacity:0} }
+
+/* Slightly stronger glow for headings on mobile */
+.panel-title{
+  text-shadow: 0 0 7px rgba(255,186,90,.32), 0 0 16px rgba(255,186,90,.18);
+}
+
+/* Native caret (moves with typing) */
+.cmd{
+  caret-color: rgba(255,186,90,.90);
+}
+
+/* Prompt layout: let input shrink correctly */
+.prompt{display:flex; align-items:center; gap:6px;}
+.cmd{flex:1 1 auto; min-width:0;}
+</style>
+</head>
+<body>
+<div id="boot" class="boot">
+  <div class="boot-inner">
+    <pre id="bootText"></pre>
+    <div class="muted" style="margin-top:10px">Tap/click to skip.</div>
+  </div>
+</div>
+
+<main class="frame">
+  <header class="header">
+    <div class="logo-row">
+      <div class="logo-wrap">
+        <pre class="logo logo--wide" aria-label="MKEWX logo">
+███╗   ███╗██╗  ██╗███████╗██╗    ██╗██╗  ██╗
+████╗ ████║██║ ██╔╝██╔════╝██║    ██║╚██╗██╔╝
+██╔████╔██║█████╔╝ █████╗  ██║ █╗ ██║ ╚███╔╝ 
+██║╚██╔╝██║██╔═██╗ ██╔══╝  ██║███╗██║ ██╔██╗ 
+██║ ╚═╝ ██║██║  ██╗███████╗╚███╔███╔╝██╔╝ ██╗
+╚═╝     ╚═╝╚═╝  ╚═╝╚══════╝ ╚══╝╚══╝ ╚═╝  ╚═╝
+        </pre>
+      </div>
+      <div class="statusbar">
+        <span class="badge">ONLINE</span>
+        <span class="statusbar__loc">MILWAUKEE, WI</span>
+        <span class="statusbar__time" id="mwkTime">--:--:-- --</span>
+      </div>
+    </div>
+    <div class="subline">MKEWX.COM • Milwaukee Weather Terminal</div>
+  </header>
+
+  <section class="grid">
+    <section class="panel">
+      <div class="panel-title">LATEST DISPATCHES</div>
+
+      <div class="dispatch">
+        <a class="dispatch-link link dispatch-title" href="#" data-index="1" data-title="Lake Effect Confidential" data-date="Fri, Feb 20, 2026" data-category="WEATHER">Lake Effect Confidential</a>
+        <div class="dispatch-meta">Fri, Feb 20, 2026 • WEATHER</div>
+        <div class="dispatch-excerpt">Tonight, the lake whispers snow and pretends it’s nothing. A few flakes at first — just enough to make the pavement look guilty…</div>
+      </div>
+
+      <div class="dispatch">
+        <a class="dispatch-link link dispatch-title" href="#" data-index="2" data-title="The Amber Lantern Forecast" data-date="Fri, Feb 20, 2026" data-category="WEATHER">The Amber Lantern Forecast</a>
+        <div class="dispatch-meta">Fri, Feb 20, 2026 • WEATHER</div>
+        <div class="dispatch-excerpt">Once upon a shoreline, a little city woke to an amber sky. The wind came first, eager and sharp…</div>
+      </div>
+    </section>
+
+    <section class="panel" id="readerPanel">
+      <div class="panel-title">READER</div>
+      <div class="reader-meta">
+        <div class="reader-title" id="readerTitle">Select a dispatch</div>
+        <div class="reader-sub" id="readerSub"></div>
+      </div>
+      <div class="reader-box" id="readerBox">
+        <div class="reader-placeholder">This is where a dispatch loads.</div>
+      </div>
+
+      <div style="margin-top:14px" class="panel-title">CURRENT CONDITIONS</div>
+      <pre id="conditionsOut" class="reader-box" style="min-height:220px;max-height:340px">STATION.... KMKE
+UPDATED.... —
+
+CONDITIONS LOADING…</pre>
+
+      <div style="margin-top:14px" class="panel-title">RADAR</div>
+      <div class="scope-box" id="scopeBox">
+        <canvas data-layer="bg"></canvas>
+        <canvas data-layer="returns"></canvas>
+        <canvas data-layer="ui"></canvas>
+        <canvas data-layer="overlay"></canvas>
+      </div>
+      <div class="muted" style="font-size:12px;line-height:1.35;margin-top:10px">
+        UPDATED: <span id="ageText">—</span> • <a class="link" href="#" id="radarRefreshLink">Refresh</a>
+      </div>
+    </section>
+  </section>
+
+  <section class="grid grid--single">
+    <section class="panel panel--terminal">
+      <div class="panel-title">TERMINAL</div>
+      <div id="termLog" class="terminal-log" role="log" aria-live="polite"></div>
+      <div class="prompt">
+        <span class="prompt-label">MKEWX&gt;</span>
+        <input id="cmd" class="cmd" autocomplete="off" spellcheck="false" placeholder=""/>
+      </div>
+    </section>
+  </section>
+
+  <footer class="footer">© 2026 • <a class="footer-mail" href="mailto:tvjasonlee@AOL.com">Jason Lee</a> • MKEWX.com</footer>
+</main>
+
+<script>(function(){
+  const SERVICE = "https://mapservices.weather.noaa.gov/eventdriven/rest/services/radar/radar_base_reflectivity_time/ImageServer";
+  const EXPORT  = SERVICE + "/exportImage";
+  const DEFAULT_BBOX = { xmin:-88.95, ymin:42.30, xmax:-86.95, ymax:44.10 };
+
+  function bboxToString(b){ return [b.xmin,b.ymin,b.xmax,b.ymax].join(","); }
+  function buildExportUrl(bbox){
+    const u = new URL(EXPORT);
+    u.searchParams.set("f","image");
+    u.searchParams.set("bbox", bboxToString(bbox));
+    u.searchParams.set("bboxSR","4326");
+    u.searchParams.set("imageSR","4326");
+    u.searchParams.set("size","760,760");
+    u.searchParams.set("format","png32");
+    u.searchParams.set("_ts", String(Date.now()));
+    return u.toString();
+  }
+  function fmtMilwaukeeTime(d){
+    const fmt = new Intl.DateTimeFormat("en-US",{
+      timeZone:"America/Chicago",
+      hour:"numeric", minute:"2-digit", second:"2-digit",
+      hour12:true, timeZoneName:"short"
+    });
+    return fmt.format(d);
+  }
+
+  function createRadarScope(opts){
+    const o = opts || {};
+    const bbox = Object.assign({}, DEFAULT_BBOX, o.bbox || {});
+    const refreshMs = o.refreshMs || 120000;
+
+    const el = o.el;
+    if(!el) throw new Error("createRadarScope: opts.el is required");
+
+    const bg = el.querySelector("canvas[data-layer='bg']");
+    const ret= el.querySelector("canvas[data-layer='returns']");
+    const ui = el.querySelector("canvas[data-layer='ui']");
+    const ov = el.querySelector("canvas[data-layer='overlay']");
+    const bboxText = o.bboxText || null;
+    const frameText= o.frameText || null;
+    const ageText  = o.ageText || null;
+
+    const bgc = bg.getContext("2d");
+    const rtc = ret.getContext("2d");
+    const uic = ui.getContext("2d");
+    const ovc = ov.getContext("2d");
+
+    let W=0,H=0,cx=0,cy=0,R=0;
+    let running = true;
+    let sweep = 0;
+    let wedgeWidth = 0.14;
+    let sweepSpeed = 0.018;
+    let lastFrameAt = 0;
+    let timer = null;
+
+    const img = new Image();
+    img.crossOrigin="anonymous";
+    img.onload = ()=>{ lastFrameAt = Date.now(); if(frameText) frameText.textContent="OK (NOAA)"; };
+    img.onerror = ()=>{ if(frameText) frameText.textContent="ERR (NOAA)"; };
+
+    function project(lon, lat){
+      const x=(lon-bbox.xmin)/(bbox.xmax-bbox.xmin);
+      const y=1-(lat-bbox.ymin)/(bbox.ymax-bbox.ymin);
+      const px=cx+(x-0.5)*2*R*0.95;
+      const py=cy+(y-0.5)*2*R*0.95;
+      return [px,py];
+    }
+
+    function resize(){
+      const rect = el.getBoundingClientRect();
+      const dpr = Math.max(1, window.devicePixelRatio||1);
+      W = Math.floor(rect.width*dpr);
+      H = Math.floor(rect.height*dpr);
+      [bg,ret,ui,ov].forEach(c=>{ c.width=W; c.height=H; });
+      cx=W/2; cy=H/2; R=Math.min(W,H)*0.45;
+      rtc.clearRect(0,0,W,H);
+      drawBackground();
+      drawVectorOverlay();
+    }
+
+    function drawBackground(){
+      bgc.clearRect(0,0,W,H);
+      bgc.save();
+      bgc.strokeStyle="rgba(242,178,74,0.28)";
+      bgc.lineWidth=Math.max(1, W*0.002);
+      bgc.beginPath(); bgc.arc(cx,cy,R,0,Math.PI*2); bgc.stroke();
+      bgc.strokeStyle="rgba(242,178,74,0.12)";
+      bgc.beginPath(); bgc.arc(cx,cy,R*1.02,0,Math.PI*2); bgc.stroke();
+      bgc.restore();
+
+      bgc.save();
+      bgc.strokeStyle="rgba(242,178,74,0.12)";
+      bgc.lineWidth=Math.max(1, W*0.0015);
+      for(const rr of [0.25,0.50,0.75]){
+        bgc.beginPath(); bgc.arc(cx,cy,R*rr,0,Math.PI*2); bgc.stroke();
+      }
+      bgc.restore();
+
+      bgc.save();
+      bgc.strokeStyle="rgba(242,178,74,0.10)";
+      bgc.lineWidth=Math.max(1, W*0.0012);
+      bgc.beginPath(); bgc.moveTo(cx-R,cy); bgc.lineTo(cx+R,cy); bgc.stroke();
+      bgc.beginPath(); bgc.moveTo(cx,cy-R); bgc.lineTo(cx,cy+R); bgc.stroke();
+      bgc.restore();
+    }
+
+    function drawVectorOverlay(){
+      uic.clearRect(0,0,W,H);
+      uic.save();
+      uic.beginPath(); uic.arc(cx,cy,R,0,Math.PI*2); uic.clip();
+
+      uic.strokeStyle="rgba(242,178,74,0.32)";
+      uic.lineWidth=Math.max(1, W*0.0020);
+      const coast=[
+        [-87.71,43.75],
+        [-87.93,43.28],
+        [-87.91,43.04],
+        [-87.82,42.80],
+        [-87.82,42.58],
+      ];
+      uic.beginPath();
+      coast.forEach((p,i)=>{ const [x,y]=project(p[0],p[1]); if(i===0) uic.moveTo(x,y); else uic.lineTo(x,y); });
+      uic.stroke();
+
+      const cities=[
+        {name:"SBY", lon:-87.72, lat:43.75},
+        {name:"MKE", lon:-87.91, lat:43.04},
+        {name:"RAC", lon:-87.78, lat:42.73},
+        {name:"KEN", lon:-87.82, lat:42.58},
+      ];
+      uic.fillStyle="rgba(242,178,74,0.44)";
+      uic.font=`${Math.max(10, Math.floor(W*0.019))}px ui-monospace, Menlo, Monaco, Consolas, monospace`;
+      cities.forEach(c=>{
+        const [x,y]=project(c.lon,c.lat);
+        uic.beginPath(); uic.arc(x,y, Math.max(2, W*0.006), 0, Math.PI*2); uic.fill();
+        uic.fillText(c.name, x+Math.max(6,W*0.011), y-Math.max(6,W*0.011));
+      });
+
+      uic.restore();
+    }
+
+    function drawWedgeClip(ctx, ang, width){
+      const a1=ang-width/2, a2=ang+width/2;
+      ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,R,a1,a2); ctx.closePath(); ctx.clip();
+    }
+
+    function drawAmberWedge(ctx){
+      const s = R*2;
+      ctx.filter="grayscale(1) contrast(2.2) brightness(1.05)";
+      ctx.drawImage(img, cx-R, cy-R, s, s);
+      ctx.filter="none";
+      ctx.globalCompositeOperation="source-atop";
+      ctx.fillStyle="rgba(242,178,74,1)";
+      ctx.fillRect(cx-R, cy-R, s, s);
+      ctx.globalCompositeOperation="source-over";
+    }
+
+    let lastUrl = "";
+    function refreshFrame(){
+      if(bboxText) bboxText.textContent = bboxToString(bbox);
+      lastUrl = buildExportUrl(bbox);
+      img.src = lastUrl;
+    }
+
+    function step(){
+      if(running){
+        rtc.save();
+        rtc.beginPath(); rtc.arc(cx,cy,R,0,Math.PI*2); rtc.clip();
+        rtc.fillStyle="rgba(0,0,0,0.07)";
+        rtc.fillRect(0,0,W,H);
+        rtc.restore();
+
+        rtc.save();
+        rtc.beginPath(); rtc.arc(cx,cy,R,0,Math.PI*2); rtc.clip();
+        rtc.save();
+        drawWedgeClip(rtc, sweep, wedgeWidth);
+        rtc.globalAlpha=0.75;
+        if(img.complete && img.naturalWidth){
+          drawAmberWedge(rtc);
+        }
+        rtc.restore();
+        rtc.restore();
+        rtc.globalAlpha=1;
+
+        ovc.clearRect(0,0,W,H);
+        ovc.save();
+        ovc.beginPath(); ovc.arc(cx,cy,R,0,Math.PI*2); ovc.clip();
+        ovc.strokeStyle="rgba(242,178,74,0.60)";
+        ovc.lineWidth=Math.max(1, W*0.0022);
+        ovc.shadowColor="rgba(242,178,74,0.35)";
+        ovc.shadowBlur=Math.max(6, W*0.01);
+        ovc.beginPath();
+        ovc.moveTo(cx,cy);
+        ovc.lineTo(cx + Math.cos(sweep)*R, cy + Math.sin(sweep)*R);
+        ovc.stroke();
+        ovc.restore();
+
+        sweep += sweepSpeed;
+        if(sweep > Math.PI*2) sweep -= Math.PI*2;
+      }
+
+      if(ageText){
+        const ageSec = lastFrameAt ? Math.max(0, Math.floor((Date.now()-lastFrameAt)/1000)) : 0;
+        const ageStr = lastFrameAt ? `${Math.floor(ageSec/60)}m ${ageSec%60}s ago` : "—";
+        ageText.textContent = `${ageStr} • ${fmtMilwaukeeTime(new Date())}`;
+      }
+      requestAnimationFrame(step);
+    }
+
+    function start(){
+      resize();
+      window.addEventListener("resize", resize);
+      window.addEventListener("orientationchange", ()=>setTimeout(resize, 80));
+      if(frameText) frameText.textContent="…";
+      refreshFrame();
+      timer = setInterval(()=>refreshFrame(), refreshMs);
+      requestAnimationFrame(step);
+    }
+
+    start();
+    return { refreshFrame, setRunning:(v)=>{running=!!v;}, stop:()=>{ if(timer) clearInterval(timer); }, getLastUrl:()=>lastUrl || buildExportUrl(bbox) };
+  }
+
+  window.MKEWX_Radar = { createRadarScope, buildExportUrl, DEFAULT_BBOX };
+})();
+</script>
+<script>(function(){
+  const $ = (s)=>document.querySelector(s);
+  const $$ = (s)=>Array.from(document.querySelectorAll(s));
+
+  function fmtMilwaukeeTime(d){
+    return new Intl.DateTimeFormat("en-US",{
+      timeZone:"America/Chicago",
+      hour:"numeric", minute:"2-digit", second:"2-digit",
+      hour12:true
+    }).format(d);
+  }
+
+  // ---------- BOOT ----------
+  function runBoot(){
+    const boot = $("#boot");
+    if(!boot) return;
+    const out = $("#bootText");
+    const lines = [
+      "MKEWX TERMINAL BIOS v0.4",
+      "Copyright (c) 1986–2026 MKEWX SYSTEMS",
+      "",
+      "MEMORY TEST ......... OK",
+      "VIDEO ............... AMBER",
+      "NETWORK ............. ONLINE",
+      "DISPATCH INDEX ....... READY",
+      "RADAR SCOPE ......... READY",
+      "",
+      "Press any key to continue..."
+    ];
+    let i=0;
+    out.textContent = "";
+    const tick = ()=>{
+      if(i < lines.length){
+        out.textContent += (i===0 ? "" : "\n") + lines[i];
+        i++;
+        setTimeout(tick, 110);
+      }else{
+        setTimeout(()=>boot.classList.add("is-hidden"), 350);
+      }
+    };
+    tick();
+
+    const skip = ()=>{
+      boot.classList.add("is-hidden");
+      window.removeEventListener("keydown", skip);
+      boot.removeEventListener("pointerdown", skip);
+    };
+    window.addEventListener("keydown", skip);
+    boot.addEventListener("pointerdown", skip);
+  }
+
+  // ---------- CLOCK ----------
+  function startClock(){
+    const t = $("#mwkTime");
+    if(!t) return;
+    const step = ()=>{ t.textContent = fmtMilwaukeeTime(new Date()); };
+    step();
+    setInterval(step, 1000);
+  }
+
+  // ---------- TERMINAL LOG ----------
+  function logLine(text){
+    const log = $("#termLog");
+    if(!log) return;
+    const div = document.createElement("div");
+    div.textContent = text;
+    log.appendChild(div);
+    log.scrollTop = log.scrollHeight;
+  }
+
+  // ---------- DISPATCHES ----------
+  const dispatchLinks = $$("a.dispatch-link");
+  dispatchLinks.forEach((a, idx)=>{ a.dataset.index = String(idx+1); });
+
+  function loadPostFromUrl(url){
+    const reader = $("#readerBox");
+    if(!reader) return;
+    reader.innerHTML = "<div class='reader-placeholder'>LOADING DISPATCH…</div>";
+
+    fetch(url, { credentials: "omit" })
+      .then(r => r.text())
+      .then(html => {
+        const doc = new DOMParser().parseFromString(html, "text/html");
+        const content = doc.querySelector("#post-content");
+        const title = doc.querySelector(".reader-title");
+        const sub = doc.querySelector(".reader-sub");
+
+        if(content){
+          reader.innerHTML = content.innerHTML;
+          const metaTitle = $("#readerTitle");
+          const metaSub = $("#readerSub");
+          if(metaTitle && title) metaTitle.textContent = title.textContent.trim();
+          if(metaSub && sub) metaSub.textContent = sub.textContent.trim();
+          return;
+        }
+
+        reader.textContent = "Could not parse dispatch content. Opening the dispatch page…";
+        window.location.href = url;
+      })
+      .catch(() => {
+        reader.textContent = "Fetch blocked or offline. Opening the dispatch page…";
+        window.location.href = url;
+      });
+  }
+
+  function loadDispatchByIndex(n){
+    const a = dispatchLinks[n-1];
+    if(!a){ logLine("ERR: No dispatch at that index."); return; }
+    const url = a.getAttribute("href");
+    const title = a.dataset.title || a.textContent.trim();
+    const date = a.dataset.date || "";
+    const cat = a.dataset.category || "";
+
+    const metaTitle = $("#readerTitle");
+    const metaSub = $("#readerSub");
+    if(metaTitle) metaTitle.textContent = title;
+    if(metaSub) metaSub.textContent = [date, cat].filter(Boolean).join(" • ");
+
+    logLine(`READ ${n}: ${title}`);
+    loadPostFromUrl(url);
+    document.getElementById("readerPanel")?.scrollIntoView({behavior:"smooth", block:"start"});
+  }
+
+  dispatchLinks.forEach(a=>{
+    a.addEventListener("click", (e)=>{
+      e.preventDefault();
+      loadDispatchByIndex(parseInt(a.dataset.index, 10));
+    });
+  });
+
+  function listwx(){
+    logLine("DISPATCH INDEX:");
+    dispatchLinks.forEach(a=>{
+      const n = a.dataset.index;
+      const t = a.dataset.title || a.textContent.trim();
+      logLine(`  ${n}. ${t}`);
+    });
+  }
+
+  // ---------- CONDITIONS (KMKE) ----------
+  let lastTempF = null;
+  function updateConditions(){
+  fetch("https://api.weather.gov/stations/KMKE/observations/latest", { headers: { Accept: "application/geo+json" } })
+    .then(r=>r.json())
+    .then(data=>{
+      const p = data?.properties;
+      if(!p) throw new Error("no properties");
+
+      const cToF = (c)=> c==null ? null : (c*9/5+32);
+      const msToMph = (ms)=> ms==null ? null : (ms*2.236936);
+      const paToInHg = (pa)=> pa==null ? null : (pa*0.0002953);
+
+      const tempF = cToF(p.temperature?.value);
+      window.__MKEWX_LAST_TEMP_F = (tempF==null || Number.isNaN(tempF)) ? undefined : tempF;
+
+      // "Feels like": prefer windChill / heatIndex if present
+      const chillF = cToF(p.windChill?.value);
+      const heatF  = cToF(p.heatIndex?.value);
+      const feelsF = (heatF!=null && !Number.isNaN(heatF)) ? heatF : ((chillF!=null && !Number.isNaN(chillF)) ? chillF : null);
+
+      const dewF = cToF(p.dewpoint?.value);
+      const rh = p.relativeHumidity?.value;
+
+      const windDir = p.windDirection?.value;
+      const windSpd = msToMph(p.windSpeed?.value);
+      const gustSpd = msToMph(p.windGust?.value);
+      const windArrow = __windDirArrow(windDir);
+
+      const visMi = (p.visibility?.value==null) ? null : (p.visibility.value/1609.344);
+
+      const pressureIn = paToInHg(p.barometricPressure?.value);
+
+      // Pressure tendency if available
+      const tendPa = p.pressureTendency?.value;
+      const tendArrow = (tendPa==null || Number.isNaN(tendPa)) ? "→" : (tendPa > 0.15 ? "↑" : (tendPa < -0.15 ? "↓" : "→"));
+
+      const cloudPct = __cloudPctFromLayers(p.cloudLayers);
+
+      const updated = p.timestamp ? new Date(p.timestamp) : null;
+      const isNight = (p.icon||"").toLowerCase().includes("night");
+
+      // Precip type hint (very rough)
+      const txt = (p.textDescription||"");
+      let precipType = null;
+      const present = (p.presentWeather && p.presentWeather.length) ? (p.presentWeather[0]?.weather || "") : "";
+      const presentL = present.toLowerCase();
+      if(presentL.includes("snow") || txt.toLowerCase().includes("snow")) precipType = "snow";
+      else if(presentL.includes("rain") || txt.toLowerCase().includes("rain") || txt.toLowerCase().includes("shower")) precipType = "rain";
+
+      const iconArt = __pickIcon(txt, isNight, precipType);
+
+// Headline fields for styled display
+const tDisp = (tempF==null || Number.isNaN(tempF)) ? "—" : (Math.round(tempF) + "F");
+const fDisp = (feelsF==null || Number.isNaN(feelsF)) ? "" : ("FEELS " + Math.round(feelsF) + "F");
+const dDisp = (txt||"—").toUpperCase();
+const _set = (sel, val)=>{ const el = $(sel); if(el) el.textContent = val; };
+_set("#condTemp", tDisp);
+_set("#condFeels", fDisp);
+_set("#condDesc", dDisp);
+
+      const fmt = (v, unit="", digits=0)=>{
+        if(v==null || Number.isNaN(v)) return "—";
+        return (digits ? v.toFixed(digits) : String(Math.round(v))) + unit;
+      };
+
+      const lines = [];
+      if(iconArt) lines.push(`<span class="glow-strong">${iconArt.replace(/</g,"&lt;").replace(/>/g,"&gt;")}</span>`, "");
+      lines.push("STATION.... KMKE");
+      lines.push("UPDATED.... " + (updated ? fmtMilwaukeeTime(updated) : "—"));
+      lines.push("");
+      lines.push("TEMP....... " + fmt(tempF, "F") + (feelsF!=null ? ("  (FEELS " + fmt(feelsF,"F") + ")") : ""));
+      lines.push(`DEWPOINT... <span class="glow-soft">${fmt(dewF,"F")}</span>   HUMIDITY... <span class="glow-soft">${fmt(rh,"%")}</span>`);
+      lines.push("WIND....... " + windArrow + " " + (windDir==null? "—" : Math.round(windDir)) + "°  " + fmt(windSpd, " mph") + (gustSpd!=null && !Number.isNaN(gustSpd) ? ("  G " + fmt(gustSpd, " mph")) : ""));
+      lines.push(`PRESSURE... <span class="glow-soft">${fmt(pressureIn," in",2)}</span> <span class="glow-soft">${tendArrow}</span>`);
+      lines.push(`VIS........ <span class="glow-soft">${fmt(visMi," mi")}</span>${(cloudPct!=null?`   CLOUDS..... <span class="glow-soft">${fmt(cloudPct,"%")}</span>`:"")}`);
+      lines.push("");
+      lines.push(`CONDITION.. <span class="glow-strong">${txt.toUpperCase()}</span>`);
+
+      document.getElementById("conditionsOut").innerHTML = lines.join("\n");
+    })
+    .catch(()=>{
+      document.getElementById("conditionsOut").textContent =
+        "STATION.... KMKE\nUPDATED.... —\n\nCONDITIONS UNAVAILABLE";
+    });
+}
+
+  // ---------- RADAR ----------
+  let radar = null;
+  function radarInit(){
+    const scope = $("#scopeBox");
+    if(!scope || !window.MKEWX_Radar) return;
+    radar = window.MKEWX_Radar.createRadarScope({
+      el: scope,
+      bboxText: $("#bboxText"),
+      frameText: $("#frameText"),
+      ageText: $("#ageText"),
+      refreshMs: 120000
+    });
+  }
+  function radarRefresh(){
+    if(radar && radar.refreshFrame){
+      radar.refreshFrame();
+      logLine("RADAR: refreshed.");
+    }else{
+      logLine("RADAR: unavailable.");
+    }
+  }
+  function radarScroll(){
+    document.getElementById("radarPanel")?.scrollIntoView({behavior:"smooth", block:"start"});
+  }
+
+  // ---------- EXTRA DATASETS ----------
+  let custardData=null, sfData=null, histData=null, filmData=null, commandHelp=null;
+  function loadJSON(path){ return fetch(path, {credentials:"omit"}).then(r=>r.json()); }
+
+  function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+  function runCustard(){
+    if(!custardData?.ranges?.length){ logLine("CUSTARD: unavailable."); return; }
+    const t = (lastTempF==null) ? 32 : lastTempF;
+    const r = custardData.ranges.find(x=> t>=x.min && t<=x.max) || custardData.ranges[custardData.ranges.length-1];
+    logLine(pick(r.lines || ["Custard approved."]));
+  }
+
+  const lambeau = { lat: 44.5013, lon: -88.0622 };
+  let packersCache = { at: 0, lines: null };
+  function runPackers(){
+    const now = Date.now();
+    if(packersCache.lines && (now - packersCache.at) < 10*60*1000){
+      packersCache.lines.forEach(l=>logLine(l));
+      return;
+    }
+    logLine("PACKERS: fetching Lambeau/Green Bay…");
+    fetch(`https://api.weather.gov/points/${lambeau.lat},${lambeau.lon}`, { headers: { "Accept":"application/geo+json" } })
+      .then(r=>r.json())
+      .then(p=>{
+        const forecastUrl = p?.properties?.forecast;
+        const city = p?.properties?.relativeLocation?.properties?.city || "Green Bay";
+        const state = p?.properties?.relativeLocation?.properties?.state || "WI";
+        if(!forecastUrl) throw new Error("no forecast url");
+        return fetch(forecastUrl, { headers: { "Accept":"application/geo+json" } })
+          .then(r=>r.json())
+          .then(f=>{
+            const period = f?.properties?.periods?.[0];
+            if(!period) throw new Error("no period");
+            const lines = [];
+            lines.push("PACKERS / LAMBEAU");
+            lines.push(`AREA:      ${city}, ${state}`);
+            lines.push(`FORECAST:  ${(period.name||"").toUpperCase()}`);
+            lines.push(`TEMP:      ${period.temperature ?? "—"}${period.temperatureUnit ?? ""}`);
+            lines.push(`WIND:      ${(period.windDirection||"").toUpperCase()} ${period.windSpeed||"—"}`);
+            lines.push((period.shortForecast||"").toUpperCase());
+            lines.forEach(l=>logLine(l));
+            packersCache = { at: Date.now(), lines };
+          });
+      })
+      .catch(()=>logLine("PACKERS: unavailable right now."));
+  }
+
+  function runSummerfest(){
+    const list = sfData?.events || [];
+    if(!list.length){ logLine("SUMMERFEST: unavailable."); return; }
+    const e = pick(list);
+    logLine("SUMMERFEST 2026:");
+    logLine(`  ${e.date}`);
+    logLine(`  ${e.time} p.m. — ${e.artist}`);
+    logLine(`  STAGE: ${e.stage}`);
+  }
+
+  function runHistory(){
+    const facts = histData?.facts || [];
+    if(!facts.length){ logLine("HISTORY: unavailable."); return; }
+    logLine("HISTORY:");
+    logLine(`  ${pick(facts)}`);
+  }
+
+  function runFilm(){
+    const items = filmData?.items || [];
+    if(!items.length){ logLine("FILM: unavailable."); return; }
+    const it = pick(items);
+    const tag = (it.type || "").toUpperCase();
+    logLine(`FILM ${tag}:`);
+    logLine(`  ${it.text}`);
+  }
+
+  function help(){
+    logLine("COMMANDS:");
+    const list = commandHelp?.commands || [];
+    if(list.length){
+      list.forEach(c=>logLine(`  ${c.cmd} — ${c.desc}`));
+    }else{
+      logLine("  HELP — show commands");
+      logLine("  LISTWX — list dispatches");
+      logLine("  READ 1 — open dispatch");
+    }
+  }
+
+  // ---------- COMMAND ROUTER ----------
+  function runCommand(raw){
+    const input = raw.trim();
+    if(!input) return;
+    logLine(`MKEWX> ${input}`);
+
+    const parts = input.split(/\s+/);
+    const cmd = (parts[0] || "").toUpperCase();
+    const arg1 = (parts[1] || "").toUpperCase();
+
+    if(cmd === "HELP" || cmd === "?") return help();
+    if(cmd === "CLEAR"){ $("#termLog").innerHTML=""; return; }
+
+    if(cmd === "READ"){
+      const n = parseInt(parts[1], 10);
+      if(!Number.isFinite(n)){ logLine("Usage: READ 1"); return; }
+      loadDispatchByIndex(n);
+      return;
+    }
+
+    if(cmd === "LISTWX") return listwx();
+
+    if(cmd === "CUSTARD") return runCustard();
+    if(cmd === "PACKERS") return runPackers();
+    if(cmd === "SUMMERFEST") return runSummerfest();
+    if(cmd === "HISTORY") return runHistory();
+    if(cmd === "FILM") return runFilm();
+
+    if(cmd === "RADAR" && arg1 === "REFRESH") return radarRefresh();
+    if(cmd === "RADAR") return radarScroll();
+
+    if(cmd === "RSS"){
+      window.location.href = (document.querySelector("link[type='application/rss+xml']")?.getAttribute("href")) || "/feed.xml";
+      return;
+    }
+
+    logLine("Unknown command. Type HELP.");
+  }
+
+  function wireTerminal(){
+    const input = $("#cmd");
+    if(!input) return;
+    input.addEventListener("keydown", (e)=>{
+      if(e.key === "Enter"){
+        __beep("single");
+        runCommand(input.value);
+        input.value = "";
+      }
+    });
+    setTimeout(()=>input.focus(), 400);
+  }
+
+  function init(){
+    runBoot();
+    startClock();
+    wireTerminal();
+    radarInit();
+
+    // load datasets
+    Promise.all([
+      loadJSON("/assets/data/custard.json").catch(()=>null),
+      loadJSON("/assets/data/summerfest_2026.json").catch(()=>null),
+      loadJSON("/assets/data/history.json").catch(()=>null),
+      loadJSON("/assets/data/film.json").catch(()=>null),
+      loadJSON("/assets/data/commands.json").catch(()=>null)
+    ]).then(([c,s,h,f,ch])=>{
+      custardData=c; sfData=s; histData=h; filmData=f; commandHelp=ch;
+    });
+
+    updateConditions();
+    setInterval(updateConditions, 300000);
+
+    logLine("MKEWX READY.");
+    logLine("Type HELP. Try: LISTWX • READ 1 • SUMMERFEST");
+  }
+
+  document.addEventListener("DOMContentLoaded", init);
+})();
+
+// --- Tiny terminal beeps (WebAudio) ---
+let __audioCtx = null;
+function __beep(pattern="single"){
+  try{
+    if(!__audioCtx) __audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const ctx = __audioCtx;
+    const now = ctx.currentTime;
+    const mk = (t, dur, freq)=>{
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type = "square";
+      o.frequency.value = freq;
+      g.gain.setValueAtTime(0.0, t);
+      g.gain.linearRampToValueAtTime(0.045, t+0.005);
+      g.gain.linearRampToValueAtTime(0.0, t+dur);
+      o.connect(g); g.connect(ctx.destination);
+      o.start(t); o.stop(t+dur+0.01);
+    };
+    if(pattern === "double"){
+      mk(now, 0.045, 520);
+      mk(now+0.070, 0.045, 520);
+    }else{
+      mk(now, 0.040, 440);
+    }
+  }catch(e){ /* ignore */ }
+}
+</script>
+<script>
+// Demo dispatch content (always works)
+(function(){
+  const sample = {
+    1: "<p>The streetlights flicker like tired eyelids. Milwaukee keeps its secrets close.</p><p>Tonight, the lake whispers <strong>snow</strong> and pretends it’s nothing.</p>",
+    2: "<p>Once upon a shoreline, a little city woke to an amber sky.</p><p>The wind came first, eager and sharp.</p>"
+  };
+  document.querySelectorAll("a.dispatch-link").forEach(a=>{
+    a.addEventListener("click",(e)=>{
+      e.preventDefault();
+      if(window.__beep) window.__beep("double");
+      const n = parseInt(a.dataset.index,10);
+      document.getElementById("readerTitle").textContent = a.dataset.title || a.textContent.trim();
+      document.getElementById("readerSub").textContent = [a.dataset.date, a.dataset.category].filter(Boolean).join(" • ");
+      document.getElementById("readerBox").innerHTML = sample[n] || "<p>—</p>";
+    });
+  });
+})();
+</script>
+</body>
+</html>
