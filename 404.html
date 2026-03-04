@@ -1,0 +1,35 @@
+---
+layout: default
+title: Not Found
+permalink: /404.html
+---
+
+<main class="frame">
+  <header class="header">
+    <div class="logo-row">
+      <div class="logo-wrap">
+        <pre class="logo logo--wide">{{ site.data.logo.wide }}</pre>
+        <pre class="logo logo--narrow">{{ site.data.logo.narrow }}</pre>
+      </div>
+      <div class="statusbar">
+        <span class="badge">OFFLINE</span>
+        <span class="statusbar__loc">MILWAUKEE, WI</span>
+        <span class="statusbar__time" id="mwkTime">--:--:-- --</span>
+      </div>
+    </div>
+    <div class="subline">MKEWX.COM • Signal not found</div>
+  </header>
+
+  <section class="grid grid--single">
+    <section class="panel">
+      <div class="panel-title">ERROR</div>
+      <div class="reader-box">
+        <div class="reader-title">404</div>
+        <p class="muted">That dispatch doesn’t exist (yet). Go back to the main terminal.</p>
+        <p><a class="link" href="{{ '/' | relative_url }}">Return to MKEWX</a></p>
+      </div>
+    </section>
+  </section>
+
+  <footer class="footer">Static site • GitHub Pages</footer>
+</main>

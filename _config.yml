@@ -1,0 +1,20 @@
+title: MKEWX
+description: "Milwaukee Weather Terminal — forecast dispatches written as stories."
+timezone: America/Chicago
+future: false
+excerpt_separator: "<!--more-->"
+permalink: /dispatches/:year/:month/:day/:title/
+markdown: kramdown
+kramdown:
+  input: GFM
+
+# If you use a custom domain, set url:
+# url: https://mkewx.com
+# If you are hosting under a project repo, set baseurl:
+# baseurl: "/your-repo-name"
+
+plugins:
+  - jekyll-paginate
+
+paginate: 3
+paginate_path: "/page:num/"

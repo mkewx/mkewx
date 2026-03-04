@@ -1,0 +1,46 @@
+---
+layout: default
+---
+<main class="frame">
+  <header class="header">
+    <div class="logo-row">
+      <div class="logo-wrap">
+        <pre class="logo logo--wide" aria-label="MKEWX logo">
+███╗   ███╗██╗  ██╗███████╗██╗    ██╗██╗  ██╗
+████╗ ████║██║ ██╔╝██╔════╝██║    ██║╚██╗██╔╝
+██╔████╔██║█████╔╝ █████╗  ██║ █╗ ██║ ╚███╔╝ 
+██║╚██╔╝██║██╔═██╗ ██╔══╝  ██║███╗██║ ██╔██╗ 
+██║ ╚═╝ ██║██║  ██╗███████╗╚███╔███╔╝██╔╝ ██╗
+╚═╝     ╚═╝╚═╝  ╚═╝╚══════╝ ╚══╝╚══╝ ╚═╝  ╚═╝
+</pre>
+      </div>
+      <div class="statusbar">
+        <span class="badge">ONLINE</span>
+        <span class="statusbar__loc">MILWAUKEE, WI</span>
+        <span class="statusbar__time" id="mwkTime">--:--:-- --</span>
+      </div>
+    </div>
+    <div class="subline">MKEWX.COM • Milwaukee Weather Terminal</div>
+  </header>
+
+  <section class="grid grid--single">
+    <section class="panel">
+      <div class="panel-title">READER</div>
+      <div class="reader-meta">
+        <div class="reader-title">{{ page.title }}</div>
+        <div class="reader-sub">{{ page.date | date: "%a, %b %-d, %Y" }} • {{ page.categories | first | default: "weather" | upcase }}</div>
+      </div>
+
+      <article id="post-content" class="post-content">
+        {{ content }}
+      </article>
+
+      <div class="post-nav">
+        <a class="link" href="{{ '/' | relative_url }}">← Back to Dispatches</a>
+        <span class="muted">•</span>
+        <a class="link" href="{{ '/feed.xml' | relative_url }}">RSS</a>
+      </div>
+    </section>
+  </section>
+  <footer class="footer">© 2026 • <a class="footer-mail" href="mailto:tvjasonlee@AOL.com">Jason Lee</a> • MKEWX.com</footer>
+</main>

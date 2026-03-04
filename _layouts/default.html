@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta name="theme-color" content="#0b120a"/>
+  <title>{% if page.title %}{{ page.title }} • {% endif %}{{ site.title }}</title>
+  <meta name="description" content="{{ site.description | escape }}"/>
+  <link rel="alternate" type="application/rss+xml" title="{{ site.title }} RSS" href="{{ '/feed.xml' | relative_url }}"/>
+<script>
+// MKEWX resilient asset loader:
+// Works on GitHub Pages project URLs (username.github.io/repo/) AND on custom domains (root).
+(function(){
+  function normBase(b){
+    if(!b) return "";
+    // ensure leading slash, no trailing slash
+    if(b[0] !== "/") b = "/" + b;
+    return b.replace(/\/+$/,"");
+  }
+  var jekyllBase = normBase("{{ site.baseurl }}");
+  var seg = (location.pathname.split("/").filter(Boolean)[0]) || "";
+  var segBase = seg ? ("/" + seg) : "";
+  // Try: Jekyll base first (if set), then root, then first-segment base (project repo)
+  var bases = [];
+  if(jekyllBase) bases.push(jekyllBase);
+  bases.push("");
+  if(segBase && bases.indexOf(segBase) === -1) bases.push(segBase);
+
+  function loadCSS(relPath, done){
+    var i = 0;
+    (function next(){
+      if(i >= bases.length){ done && done(false); return; }
+      var href = bases[i] + relPath;
+      var link = document.createElement("link");
+      link.rel = "stylesheet";
+      link.href = href;
+      link.onload = function(){ done && done(true); };
+      link.onerror = function(){
+        link.remove();
+        i++;
+        next();
+      };
+      document.head.appendChild(link);
+    })();
+  }
+
+  function loadScript(relPath, done){
+    var i = 0;
+    (function next(){
+      if(i >= bases.length){ done && done(false); return; }
+      var src = bases[i] + relPath;
+      var s = document.createElement("script");
+      s.src = src;
+      s.defer = true;
+      s.onload = function(){ done && done(true); };
+      s.onerror = function(){
+        s.remove();
+        i++;
+        next();
+      };
+      document.body.appendChild(s);
+    })();
+  }
+
+  // Expose detected base for app.js (best guess: whichever one loaded CSS)
+  window.__MKEWX_BASES = bases;
+
+  loadCSS("/assets/css/terminal.css", function(){
+    loadScript("/assets/js/radar.js", function(){
+      loadScript("/assets/js/app.js");
+    });
+  });
+})();
+</script>
+</head>
+<body>
+  {{ content }}</body>
+</html>

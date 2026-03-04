@@ -1,0 +1,26 @@
+---
+layout: null
+permalink: /feed.xml
+---
+{% assign site_url = site.url | default: site.github.url %}
+{% assign base = site.baseurl | default: "" %}
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>{{ site.title | xml_escape }}</title>
+    <link>{{ site_url }}{{ base }}/</link>
+    <description>{{ site.description | xml_escape }}</description>
+    <language>en-us</language>
+    <lastBuildDate>{{ site.time | date_to_rfc822 }}</lastBuildDate>
+
+    {% for post in site.posts limit: 20 %}
+    <item>
+      <title>{{ post.title | xml_escape }}</title>
+      <link>{{ site_url }}{{ post.url | relative_url }}</link>
+      <guid isPermaLink="true">{{ site_url }}{{ post.url | relative_url }}</guid>
+      <pubDate>{{ post.date | date_to_rfc822 }}</pubDate>
+      <description>{{ post.excerpt | strip_html | xml_escape }}</description>
+    </item>
+    {% endfor %}
+  </channel>
+</rss>
