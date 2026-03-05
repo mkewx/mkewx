@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -7,7 +6,7 @@
   <title>{% if page.title %}{{ page.title }}{% else %}MKE WX - Milwaukee Weather Reimagined{% endif %}</title>
   <meta name="description" content="{{ site.description }}">
   {% feed_meta %}
-
+  
   <style>
     @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
     
@@ -198,12 +197,10 @@
       .sun-times { flex-direction: column; gap: 10px; align-items: center; }
     }
   </style>
-
 </head>
 <body>
-
+  
   <!-- Boot Screen -->
-
   <div id="bootScreen">
     <div class="boot-logo">
  ███╗   ███╗██╗  ██╗███████╗    ██╗    ██╗██╗  ██╗
@@ -214,179 +211,170 @@
  ╚═╝     ╚═╝╚═╝  ╚═╝╚══════╝     ╚══╝╚══╝ ╚═╝  ╚═╝</div>
     <div class="boot-messages" id="bootMessages"></div>
   </div>
-
+  
   <!-- Main Content -->
-
   <div class="container" id="mainContent">
-
-```
-<header class="site-header">
-  <div class="ascii-logo">
-```
-
-███╗   ███╗██╗  ██╗███████╗    ██╗    ██╗██╗  ██╗
-████╗ ████║██║ ██╔╝██╔════╝    ██║    ██║╚██╗██╔╝
-██╔████╔██║█████╔╝ █████╗      ██║ █╗ ██║ ╚███╔╝
-██║╚██╔╝██║██╔═██╗ ██╔══╝      ██║███╗██║ ██╔██╗
-██║ ╚═╝ ██║██║  ██╗███████╗    ╚███╔███╔╝██╔╝ ██╗
-╚═╝     ╚═╝╚═╝  ╚═╝╚══════╝     ╚══╝╚══╝ ╚═╝  ╚═╝</div>
-<div class="site-title-text">MILWAUKEE WEATHER<span class="cursor"></span></div>
-<p class="site-subtitle">MKEWX.com Weather Terminal for Milwaukee</p>
-<nav class="site-nav"><a href="/">HOME</a><a href="/feed.xml">RSS</a></nav>
-</header>
-
-```
-<div class="separator"></div>
-
-<div class="welcome-section">
-  <div class="title">WELCOME TO MKE WX</div>
-  <p>A new way to look at Milwaukee's weather.<br>But never told like the guy on the news.</p>
-</div>
-
-<div class="separator"></div>
-
-<!-- Posts from Jekyll -->
-<div class="posts">
-  <ul class="post-list">
-    {% for post in paginator.posts %}
-    <li class="post-item">
-      <div class="post-meta">
-        <span>{{ post.date | date: "%b %d, %Y" }}</span>
-        {% if post.category == 'weather' %}
-        <span class="post-category">TODAY'S WEATHER</span>
-        {% elsif post.category == 'general' %}
-        <span class="post-category">MKE WX</span>
-        {% endif %}
-      </div>
-      <h2 class="post-title" onclick="openArticle({{ forloop.index0 }})">{{ post.title }}</h2>
-      <div class="post-excerpt">
-        {{ post.content | strip_html | truncatewords: 30 }}
-      </div>
-    </li>
-    {% endfor %}
-  </ul>
-</div>
-
-<!-- Pagination -->
-<div class="pagination">
-  {% if paginator.previous_page %}
-    <a href="{{ paginator.previous_page_path }}">← NEWER</a>
-  {% else %}
-    <span class="disabled">← NEWER</span>
-  {% endif %}
-  
-  <span class="page-info">Page {{ paginator.page }} of {{ paginator.total_pages }}</span>
-  
-  {% if paginator.next_page %}
-    <a href="{{ paginator.next_page_path }}">OLDER →</a>
-  {% else %}
-    <span class="disabled">OLDER →</span>
-  {% endif %}
-</div>
-
-<!-- Article Viewer -->
-<div class="article-viewer" id="articleViewer">
-  <div class="article-container">
-    <div class="article-header">
-      <div class="article-title" id="articleTitle"></div>
-      <div class="post-meta"><span id="articleDate"></span></div>
+    
+    <header class="site-header">
+      <div class="ascii-logo">
+ ███╗   ███╗██╗  ██╗███████╗    ██╗    ██╗██╗  ██╗
+ ████╗ ████║██║ ██╔╝██╔════╝    ██║    ██║╚██╗██╔╝
+ ██╔████╔██║█████╔╝ █████╗      ██║ █╗ ██║ ╚███╔╝ 
+ ██║╚██╔╝██║██╔═██╗ ██╔══╝      ██║███╗██║ ██╔██╗ 
+ ██║ ╚═╝ ██║██║  ██╗███████╗    ╚███╔███╔╝██╔╝ ██╗
+ ╚═╝     ╚═╝╚═╝  ╚═╝╚══════╝     ╚══╝╚══╝ ╚═╝  ╚═╝</div>
+      <div class="site-title-text">MILWAUKEE WEATHER<span class="cursor"></span></div>
+      <p class="site-subtitle">MKEWX.com Weather Terminal for Milwaukee</p>
+      <nav class="site-nav"><a href="/">HOME</a><a href="/feed.xml">RSS</a></nav>
+    </header>
+    
+    <div class="separator"></div>
+    
+    <div class="welcome-section">
+      <div class="title">WELCOME TO MKE WX</div>
+      <p>A new way to look at Milwaukee's weather.<br>But never told like the guy on the news.</p>
     </div>
-    <div class="article-content" id="articleContent"></div>
-    <div class="close-article" onclick="closeArticle()">CLOSE</div>
+    
+    <div class="separator"></div>
+    
+    <!-- Posts from Jekyll -->
+    <div class="posts">
+      <ul class="post-list">
+        {% for post in paginator.posts %}
+        <li class="post-item">
+          <div class="post-meta">
+            <span>{{ post.date | date: "%b %d, %Y" }}</span>
+            {% if post.category == 'weather' %}
+            <span class="post-category">TODAY'S WEATHER</span>
+            {% elsif post.category == 'general' %}
+            <span class="post-category">MKE WX</span>
+            {% endif %}
+          </div>
+          <h2 class="post-title" onclick="openArticle({{ forloop.index0 }})">{{ post.title }}</h2>
+          <div class="post-excerpt">
+            {{ post.content | strip_html | truncatewords: 30 }}
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+    
+    <!-- Pagination -->
+    <div class="pagination">
+      {% if paginator.previous_page %}
+        <a href="{{ paginator.previous_page_path }}">← NEWER</a>
+      {% else %}
+        <span class="disabled">← NEWER</span>
+      {% endif %}
+      
+      <span class="page-info">Page {{ paginator.page }} of {{ paginator.total_pages }}</span>
+      
+      {% if paginator.next_page %}
+        <a href="{{ paginator.next_page_path }}">OLDER →</a>
+      {% else %}
+        <span class="disabled">OLDER →</span>
+      {% endif %}
+    </div>
+    
+    <!-- Article Viewer -->
+    <div class="article-viewer" id="articleViewer">
+      <div class="article-container">
+        <div class="article-header">
+          <div class="article-title" id="articleTitle"></div>
+          <div class="post-meta"><span id="articleDate"></span></div>
+        </div>
+        <div class="article-content" id="articleContent"></div>
+        <div class="close-article" onclick="closeArticle()">CLOSE</div>
+      </div>
+    </div>
+    
+    <div class="separator"></div>
+    
+    <!-- Weather Advisories (above current conditions) -->
+    <div id="alertBox" class="alert-box no-alerts">
+      <div id="alertContent" class="alert-content">Checking NWS alerts for Milwaukee...<span class="alert-cursor"></span></div>
+    </div>
+    
+    <!-- Current Conditions -->
+    <div class="weather-section">
+      <div class="weather-header">
+        <div class="datetime" id="datetime">Loading...</div>
+        <div class="current-temp" id="currentTemp">--°F</div>
+      </div>
+      <div class="weather-icon-row">
+        <div class="weather-icon" id="weatherIcon">    \   /    
+     .-.     
+  ― (   ) ―  
+     '-'     
+    /   \    </div>
+        <div style="text-align: left;">
+          <div id="conditions" style="font-size: 22px; color: var(--bright-amber);">Loading...</div>
+          <div id="pressure" style="font-size: 18px; color: var(--phosphor-amber);">-- in</div>
+        </div>
+      </div>
+      <div class="location">Milwaukee, WI</div>
+      <div class="data-grid">
+        <div class="data-row"><div class="data-label">Feels Like:</div><div class="data-value" id="feelsLike">--°F</div></div>
+        <div class="data-row"><div class="data-label">Wind Speed:</div><div class="data-value" id="windSpeed">-- mph --</div></div>
+        <div class="data-row"><div class="data-label">Dew Point:</div><div class="data-value" id="dewPoint">--°F</div></div>
+        <div class="data-row"><div class="data-label">Visibility:</div><div class="data-value" id="visibility">-- mi</div></div>
+        <div class="data-row"><div class="data-label">Humidity:</div><div class="data-value" id="humidity">--%</div></div>
+      </div>
+      <div class="timezone-display">
+        <div class="sun-times">
+          <div class="sun-time sunrise"><span class="sun-label">Sunrise</span> <span id="sunrise">--:-- --</span></div>
+          <div class="sun-time sunset"><span class="sun-label">Sunset</span> <span id="sunset">--:-- --</span></div>
+        </div>
+      </div>
+      <div class="weather-source">Data: National Weather Service (api.weather.gov) | No API key required</div>
+    </div>
+    
+    <div class="separator"></div>
+    
+    <!-- Radar — always visible -->
+    <div class="radar-display" id="radarDisplay">
+      <div class="radar-header">═══ MILWAUKEE AREA RADAR ═══</div>
+      <div class="radar-canvas-container" id="radarCanvasContainer">
+        <canvas id="gridCanvas"></canvas>
+        <canvas id="returnsCanvas"></canvas>
+        <canvas id="overlayCanvas"></canvas>
+        <canvas id="sweepCanvas"></canvas>
+      </div>
+      <div class="radar-footer">
+        <div class="radar-legend">RainViewer Composite Reflectivity</div>
+        <div class="radar-timestamp" id="radarTimestamp">INITIALIZING...</div>
+      </div>
+      <div class="radar-controls">
+        <button class="radar-button" onclick="radar.refresh()">REFRESH DATA</button>
+      </div>
+    </div>
+    
+    <div class="separator"></div>
+    
+    <!-- Terminal -->
+    <div class="terminal-section">
+      <div class="terminal-header">═══ INTERACTIVE TERMINAL ═══</div>
+      <div class="terminal-output" id="terminalOutput">
+        <div class="terminal-line">MKE WX Terminal v1.0</div>
+        <div class="terminal-line">Try: 'lake' | 'moon' | 'help' for all commands</div>
+        <div class="terminal-line">─────────────────────────────────────</div>
+      </div>
+      <div class="terminal-input-line">
+        <span class="terminal-prompt">></span>
+        <input type="text" id="terminalInput" placeholder="Type a command..." autocomplete="off">
+      </div>
+    </div>
+    
+    <div class="separator"></div>
+    
+    <footer class="site-footer">
+      <p>Built with ♥ for the 414 by <a href="/cdn-cgi/l/email-protection#feaaa8b49f8d9190b29b9bbebfb1b2d09d9193" class="author-glow">Jason Lee!</a></p>
+      <p>MKE WX &copy; {{ site.time | date: '%Y' }} | <a href="/feed.xml">Subscribe via RSS</a></p>
+    </footer>
+    
   </div>
-</div>
-
-<div class="separator"></div>
-
-<!-- Weather Advisories (above current conditions) -->
-<div id="alertBox" class="alert-box no-alerts">
-  <div id="alertContent" class="alert-content">Checking NWS alerts for Milwaukee...<span class="alert-cursor"></span></div>
-</div>
-
-<!-- Current Conditions -->
-<div class="weather-section">
-  <div class="weather-header">
-    <div class="datetime" id="datetime">Loading...</div>
-    <div class="current-temp" id="currentTemp">--°F</div>
-  </div>
-  <div class="weather-icon-row">
-    <div class="weather-icon" id="weatherIcon">    \   /    
- .-.     
-```
-
-― (   ) ―  
-‘-’  
-/   \    </div>
-<div style="text-align: left;">
-<div id="conditions" style="font-size: 22px; color: var(--bright-amber);">Loading…</div>
-<div id="pressure" style="font-size: 18px; color: var(--phosphor-amber);">– in</div>
-</div>
-</div>
-<div class="location">Milwaukee, WI</div>
-<div class="data-grid">
-<div class="data-row"><div class="data-label">Feels Like:</div><div class="data-value" id="feelsLike">–°F</div></div>
-<div class="data-row"><div class="data-label">Wind Speed:</div><div class="data-value" id="windSpeed">– mph –</div></div>
-<div class="data-row"><div class="data-label">Dew Point:</div><div class="data-value" id="dewPoint">–°F</div></div>
-<div class="data-row"><div class="data-label">Visibility:</div><div class="data-value" id="visibility">– mi</div></div>
-<div class="data-row"><div class="data-label">Humidity:</div><div class="data-value" id="humidity">–%</div></div>
-</div>
-<div class="timezone-display">
-<div class="sun-times">
-<div class="sun-time sunrise"><span class="sun-label">Sunrise</span> <span id="sunrise">–:– –</span></div>
-<div class="sun-time sunset"><span class="sun-label">Sunset</span> <span id="sunset">–:– –</span></div>
-</div>
-</div>
-<div class="weather-source">Data: National Weather Service (api.weather.gov) | No API key required</div>
-</div>
-
-```
-<div class="separator"></div>
-
-<!-- Radar — always visible -->
-<div class="radar-display" id="radarDisplay">
-  <div class="radar-header">═══ MILWAUKEE AREA RADAR ═══</div>
-  <div class="radar-canvas-container" id="radarCanvasContainer">
-    <canvas id="gridCanvas"></canvas>
-    <canvas id="returnsCanvas"></canvas>
-    <canvas id="overlayCanvas"></canvas>
-    <canvas id="sweepCanvas"></canvas>
-  </div>
-  <div class="radar-footer">
-    <div class="radar-legend">RainViewer Composite Reflectivity</div>
-    <div class="radar-timestamp" id="radarTimestamp">INITIALIZING...</div>
-  </div>
-  <div class="radar-controls">
-    <button class="radar-button" onclick="radar.refresh()">REFRESH DATA</button>
-  </div>
-</div>
-
-<div class="separator"></div>
-
-<!-- Terminal -->
-<div class="terminal-section">
-  <div class="terminal-header">═══ INTERACTIVE TERMINAL ═══</div>
-  <div class="terminal-output" id="terminalOutput">
-    <div class="terminal-line">MKE WX Terminal v1.0</div>
-    <div class="terminal-line">Try: 'lake' | 'moon' | 'help' for all commands</div>
-    <div class="terminal-line">─────────────────────────────────────</div>
-  </div>
-  <div class="terminal-input-line">
-    <span class="terminal-prompt">></span>
-    <input type="text" id="terminalInput" placeholder="Type a command..." autocomplete="off">
-  </div>
-</div>
-
-<div class="separator"></div>
-
-<footer class="site-footer">
-  <p>Built with ♥ for the 414 by <a href="mailto:TVJasonLee@AOL.com" class="author-glow">Jason Lee!</a></p>
-  <p>MKE WX &copy; {{ site.time | date: '%Y' }} | <a href="/feed.xml">Subscribe via RSS</a></p>
-</footer>
-```
-
-  </div>
-
-  <script>
+  
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
     // =================================================================
     //  AUDIO
     // =================================================================
@@ -637,8 +625,4 @@
     // =================================================================
     //  INIT
     // =================================================================
-    runBoot();updateDateTime();setInterval(updateDateTime,1000);fetchWeather();fetchAlerts();setInterval(fetchWeather,300000);setInterval(fetchAlerts,300000);
-  </script>
-
-</body>
-</html>
+    runBoot();updateDateTime();setInte
