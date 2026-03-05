@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -6,7 +7,7 @@
   <title>{% if page.title %}{{ page.title }}{% else %}MKE WX - Milwaukee Weather Reimagined{% endif %}</title>
   <meta name="description" content="{{ site.description }}">
   {% feed_meta %}
-  
+
   <style>
     @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
     
@@ -96,7 +97,6 @@
     .article-title { font-size: 24px; color: var(--bright-amber); margin-bottom: 10px; text-shadow: 0 0 10px var(--phosphor-glow); }
     .article-content { color: var(--phosphor-amber); font-size: 18px; line-height: 1.8; }
     .article-content p { margin-bottom: 20px; }
-    .article-content hr { border: none; height: 2px; background: linear-gradient(to right, transparent, var(--dim-amber) 20%, var(--phosphor-amber) 50%, var(--dim-amber) 80%, transparent); margin: 25px 0; }
     .article-content strong, .article-content b { color: var(--bright-amber); text-shadow: 0 0 5px var(--phosphor-glow); }
     .close-article { color: var(--phosphor-amber); border: 2px solid var(--phosphor-amber); padding: 8px 20px; display: inline-block; cursor: pointer; margin-top: 20px; background: rgba(153,102,0,0.1); transition: all 0.2s ease; }
     .close-article::before { content: "[ "; } .close-article::after { content: " ]"; }
@@ -198,10 +198,12 @@
       .sun-times { flex-direction: column; gap: 10px; align-items: center; }
     }
   </style>
+
 </head>
 <body>
-  
+
   <!-- Boot Screen -->
+
   <div id="bootScreen">
     <div class="boot-logo">
  ███╗   ███╗██╗  ██╗███████╗    ██╗    ██╗██╗  ██╗
@@ -212,169 +214,178 @@
  ╚═╝     ╚═╝╚═╝  ╚═╝╚══════╝     ╚══╝╚══╝ ╚═╝  ╚═╝</div>
     <div class="boot-messages" id="bootMessages"></div>
   </div>
-  
+
   <!-- Main Content -->
+
   <div class="container" id="mainContent">
-    
-    <header class="site-header">
-      <div class="ascii-logo">
- ███╗   ███╗██╗  ██╗███████╗    ██╗    ██╗██╗  ██╗
- ████╗ ████║██║ ██╔╝██╔════╝    ██║    ██║╚██╗██╔╝
- ██╔████╔██║█████╔╝ █████╗      ██║ █╗ ██║ ╚███╔╝ 
- ██║╚██╔╝██║██╔═██╗ ██╔══╝      ██║███╗██║ ██╔██╗ 
- ██║ ╚═╝ ██║██║  ██╗███████╗    ╚███╔███╔╝██╔╝ ██╗
- ╚═╝     ╚═╝╚═╝  ╚═╝╚══════╝     ╚══╝╚══╝ ╚═╝  ╚═╝</div>
-      <div class="site-title-text">MILWAUKEE WEATHER<span class="cursor"></span></div>
-      <p class="site-subtitle">MKEWX.com Weather Terminal for Milwaukee</p>
-      <nav class="site-nav"><a href="/">HOME</a><a href="/feed.xml">RSS</a></nav>
-    </header>
-    
-    <div class="separator"></div>
-    
-    <div class="welcome-section">
-      <div class="title">WELCOME TO MKE WX</div>
-      <p>Milwaukee's weather: never told like the folks on the news.</p>
-    </div>
-    
-    <div class="separator"></div>
-    
-    <!-- Posts from Jekyll -->
-    <div class="posts">
-      <ul class="post-list">
-        {% for post in paginator.posts %}
-        <li class="post-item">
-          <div class="post-meta">
-            <span>{{ post.date | date: "%b %d, %Y" }}</span>
-            {% if post.category == 'weather' %}
-            <span class="post-category">TODAY'S WEATHER</span>
-            {% elsif post.category == 'general' %}
-            <span class="post-category">MKE WX</span>
-            {% endif %}
-          </div>
-          <h2 class="post-title" onclick="openArticle({{ forloop.index0 }})">{{ post.title }}</h2>
-          <div class="post-excerpt">
-            {{ post.content | strip_html | truncatewords: 30 }}
-          </div>
-        </li>
-        {% endfor %}
-      </ul>
-    </div>
-    
-    <!-- Pagination -->
-    <div class="pagination">
-      {% if paginator.previous_page %}
-        <a href="{{ paginator.previous_page_path }}">← NEWER</a>
-      {% else %}
-        <span class="disabled">← NEWER</span>
-      {% endif %}
-      
-      <span class="page-info">Page {{ paginator.page }} of {{ paginator.total_pages }}</span>
-      
-      {% if paginator.next_page %}
-        <a href="{{ paginator.next_page_path }}">OLDER →</a>
-      {% else %}
-        <span class="disabled">OLDER →</span>
-      {% endif %}
-    </div>
-    
-    <!-- Article Viewer -->
-    <div class="article-viewer" id="articleViewer">
-      <div class="article-container">
-        <div class="article-header">
-          <div class="article-title" id="articleTitle"></div>
-          <div class="post-meta"><span id="articleDate"></span></div>
-        </div>
-        <div class="article-content" id="articleContent"></div>
-        <div class="close-article" onclick="closeArticle()">CLOSE</div>
+
+```
+<header class="site-header">
+  <div class="ascii-logo">
+```
+
+███╗   ███╗██╗  ██╗███████╗    ██╗    ██╗██╗  ██╗
+████╗ ████║██║ ██╔╝██╔════╝    ██║    ██║╚██╗██╔╝
+██╔████╔██║█████╔╝ █████╗      ██║ █╗ ██║ ╚███╔╝
+██║╚██╔╝██║██╔═██╗ ██╔══╝      ██║███╗██║ ██╔██╗
+██║ ╚═╝ ██║██║  ██╗███████╗    ╚███╔███╔╝██╔╝ ██╗
+╚═╝     ╚═╝╚═╝  ╚═╝╚══════╝     ╚══╝╚══╝ ╚═╝  ╚═╝</div>
+<div class="site-title-text">MILWAUKEE WEATHER<span class="cursor"></span></div>
+<p class="site-subtitle">MKEWX.com Weather Terminal for Milwaukee</p>
+<nav class="site-nav"><a href="/">HOME</a><a href="/feed.xml">RSS</a></nav>
+</header>
+
+```
+<div class="separator"></div>
+
+<div class="welcome-section">
+  <div class="title">WELCOME TO MKE WX</div>
+  <p>A new way to look at Milwaukee's weather.<br>But never told like the guy on the news.</p>
+</div>
+
+<div class="separator"></div>
+
+<!-- Posts from Jekyll -->
+<div class="posts">
+  <ul class="post-list">
+    {% for post in paginator.posts %}
+    <li class="post-item">
+      <div class="post-meta">
+        <span>{{ post.date | date: "%b %d, %Y" }}</span>
+        {% if post.category == 'weather' %}
+        <span class="post-category">TODAY'S WEATHER</span>
+        {% elsif post.category == 'general' %}
+        <span class="post-category">MKE WX</span>
+        {% endif %}
       </div>
-    </div>
-    
-    <div class="separator"></div>
-    
-    <!-- Weather Advisories (above current conditions) -->
-    <div id="alertBox" class="alert-box no-alerts">
-      <div id="alertContent" class="alert-content">Checking NWS alerts for Milwaukee...<span class="alert-cursor"></span></div>
-    </div>
-    
-    <!-- Current Conditions -->
-    <div class="weather-section">
-      <div class="weather-header">
-        <div class="datetime" id="datetime">Loading...</div>
-        <div class="current-temp" id="currentTemp">--°F</div>
+      <h2 class="post-title" onclick="openArticle({{ forloop.index0 }})">{{ post.title }}</h2>
+      <div class="post-excerpt">
+        {{ post.content | strip_html | truncatewords: 30 }}
       </div>
-      <div class="weather-icon-row">
-        <div class="weather-icon" id="weatherIcon">    \   /    
-     .-.     
-  ― (   ) ―  
-     '-'     
-    /   \    </div>
-        <div style="text-align: left;">
-          <div id="conditions" style="font-size: 22px; color: var(--bright-amber);">Loading...</div>
-          <div id="pressure" style="font-size: 18px; color: var(--phosphor-amber);">-- in</div>
-        </div>
-      </div>
-      <div class="location">Milwaukee, WI</div>
-      <div class="data-grid">
-        <div class="data-row"><div class="data-label">Feels Like:</div><div class="data-value" id="feelsLike">--°F</div></div>
-        <div class="data-row"><div class="data-label">Wind Speed:</div><div class="data-value" id="windSpeed">-- mph --</div></div>
-        <div class="data-row"><div class="data-label">Dew Point:</div><div class="data-value" id="dewPoint">--°F</div></div>
-        <div class="data-row"><div class="data-label">Visibility:</div><div class="data-value" id="visibility">-- mi</div></div>
-        <div class="data-row"><div class="data-label">Humidity:</div><div class="data-value" id="humidity">--%</div></div>
-      </div>
-      <div class="timezone-display">
-        <div class="sun-times">
-          <div class="sun-time sunrise"><span class="sun-label">Sunrise</span> <span id="sunrise">--:-- --</span></div>
-          <div class="sun-time sunset"><span class="sun-label">Sunset</span> <span id="sunset">--:-- --</span></div>
-        </div>
-      </div>
-      <div class="weather-source">Data: National Weather Service (api.weather.gov) | No API key required</div>
-    </div>
-    
-    <div class="separator"></div>
-    
-    <!-- Radar — always visible -->
-    <div class="radar-display" id="radarDisplay">
-      <div class="radar-header">═══ MILWAUKEE AREA RADAR ═══</div>
-      <div class="radar-canvas-container" id="radarCanvasContainer">
-        <canvas id="gridCanvas"></canvas>
-        <canvas id="returnsCanvas"></canvas>
-        <canvas id="overlayCanvas"></canvas>
-        <canvas id="sweepCanvas"></canvas>
-      </div>
-      <div class="radar-footer">
-        <div class="radar-legend">RainViewer Composite Reflectivity</div>
-        <div class="radar-timestamp" id="radarTimestamp">INITIALIZING...</div>
-      </div>
-      <div class="radar-controls">
-        <button class="radar-button" onclick="radar.refresh()">REFRESH DATA</button>
-      </div>
-    </div>
-    
-    <div class="separator"></div>
-    
-    <!-- Terminal -->
-    <div class="terminal-section">
-      <div class="terminal-header">═══ INTERACTIVE TERMINAL ═══</div>
-      <div class="terminal-output" id="terminalOutput">
-        <div class="terminal-line">MKE WX Terminal v1.0</div>
-        <div class="terminal-line">Try: 'lake' | 'moon' | 'help' for all commands</div>
-        <div class="terminal-line">─────────────────────────────────────</div>
-      </div>
-      <div class="terminal-input-line">
-        <span class="terminal-prompt">></span>
-        <input type="text" id="terminalInput" placeholder="Type a command..." autocomplete="off">
-      </div>
-    </div>
-    
-    <div class="separator"></div>
-    
-    <footer class="site-footer">
-      <p>Built with ♥ for the 414 by <a href="mailto:TVJasonLee@AOL.com" class="author-glow">Jason Lee!</a></p>
-      <p>MKE WX &copy; {{ site.time | date: '%Y' }} | <a href="/feed.xml">Subscribe via RSS</a></p>
-    </footer>
-    
-  </div>
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+
+<!-- Pagination -->
+<div class="pagination">
+  {% if paginator.previous_page %}
+    <a href="{{ paginator.previous_page_path }}">← NEWER</a>
+  {% else %}
+    <span class="disabled">← NEWER</span>
+  {% endif %}
   
+  <span class="page-info">Page {{ paginator.page }} of {{ paginator.total_pages }}</span>
+  
+  {% if paginator.next_page %}
+    <a href="{{ paginator.next_page_path }}">OLDER →</a>
+  {% else %}
+    <span class="disabled">OLDER →</span>
+  {% endif %}
+</div>
+
+<!-- Article Viewer -->
+<div class="article-viewer" id="articleViewer">
+  <div class="article-container">
+    <div class="article-header">
+      <div class="article-title" id="articleTitle"></div>
+      <div class="post-meta"><span id="articleDate"></span></div>
+    </div>
+    <div class="article-content" id="articleContent"></div>
+    <div class="close-article" onclick="closeArticle()">CLOSE</div>
+  </div>
+</div>
+
+<div class="separator"></div>
+
+<!-- Weather Advisories (above current conditions) -->
+<div id="alertBox" class="alert-box no-alerts">
+  <div id="alertContent" class="alert-content">Checking NWS alerts for Milwaukee...<span class="alert-cursor"></span></div>
+</div>
+
+<!-- Current Conditions -->
+<div class="weather-section">
+  <div class="weather-header">
+    <div class="datetime" id="datetime">Loading...</div>
+    <div class="current-temp" id="currentTemp">--°F</div>
+  </div>
+  <div class="weather-icon-row">
+    <div class="weather-icon" id="weatherIcon">    \   /    
+ .-.     
+```
+
+― (   ) ―  
+‘-’  
+/   \    </div>
+<div style="text-align: left;">
+<div id="conditions" style="font-size: 22px; color: var(--bright-amber);">Loading…</div>
+<div id="pressure" style="font-size: 18px; color: var(--phosphor-amber);">– in</div>
+</div>
+</div>
+<div class="location">Milwaukee, WI</div>
+<div class="data-grid">
+<div class="data-row"><div class="data-label">Feels Like:</div><div class="data-value" id="feelsLike">–°F</div></div>
+<div class="data-row"><div class="data-label">Wind Speed:</div><div class="data-value" id="windSpeed">– mph –</div></div>
+<div class="data-row"><div class="data-label">Dew Point:</div><div class="data-value" id="dewPoint">–°F</div></div>
+<div class="data-row"><div class="data-label">Visibility:</div><div class="data-value" id="visibility">– mi</div></div>
+<div class="data-row"><div class="data-label">Humidity:</div><div class="data-value" id="humidity">–%</div></div>
+</div>
+<div class="timezone-display">
+<div class="sun-times">
+<div class="sun-time sunrise"><span class="sun-label">Sunrise</span> <span id="sunrise">–:– –</span></div>
+<div class="sun-time sunset"><span class="sun-label">Sunset</span> <span id="sunset">–:– –</span></div>
+</div>
+</div>
+<div class="weather-source">Data: National Weather Service (api.weather.gov) | No API key required</div>
+</div>
+
+```
+<div class="separator"></div>
+
+<!-- Radar — always visible -->
+<div class="radar-display" id="radarDisplay">
+  <div class="radar-header">═══ MILWAUKEE AREA RADAR ═══</div>
+  <div class="radar-canvas-container" id="radarCanvasContainer">
+    <canvas id="gridCanvas"></canvas>
+    <canvas id="returnsCanvas"></canvas>
+    <canvas id="overlayCanvas"></canvas>
+    <canvas id="sweepCanvas"></canvas>
+  </div>
+  <div class="radar-footer">
+    <div class="radar-legend">RainViewer Composite Reflectivity</div>
+    <div class="radar-timestamp" id="radarTimestamp">INITIALIZING...</div>
+  </div>
+  <div class="radar-controls">
+    <button class="radar-button" onclick="radar.refresh()">REFRESH DATA</button>
+  </div>
+</div>
+
+<div class="separator"></div>
+
+<!-- Terminal -->
+<div class="terminal-section">
+  <div class="terminal-header">═══ INTERACTIVE TERMINAL ═══</div>
+  <div class="terminal-output" id="terminalOutput">
+    <div class="terminal-line">MKE WX Terminal v1.0</div>
+    <div class="terminal-line">Try: 'lake' | 'moon' | 'help' for all commands</div>
+    <div class="terminal-line">─────────────────────────────────────</div>
+  </div>
+  <div class="terminal-input-line">
+    <span class="terminal-prompt">></span>
+    <input type="text" id="terminalInput" placeholder="Type a command..." autocomplete="off">
+  </div>
+</div>
+
+<div class="separator"></div>
+
+<footer class="site-footer">
+  <p>Built with ♥ for the 414 by <a href="mailto:TVJasonLee@AOL.com" class="author-glow">Jason Lee!</a></p>
+  <p>MKE WX &copy; {{ site.time | date: '%Y' }} | <a href="/feed.xml">Subscribe via RSS</a></p>
+</footer>
+```
+
+  </div>
+
   <script>
     // =================================================================
     //  AUDIO
@@ -457,28 +468,169 @@
     function typeChunk(){if(!curAlert)return;const c=document.getElementById('alertContent');if(!c)return;const ch=alertChunks[chunkI],last=chunkI===alertChunks.length-1,txt=ch+(last?'':'...');let i=0,disp='';function typ(){if(i<txt.length){disp+=txt[i++];c.innerHTML=disp+'<span class="alert-cursor"></span>';alertTOs.push(setTimeout(typ,30));}else alertTOs.push(setTimeout(()=>{chunkI=(chunkI+1)%alertChunks.length;typeChunk();},5000));}typ();}
     
     // =================================================================
-    //  RADAR (Multi-tile RainViewer)
+    //  RADAR (Multi-tile RainViewer — Zoom 8 w/ Mercator-consistent projection)
     // =================================================================
-    const radar=(()=>{const CX_LAT=43.0389,CX_LON=-87.9065,RAD=1.2,DISP_N=CX_LAT+RAD,DISP_S=CX_LAT-RAD,DISP_W=CX_LON-RAD,DISP_E=CX_LON+RAD,ZOOM=7;
+    const radar=(()=>{
+    const CX_LAT=43.0389,CX_LON=-87.9065,RAD=1.2;
+    const DISP_N=CX_LAT+RAD,DISP_S=CX_LAT-RAD,DISP_W=CX_LON-RAD,DISP_E=CX_LON+RAD;
+    const ZOOM=8; // Higher zoom = smaller tiles = better precision
+    const TILE_SZ=256; // 256px tiles for faster loading
     const CITIES=[{name:'MILWAUKEE',lat:43.0389,lon:-87.9065,big:true},{name:'SHEBOYGAN',lat:43.7508,lon:-87.7145},{name:'RACINE',lat:42.7261,lon:-87.7829},{name:'KENOSHA',lat:42.5847,lon:-87.8212},{name:'WAUKESHA',lat:43.0117,lon:-88.2315}];
     let gridCtx,returnsCtx,overlayCtx,sweepCtx,amberData=null,sweepAngle=0,animFrame=null,sz=500,inited=false;
-    function ll2px(lat,lon){return{x:((lon-DISP_W)/(DISP_E-DISP_W))*sz,y:((DISP_N-lat)/(DISP_N-DISP_S))*sz};}
+    
+    // Mercator projection helpers
+    function lat2merc(lat){const r=lat*Math.PI/180;return Math.log(Math.tan(Math.PI/4+r/2));}
+    const MERC_N=lat2merc(DISP_N),MERC_S=lat2merc(DISP_S);
+    
+    // ALL coordinate conversion uses Mercator Y — consistent with tile projection
+    function ll2px(lat,lon){
+      return{
+        x:((lon-DISP_W)/(DISP_E-DISP_W))*sz,
+        y:((MERC_N-lat2merc(lat))/(MERC_N-MERC_S))*sz
+      };
+    }
+    
+    // Tile math
     function lonToTX(lon,z){return Math.floor((lon+180)/360*Math.pow(2,z));}
     function latToTY(lat,z){const r=lat*Math.PI/180;return Math.floor((1-Math.log(Math.tan(r)+1/Math.cos(r))/Math.PI)/2*Math.pow(2,z));}
     function txToLon(x,z){return x/Math.pow(2,z)*360-180;}
     function tyToLat(y,z){const n=Math.PI-2*Math.PI*y/Math.pow(2,z);return 180/Math.PI*Math.atan(0.5*(Math.exp(n)-Math.exp(-n)));}
     
-    function initRadar(){if(inited){refresh();return;}const cont=document.getElementById('radarCanvasContainer');sz=Math.min(cont.offsetWidth,500);['gridCanvas','returnsCanvas','overlayCanvas','sweepCanvas'].forEach(id=>{const c=document.getElementById(id);c.width=sz;c.height=sz;});gridCtx=document.getElementById('gridCanvas').getContext('2d');returnsCtx=document.getElementById('returnsCanvas').getContext('2d');overlayCtx=document.getElementById('overlayCanvas').getContext('2d');sweepCtx=document.getElementById('sweepCanvas').getContext('2d');drawGrid();drawOverlay();refresh();animate();inited=true;}
+    // Convert tile Y to Mercator Y directly (avoids lat roundtrip)
+    function tyToMerc(y,z){return Math.PI-2*Math.PI*y/Math.pow(2,z);}
     
-    function drawGrid(){const cx=sz/2,cy=sz/2,maxR=sz*0.45;gridCtx.fillStyle='#000';gridCtx.fillRect(0,0,sz,sz);gridCtx.fillStyle='#080600';gridCtx.beginPath();gridCtx.arc(cx,cy,maxR,0,Math.PI*2);gridCtx.fill();gridCtx.strokeStyle='rgba(153,102,0,0.35)';gridCtx.lineWidth=1;for(let i=1;i<=4;i++){gridCtx.beginPath();gridCtx.arc(cx,cy,maxR*(i/4),0,Math.PI*2);gridCtx.stroke();}gridCtx.beginPath();gridCtx.moveTo(cx-maxR,cy);gridCtx.lineTo(cx+maxR,cy);gridCtx.moveTo(cx,cy-maxR);gridCtx.lineTo(cx,cy+maxR);gridCtx.stroke();gridCtx.fillStyle='rgba(153,102,0,0.5)';gridCtx.font='13px VT323';gridCtx.textAlign='center';gridCtx.fillText('20mi',cx+maxR*0.25,cy-4);gridCtx.fillText('40mi',cx+maxR*0.5,cy-4);gridCtx.fillText('60mi',cx+maxR*0.75,cy-4);gridCtx.fillText('80mi',cx+maxR*0.98,cy-4);}
+    function initRadar(){
+      if(inited){refresh();return;}
+      const cont=document.getElementById('radarCanvasContainer');
+      sz=Math.min(cont.offsetWidth,500);
+      ['gridCanvas','returnsCanvas','overlayCanvas','sweepCanvas'].forEach(id=>{
+        const c=document.getElementById(id);c.width=sz;c.height=sz;
+      });
+      gridCtx=document.getElementById('gridCanvas').getContext('2d');
+      returnsCtx=document.getElementById('returnsCanvas').getContext('2d');
+      overlayCtx=document.getElementById('overlayCanvas').getContext('2d');
+      sweepCtx=document.getElementById('sweepCanvas').getContext('2d');
+      drawGrid();drawOverlay();refresh();animate();inited=true;
+    }
     
-    function drawOverlay(){overlayCtx.clearRect(0,0,sz,sz);const shore=[{lat:42.50,lon:-87.80},{lat:42.58,lon:-87.82},{lat:42.65,lon:-87.80},{lat:42.73,lon:-87.78},{lat:42.85,lon:-87.82},{lat:42.95,lon:-87.85},{lat:43.04,lon:-87.90},{lat:43.12,lon:-87.89},{lat:43.25,lon:-87.88},{lat:43.40,lon:-87.87},{lat:43.55,lon:-87.84},{lat:43.70,lon:-87.80},{lat:43.75,lon:-87.71},{lat:43.85,lon:-87.65},{lat:44.00,lon:-87.60},{lat:44.20,lon:-87.55}];overlayCtx.strokeStyle='#FF9500';overlayCtx.lineWidth=2;overlayCtx.shadowBlur=5;overlayCtx.shadowColor='#FF8C00';overlayCtx.beginPath();shore.forEach((pt,i)=>{const p=ll2px(pt.lat,pt.lon);if(i===0)overlayCtx.moveTo(p.x,p.y);else overlayCtx.lineTo(p.x,p.y);});overlayCtx.stroke();overlayCtx.shadowBlur=0;CITIES.forEach(c=>{const p=ll2px(c.lat,c.lon);overlayCtx.shadowBlur=6;overlayCtx.shadowColor='#FF8C00';overlayCtx.fillStyle='#FFB84D';overlayCtx.beginPath();overlayCtx.arc(p.x,p.y,c.big?5:3,0,Math.PI*2);overlayCtx.fill();overlayCtx.shadowBlur=0;overlayCtx.fillStyle='#FF9500';overlayCtx.font='13px VT323';overlayCtx.textAlign='left';overlayCtx.fillText(c.name,p.x+7,p.y+4);});const lp=ll2px(43.3,-87.15);overlayCtx.fillStyle='rgba(153,102,0,0.4)';overlayCtx.font='13px VT323';overlayCtx.textAlign='center';overlayCtx.fillText('LAKE',lp.x,lp.y-6);overlayCtx.fillText('MICHIGAN',lp.x,lp.y+8);}
+    function drawGrid(){
+      const cx=sz/2,cy=sz/2,maxR=sz*0.45;
+      gridCtx.fillStyle='#000';gridCtx.fillRect(0,0,sz,sz);
+      gridCtx.fillStyle='#080600';gridCtx.beginPath();gridCtx.arc(cx,cy,maxR,0,Math.PI*2);gridCtx.fill();
+      gridCtx.strokeStyle='rgba(153,102,0,0.35)';gridCtx.lineWidth=1;
+      for(let i=1;i<=4;i++){gridCtx.beginPath();gridCtx.arc(cx,cy,maxR*(i/4),0,Math.PI*2);gridCtx.stroke();}
+      gridCtx.beginPath();gridCtx.moveTo(cx-maxR,cy);gridCtx.lineTo(cx+maxR,cy);gridCtx.moveTo(cx,cy-maxR);gridCtx.lineTo(cx,cy+maxR);gridCtx.stroke();
+      gridCtx.fillStyle='rgba(153,102,0,0.5)';gridCtx.font='13px VT323';gridCtx.textAlign='center';
+      gridCtx.fillText('20mi',cx+maxR*0.25,cy-4);gridCtx.fillText('40mi',cx+maxR*0.5,cy-4);
+      gridCtx.fillText('60mi',cx+maxR*0.75,cy-4);gridCtx.fillText('80mi',cx+maxR*0.98,cy-4);
+    }
     
-    async function refresh(){try{const apiRes=await fetch('https://api.rainviewer.com/public/weather-maps.json');if(!apiRes.ok)throw new Error('RV fail');const apiData=await apiRes.json(),latest=apiData.radar.past[apiData.radar.past.length-1];const minTX=lonToTX(DISP_W,ZOOM),maxTX=lonToTX(DISP_E,ZOOM),minTY=latToTY(DISP_N,ZOOM),maxTY=latToTY(DISP_S,ZOOM);const promises=[];for(let tx=minTX;tx<=maxTX;tx++)for(let ty=minTY;ty<=maxTY;ty++)promises.push(loadTile(latest.path,tx,ty));const tiles=await Promise.all(promises);const off=document.createElement('canvas');off.width=sz;off.height=sz;const octx=off.getContext('2d');for(const tile of tiles){if(!tile.img)continue;const tW=txToLon(tile.tx,ZOOM),tE=txToLon(tile.tx+1,ZOOM),tN=tyToLat(tile.ty,ZOOM),tS=tyToLat(tile.ty+1,ZOOM);const tl=ll2px(tN,tW),br=ll2px(tS,tE);octx.drawImage(tile.img,tl.x,tl.y,br.x-tl.x,br.y-tl.y);}const id=octx.getImageData(0,0,sz,sz),px=id.data;for(let i=0;i<px.length;i+=4){const r=px[i],g=px[i+1],b=px[i+2],a=px[i+3];if(a<30){px[i]=0;px[i+1]=0;px[i+2]=0;px[i+3]=0;continue;}const br=(r*0.299+g*0.587+b*0.114)/255;if(br<0.06){px[i]=0;px[i+1]=0;px[i+2]=0;px[i+3]=0;continue;}let ar,ag,ab;if(br<0.25){const t=br/0.25;ar=Math.round(80+t*75);ag=Math.round(50+t*52);ab=0;}else if(br<0.45){const t=(br-0.25)/0.2;ar=Math.round(155+t*100);ag=Math.round(102+t*47);ab=0;}else if(br<0.65){const t=(br-0.45)/0.2;ar=255;ag=Math.round(149+t*35);ab=Math.round(t*40);}else{const t=(br-0.65)/0.35;ar=255;ag=Math.round(184+t*50);ab=Math.round(40+t*130);}px[i]=ar;px[i+1]=ag;px[i+2]=ab;px[i+3]=Math.min(255,Math.round(a*(0.5+br*0.9)));}octx.putImageData(id,0,0);amberData=off;const ft=new Date(latest.time*1000);document.getElementById('radarTimestamp').textContent='SCAN: '+ft.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true,timeZone:'America/Chicago'})+' CST';}catch(e){console.error('Radar:',e);}}
+    function drawOverlay(){
+      overlayCtx.clearRect(0,0,sz,sz);
+      const shore=[{lat:42.50,lon:-87.80},{lat:42.58,lon:-87.82},{lat:42.65,lon:-87.80},{lat:42.73,lon:-87.78},{lat:42.85,lon:-87.82},{lat:42.95,lon:-87.85},{lat:43.04,lon:-87.90},{lat:43.12,lon:-87.89},{lat:43.25,lon:-87.88},{lat:43.40,lon:-87.87},{lat:43.55,lon:-87.84},{lat:43.70,lon:-87.80},{lat:43.75,lon:-87.71},{lat:43.85,lon:-87.65},{lat:44.00,lon:-87.60},{lat:44.20,lon:-87.55}];
+      overlayCtx.strokeStyle='#FF9500';overlayCtx.lineWidth=2;overlayCtx.shadowBlur=5;overlayCtx.shadowColor='#FF8C00';
+      overlayCtx.beginPath();
+      shore.forEach((pt,i)=>{const p=ll2px(pt.lat,pt.lon);if(i===0)overlayCtx.moveTo(p.x,p.y);else overlayCtx.lineTo(p.x,p.y);});
+      overlayCtx.stroke();overlayCtx.shadowBlur=0;
+      CITIES.forEach(c=>{const p=ll2px(c.lat,c.lon);overlayCtx.shadowBlur=6;overlayCtx.shadowColor='#FF8C00';overlayCtx.fillStyle='#FFB84D';overlayCtx.beginPath();overlayCtx.arc(p.x,p.y,c.big?5:3,0,Math.PI*2);overlayCtx.fill();overlayCtx.shadowBlur=0;overlayCtx.fillStyle='#FF9500';overlayCtx.font='13px VT323';overlayCtx.textAlign='left';overlayCtx.fillText(c.name,p.x+7,p.y+4);});
+      const lp=ll2px(43.3,-87.15);overlayCtx.fillStyle='rgba(153,102,0,0.4)';overlayCtx.font='13px VT323';overlayCtx.textAlign='center';overlayCtx.fillText('LAKE',lp.x,lp.y-6);overlayCtx.fillText('MICHIGAN',lp.x,lp.y+8);
+    }
     
-    function loadTile(path,tx,ty){return new Promise(res=>{const url=`https://tilecache.rainviewer.com${path}/512/${ZOOM}/${tx}/${ty}/2/1_1.png`;const img=new Image();img.crossOrigin='anonymous';img.onload=()=>res({img,tx,ty});img.onerror=()=>res({img:null,tx,ty});img.src=url;});}
+    async function refresh(){
+      try{
+        const apiRes=await fetch('https://api.rainviewer.com/public/weather-maps.json');
+        if(!apiRes.ok)throw new Error('RV API fail');
+        const apiData=await apiRes.json();
+        const latest=apiData.radar.past[apiData.radar.past.length-1];
+        
+        // Calculate tile range at zoom 8
+        const minTX=lonToTX(DISP_W,ZOOM),maxTX=lonToTX(DISP_E,ZOOM);
+        const minTY=latToTY(DISP_N,ZOOM),maxTY=latToTY(DISP_S,ZOOM);
+        
+        // Load all tiles
+        const promises=[];
+        for(let tx=minTX;tx<=maxTX;tx++)
+          for(let ty=minTY;ty<=maxTY;ty++)
+            promises.push(loadTile(latest.path,tx,ty));
+        const tiles=await Promise.all(promises);
+        const loaded=tiles.filter(t=>t.img);
+        console.log(`Radar: ${loaded.length}/${tiles.length} tiles loaded at z${ZOOM}`);
+        
+        // Composite tiles using Mercator-consistent positioning
+        // Key insight: tile pixels are in Web Mercator space.
+        // Our canvas Y uses Mercator too (via ll2px). So when we map
+        // tile Mercator bounds to canvas Mercator coordinates, the
+        // tile's internal pixel layout matches our canvas layout.
+        const off=document.createElement('canvas');
+        off.width=sz;off.height=sz;
+        const octx=off.getContext('2d');
+        
+        for(const tile of loaded){
+          // Tile geographic bounds
+          const tW=txToLon(tile.tx,ZOOM);
+          const tE=txToLon(tile.tx+1,ZOOM);
+          
+          // For Y: use Mercator values directly for both tile bounds and canvas mapping
+          const tileMercN=tyToMerc(tile.ty,ZOOM);
+          const tileMercS=tyToMerc(tile.ty+1,ZOOM);
+          
+          // Map tile Mercator bounds to canvas pixel coordinates
+          const canvasX1=((tW-DISP_W)/(DISP_E-DISP_W))*sz;
+          const canvasX2=((tE-DISP_W)/(DISP_E-DISP_W))*sz;
+          const canvasY1=((MERC_N-tileMercN)/(MERC_N-MERC_S))*sz;
+          const canvasY2=((MERC_N-tileMercS)/(MERC_N-MERC_S))*sz;
+          
+          octx.drawImage(tile.img,canvasX1,canvasY1,canvasX2-canvasX1,canvasY2-canvasY1);
+        }
+        
+        // Pixel-level amber conversion
+        const id=octx.getImageData(0,0,sz,sz);
+        const px=id.data;
+        for(let i=0;i<px.length;i+=4){
+          const r=px[i],g=px[i+1],b=px[i+2],a=px[i+3];
+          if(a<40){px[i]=0;px[i+1]=0;px[i+2]=0;px[i+3]=0;continue;}
+          const br=(r*0.299+g*0.587+b*0.114)/255;
+          if(br<0.08){px[i]=0;px[i+1]=0;px[i+2]=0;px[i+3]=0;continue;}
+          let ar,ag,ab;
+          if(br<0.25){const t=br/0.25;ar=Math.round(80+t*75);ag=Math.round(50+t*52);ab=0;}
+          else if(br<0.45){const t=(br-0.25)/0.2;ar=Math.round(155+t*100);ag=Math.round(102+t*47);ab=0;}
+          else if(br<0.65){const t=(br-0.45)/0.2;ar=255;ag=Math.round(149+t*35);ab=Math.round(t*40);}
+          else{const t=(br-0.65)/0.35;ar=255;ag=Math.round(184+t*50);ab=Math.round(40+t*130);}
+          px[i]=ar;px[i+1]=ag;px[i+2]=ab;
+          px[i+3]=Math.min(255,Math.round(a*(0.5+br*0.9)));
+        }
+        octx.putImageData(id,0,0);
+        amberData=off;
+        
+        const ft=new Date(latest.time*1000);
+        document.getElementById('radarTimestamp').textContent='SCAN: '+ft.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true,timeZone:'America/Chicago'})+' CST';
+      }catch(e){console.error('Radar:',e);}
+    }
     
-    function animate(){const cx=sz/2,cy=sz/2,maxR=sz*0.45;returnsCtx.save();returnsCtx.beginPath();returnsCtx.arc(cx,cy,maxR,0,Math.PI*2);returnsCtx.clip();returnsCtx.globalAlpha=0.008;returnsCtx.fillStyle='#000';returnsCtx.fillRect(0,0,sz,sz);returnsCtx.globalAlpha=1.0;returnsCtx.restore();if(amberData){const ww=Math.PI/20;returnsCtx.save();returnsCtx.beginPath();returnsCtx.arc(cx,cy,maxR,0,Math.PI*2);returnsCtx.clip();returnsCtx.beginPath();returnsCtx.moveTo(cx,cy);returnsCtx.arc(cx,cy,maxR+10,sweepAngle-ww/2,sweepAngle+ww/2);returnsCtx.closePath();returnsCtx.clip();returnsCtx.drawImage(amberData,0,0);returnsCtx.restore();}sweepCtx.clearRect(0,0,sz,sz);sweepCtx.save();sweepCtx.translate(cx,cy);sweepCtx.rotate(sweepAngle);const gr=sweepCtx.createLinearGradient(0,0,maxR,0);gr.addColorStop(0,'rgba(255,149,0,0.3)');gr.addColorStop(0.3,'rgba(255,184,77,0.5)');gr.addColorStop(1,'rgba(255,184,77,0)');sweepCtx.fillStyle=gr;sweepCtx.beginPath();sweepCtx.moveTo(0,0);sweepCtx.lineTo(maxR,-5);sweepCtx.lineTo(maxR,5);sweepCtx.closePath();sweepCtx.fill();sweepCtx.strokeStyle='rgba(255,184,77,0.8)';sweepCtx.lineWidth=2;sweepCtx.shadowBlur=8;sweepCtx.shadowColor='#FF8C00';sweepCtx.beginPath();sweepCtx.moveTo(0,0);sweepCtx.lineTo(maxR,0);sweepCtx.stroke();sweepCtx.shadowBlur=0;sweepCtx.restore();sweepAngle+=0.015;if(sweepAngle>Math.PI*2)sweepAngle=0;animFrame=requestAnimationFrame(animate);}
+    function loadTile(path,tx,ty){
+      return new Promise(res=>{
+        const url=`https://tilecache.rainviewer.com${path}/${TILE_SZ}/${ZOOM}/${tx}/${ty}/2/1_1.png`;
+        const img=new Image();img.crossOrigin='anonymous';
+        img.onload=()=>res({img,tx,ty});
+        img.onerror=()=>{console.warn(`Tile (${tx},${ty}) failed`);res({img:null,tx,ty});};
+        img.src=url;
+      });
+    }
+    
+    function animate(){
+      const cx=sz/2,cy=sz/2,maxR=sz*0.45;
+      returnsCtx.save();returnsCtx.beginPath();returnsCtx.arc(cx,cy,maxR,0,Math.PI*2);returnsCtx.clip();
+      returnsCtx.globalAlpha=0.008;returnsCtx.fillStyle='#000';returnsCtx.fillRect(0,0,sz,sz);
+      returnsCtx.globalAlpha=1.0;returnsCtx.restore();
+      if(amberData){const ww=Math.PI/20;returnsCtx.save();returnsCtx.beginPath();returnsCtx.arc(cx,cy,maxR,0,Math.PI*2);returnsCtx.clip();returnsCtx.beginPath();returnsCtx.moveTo(cx,cy);returnsCtx.arc(cx,cy,maxR+10,sweepAngle-ww/2,sweepAngle+ww/2);returnsCtx.closePath();returnsCtx.clip();returnsCtx.drawImage(amberData,0,0);returnsCtx.restore();}
+      sweepCtx.clearRect(0,0,sz,sz);sweepCtx.save();sweepCtx.translate(cx,cy);sweepCtx.rotate(sweepAngle);
+      const gr=sweepCtx.createLinearGradient(0,0,maxR,0);gr.addColorStop(0,'rgba(255,149,0,0.3)');gr.addColorStop(0.3,'rgba(255,184,77,0.5)');gr.addColorStop(1,'rgba(255,184,77,0)');
+      sweepCtx.fillStyle=gr;sweepCtx.beginPath();sweepCtx.moveTo(0,0);sweepCtx.lineTo(maxR,-5);sweepCtx.lineTo(maxR,5);sweepCtx.closePath();sweepCtx.fill();
+      sweepCtx.strokeStyle='rgba(255,184,77,0.8)';sweepCtx.lineWidth=2;sweepCtx.shadowBlur=8;sweepCtx.shadowColor='#FF8C00';
+      sweepCtx.beginPath();sweepCtx.moveTo(0,0);sweepCtx.lineTo(maxR,0);sweepCtx.stroke();sweepCtx.shadowBlur=0;sweepCtx.restore();
+      sweepAngle+=0.015;if(sweepAngle>Math.PI*2)sweepAngle=0;
+      animFrame=requestAnimationFrame(animate);
+    }
     
     return{init:initRadar,refresh};})();
     
@@ -487,5 +639,6 @@
     // =================================================================
     runBoot();updateDateTime();setInterval(updateDateTime,1000);fetchWeather();fetchAlerts();setInterval(fetchWeather,300000);setInterval(fetchAlerts,300000);
   </script>
+
 </body>
 </html>
