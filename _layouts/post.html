@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ page.title }} - MKE WX</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+    :root { --phosphor-amber: #FF9500; --phosphor-glow: #FF8C00; --dim-amber: #996600; --bright-amber: #FFB84D; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { background: #000; }
+    body { background: #000; color: var(--phosphor-amber); font-family: 'VT323', 'Courier New', monospace; font-size: 18px; line-height: 1.5; padding: 20px; }
+    .post-container { max-width: 800px; margin: 0 auto; padding: 40px 20px; }
+    .post-header { text-align: center; margin-bottom: 40px; padding-bottom: 30px; border-bottom: 2px solid var(--dim-amber); }
+    .post-title { font-size: 36px; color: var(--bright-amber); margin-bottom: 15px; text-shadow: 0 0 10px var(--phosphor-glow), 0 0 20px var(--phosphor-glow); }
+    .post-date { font-size: 18px; color: var(--dim-amber); }
+    .post-content { font-size: 20px; line-height: 1.8; }
+    .post-content p { margin-bottom: 25px; }
+    .post-content strong, .post-content b { color: var(--bright-amber); text-shadow: 0 0 5px var(--phosphor-glow); font-weight: bold; }
+    .post-content em, .post-content i { color: var(--bright-amber); font-style: italic; }
+    .back-link { display: inline-block; margin-top: 40px; padding: 15px 30px; border: 2px solid var(--phosphor-amber); color: var(--phosphor-amber); text-decoration: none; transition: all 0.3s ease; }
+    .back-link:hover { background: rgba(255,149,0,0.1); box-shadow: 0 0 15px rgba(255,149,0,0.5); }
+    a { color: var(--phosphor-amber); }
+    @media (max-width: 767px) { .post-title { font-size: 28px; } .post-content { font-size: 18px; } }
+  </style>
+</head>
+<body>
+  <div class="post-container">
+    <div class="post-header">
+      <h1 class="post-title">{{ page.title }}</h1>
+      <div class="post-date">{{ page.date | date: "%B %d, %Y" }}</div>
+    </div>
+    <div class="post-content">{{ content }}</div>
+    <a href="/" class="back-link">← Back to MKE WX</a>
+  </div>
+</body>
+</html>

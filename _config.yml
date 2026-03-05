@@ -1,0 +1,41 @@
+title: "MKE WX"
+description: "Milwaukee Weather Reimagined"
+url: "https://mkewx.com"
+baseurl: ""
+
+# Build settings
+markdown: kramdown
+
+plugins:
+  - jekyll-feed
+  - jekyll-paginate
+
+# Pagination
+paginate: 4
+paginate_path: "/page:num/"
+
+# Permalink structure
+permalink: /:year/:month/:day/:title/
+
+# Timezone
+timezone: America/Chicago
+
+# Don't show future posts
+future: false
+
+# Defaults
+defaults:
+  - scope:
+      path: ""
+      type: "posts"
+    values:
+      layout: "post"
+
+# Exclude from build
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - README.md
+  - DEPLOYMENT-GUIDE.md
+  - vendor/
+  - node_modules/
