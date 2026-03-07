@@ -657,9 +657,10 @@
 
   function cmdFlight() {
     addLine(SEP); addLine("     MILWAUKEE MITCHELL AIRPORT (MKE)"); addLine(SEP); addLine("");
-    addLine("Fetching FAA status...");
-    fetch("https://soa.smext.faa.gov/asws/api/airport/status/MKE", {headers:{"Accept":"application/json"}})
-    .then(function(r) { return r.json(); })
+    addLine("Fetching airport status...");
+    // Reads from local JSON file updated by GitHub Actions every 30 min
+    fetch("/assets/data/flight.json")
+    .then(function(r) { if (!r.ok) throw new Error(r.status); return r.json(); })
     .then(function(d) {
       addLine("AIRPORT: " + (d.Name || "General Mitchell International"));
       addLine("DELAY: " + (d.Delay === true ? "YES - Delays reported" : "No delays reported"));
@@ -674,9 +675,11 @@
       }
       if (d.Weather && d.Weather.Visibility) addLine("VISIBILITY: " + d.Weather.Visibility.join(", "));
       if (d.Weather && d.Weather.Wind) addLine("WIND: " + d.Weather.Wind.join(", "));
+      if (d.fetched_at) addLine("Updated: " + d.fetched_at);
       addLine(""); addLine(SEP);
     }).catch(function() {
-      addLine("FAA data temporarily unavailable.");
+      addLine("Airport status data not yet available.");
+      addLine("Data updates every 30 minutes via FAA.");
       addLine("Check: fly.faa.gov for current status");
       addLine(""); addLine(SEP);
     });
@@ -690,20 +693,49 @@
     var pad = function(n) { return n < 10 ? "0" + n : "" + n; };
     var sdate = "por-" + pad(month) + "-" + pad(day);
     var edate = "por-" + pad(month) + "-" + pad(day);
+    // Query for actual daily data (not smry_only) so we can find the years
     fetch("https://data.rcc-acis.org/StnData", {
       method: "POST",
       headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({sid:"USW00014839", sdate:sdate, edate:edate, elems:[{name:"maxt",smry:"max",smry_only:1},{name:"maxt",smry:"min",smry_only:1},{name:"mint",smry:"min",smry_only:1},{name:"mint",smry:"max",smry_only:1},{name:"maxt",smry:"mean",smry_only:1},{name:"mint",smry:"mean",smry_only:1},{name:"snow",smry:"max",smry_only:1}]})
+      body: JSON.stringify({sid:"USW00014839", sdate:sdate, edate:edate, elems:["maxt","mint","snow"]})
     }).then(function(r) { return r.json(); })
     .then(function(d) {
-      if (d.smry) {
-        addLine("RECORD HIGH:    " + (d.smry[0] || "N/A") + "\u00B0F");
-        addLine("RECORD LOW:     " + (d.smry[2] || "N/A") + "\u00B0F");
+      if (d.data && d.data.length > 0) {
+        var recordHigh = -999, recordHighYear = "";
+        var recordLow = 999, recordLowYear = "";
+        var maxSnow = 0, maxSnowYear = "";
+        var sumHigh = 0, sumLow = 0, countHigh = 0, countLow = 0;
+        for (var i = 0; i < d.data.length; i++) {
+          var row = d.data[i];
+          var year = row[0].substring(0, 4);
+          var hi = row[1], lo = row[2], sn = row[3];
+          if (hi !== "M" && hi !== "T" && hi !== "") {
+            var hiVal = parseFloat(hi);
+            if (!isNaN(hiVal)) {
+              sumHigh += hiVal; countHigh++;
+              if (hiVal > recordHigh) { recordHigh = hiVal; recordHighYear = year; }
+            }
+          }
+          if (lo !== "M" && lo !== "T" && lo !== "") {
+            var loVal = parseFloat(lo);
+            if (!isNaN(loVal)) {
+              sumLow += loVal; countLow++;
+              if (loVal < recordLow) { recordLow = loVal; recordLowYear = year; }
+            }
+          }
+          if (sn !== "M" && sn !== "T" && sn !== "" && sn !== "0.0") {
+            var snVal = parseFloat(sn);
+            if (!isNaN(snVal) && snVal > maxSnow) { maxSnow = snVal; maxSnowYear = year; }
+          }
+        }
+        if (recordHigh > -999) addLine("RECORD HIGH:    " + recordHigh + "\u00B0F (" + recordHighYear + ")");
+        if (recordLow < 999) addLine("RECORD LOW:     " + recordLow + "\u00B0F (" + recordLowYear + ")");
         addLine("");
-        addLine("NORMAL HIGH:    " + (d.smry[4] || "N/A") + "\u00B0F");
-        addLine("NORMAL LOW:     " + (d.smry[5] || "N/A") + "\u00B0F");
+        if (countHigh > 0) addLine("NORMAL HIGH:    " + Math.round(sumHigh / countHigh) + "\u00B0F");
+        if (countLow > 0) addLine("NORMAL LOW:     " + Math.round(sumLow / countLow) + "\u00B0F");
+        if (maxSnow > 0) { addLine(""); addLine("MAX SNOWFALL:   " + maxSnow + "\" (" + maxSnowYear + ")"); }
         addLine("");
-        if (d.smry[6] && d.smry[6] !== "0.0" && d.smry[6] !== "M" && d.smry[6] !== "T") addLine("MAX SNOWFALL:   " + d.smry[6] + "\"");
+        addLine("Based on " + d.data.length + " years of records.");
       } else { addLine("Historical data temporarily unavailable."); }
       addLine(""); addLine("Source: NOAA ACIS (Milwaukee KMKE)"); addLine(""); addLine(SEP);
     }).catch(function() { addLine("Historical data temporarily unavailable."); addLine("Try: weather.gov/mkx/Climate_Records"); addLine(""); addLine(SEP); });
@@ -742,6 +774,8 @@
 
   function cmdUV() {
     addLine(SEP); addLine("          UV INDEX & SUN SAFETY"); addLine(SEP); addLine("");
+    addLine("ESTIMATED UV (based on solar angle, season, clouds):");
+    addLine("");
     // Compute estimated UV from solar angle and cloud cover
     var now = new Date(), month = now.getMonth() + 1, hour = now.getHours();
     var baseUV = [1, 1, 2, 4, 6, 8, 9, 8, 6, 4, 2, 1]; // monthly peak UV for Milwaukee latitude
@@ -756,15 +790,21 @@
       else if (clouds > 50) uv = Math.round(uv * 0.6);
       else if (clouds > 25) uv = Math.round(uv * 0.8);
     }
-    addLine("ESTIMATED UV INDEX: " + uv);
+    if (hour < 6 || hour > 20) {
+      addLine("UV INDEX: 0 (it is currently dark)");
+      addLine("UV risk is zero after sunset.");
+    } else {
+      addLine("UV INDEX: ~" + uv);
+      addLine("");
+      if (uv <= 2) { addLine("LEVEL: LOW"); addLine("Minimal risk. Enjoy being outside."); addLine("Sunscreen optional for most people."); }
+      else if (uv <= 5) { addLine("LEVEL: MODERATE"); addLine("Some risk. Sunscreen recommended for"); addLine("extended outdoor time. Seek shade midday."); }
+      else if (uv <= 7) { addLine("LEVEL: HIGH"); addLine("Wear sunscreen (SPF 30+). Hat and sunglasses"); addLine("recommended. Seek shade between 10 AM - 4 PM."); }
+      else if (uv <= 10) { addLine("LEVEL: VERY HIGH"); addLine("Sunscreen is non-negotiable. You will burn in"); addLine("15-20 minutes without protection. Cover up."); }
+      else { addLine("LEVEL: EXTREME"); addLine("Avoid outdoor exposure if possible."); addLine("Full protection required. This is serious."); }
+    }
     addLine("");
-    if (uv <= 2) { addLine("LEVEL: LOW"); addLine("Minimal risk. Enjoy being outside."); addLine("Sunscreen optional for most people."); }
-    else if (uv <= 5) { addLine("LEVEL: MODERATE"); addLine("Some risk. Sunscreen recommended for"); addLine("extended outdoor time. Seek shade midday."); }
-    else if (uv <= 7) { addLine("LEVEL: HIGH"); addLine("Wear sunscreen (SPF 30+). Hat and sunglasses"); addLine("recommended. Seek shade between 10 AM - 4 PM."); }
-    else if (uv <= 10) { addLine("LEVEL: VERY HIGH"); addLine("Sunscreen is non-negotiable. You will burn in"); addLine("15-20 minutes without protection. Cover up."); }
-    else { addLine("LEVEL: EXTREME"); addLine("Avoid outdoor exposure if possible."); addLine("Full protection required. This is serious."); }
-    addLine("");
-    if (hour < 6 || hour > 20) addLine("It is currently dark. UV risk is zero.");
+    addLine("This is a calculated estimate, not a live reading.");
+    addLine("Official UV forecast: epa.gov/sunsafety/uv-index-1");
     addLine(""); addLine(SEP);
   }
 
