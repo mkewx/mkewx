@@ -268,7 +268,7 @@
     </div>
     <div class="separator"></div>
     <footer class="site-footer">
-      <p>Built with &#9829; for the 414 by <a href="mailto:TVJasonLee@AOL.com" class="author-glow">Jason Lee!</a></p>
+      <p>Built with &#9829; for the 414 by <a href="mailto:TVJasonLee@AOL.com" class="author-glow">Jason Lee</a>!</p>
       <p>MKE WX &#169; {{ site.time | date: '%Y' }} | <a href="/feed.xml">Subscribe via RSS</a></p>
     </footer>
   </div>
@@ -657,32 +657,28 @@
 
   function cmdFlight() {
     addLine(SEP); addLine("     MILWAUKEE MITCHELL AIRPORT (MKE)"); addLine(SEP); addLine("");
-    addLine("Fetching airport status...");
-    // Reads from local JSON file updated by GitHub Actions every 30 min
-    fetch("/assets/data/flight.json")
-    .then(function(r) { if (!r.ok) throw new Error(r.status); return r.json(); })
-    .then(function(d) {
-      addLine("AIRPORT: " + (d.Name || "General Mitchell International"));
-      addLine("DELAY: " + (d.Delay === true ? "YES - Delays reported" : "No delays reported"));
-      if (d.Status && d.Status.length > 0) {
-        for (var i = 0; i < d.Status.length; i++) {
-          if (d.Status[i].Reason) addLine("REASON: " + d.Status[i].Reason);
-        }
-      }
-      if (d.Weather && d.Weather.Weather) {
-        var wx = d.Weather.Weather;
-        if (wx.length > 0 && wx[0].Temp) addLine("FIELD TEMP: " + wx[0].Temp[0]);
-      }
-      if (d.Weather && d.Weather.Visibility) addLine("VISIBILITY: " + d.Weather.Visibility.join(", "));
-      if (d.Weather && d.Weather.Wind) addLine("WIND: " + d.Weather.Wind.join(", "));
-      if (d.fetched_at) addLine("Updated: " + d.fetched_at);
-      addLine(""); addLine(SEP);
-    }).catch(function() {
-      addLine("Airport status data not yet available.");
-      addLine("Data updates every 30 minutes via FAA.");
-      addLine("Check: fly.faa.gov for current status");
-      addLine(""); addLine(SEP);
-    });
+    addLine("FIELD CONDITIONS (from NWS KMKE):");
+    addLine("  Temperature: " + document.getElementById("currentTemp").textContent);
+    addLine("  Wind: " + document.getElementById("windSpeed").textContent);
+    addLine("  Visibility: " + document.getElementById("visibility").textContent);
+    addLine("  Conditions: " + document.getElementById("conditions").textContent);
+    addLine("  Pressure: " + document.getElementById("pressure").textContent);
+    addLine("");
+    var vis = document.getElementById("visibility").textContent;
+    var visMi = parseFloat(vis);
+    if (!isNaN(visMi)) {
+      if (visMi < 1) addLine("ADVISORY: Very low visibility. Delays likely.");
+      else if (visMi < 3) addLine("ADVISORY: Reduced visibility. Possible delays.");
+      else addLine("VISIBILITY: Good for operations.");
+    }
+    var mph = wxState.windMph || 0;
+    if (mph > 30) addLine("WIND ADVISORY: Gusty crosswinds possible.");
+    else if (mph > 20) addLine("WIND: Moderate. Minor turbulence on approach.");
+    addLine("");
+    addLine("DELAY STATUS:");
+    addLine("  flightaware.com/live/airport/KMKE");
+    addLine("  fly.faa.gov");
+    addLine(""); addLine(SEP);
   }
 
   function cmdThisDay() {
@@ -912,7 +908,7 @@
   // --- WEATHER (NWS API) ---
   var MKE_TZ = "America/Chicago";
   function updateDateTime() { var now = new Date(), mke = new Date(now.toLocaleString("en-US", {timeZone: MKE_TZ})); var d = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"], mo = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]; var h = mke.getHours(), mi = (mke.getMinutes() < 10 ? "0" : "") + mke.getMinutes(), s = (mke.getSeconds() < 10 ? "0" : "") + mke.getSeconds(), ap = h >= 12 ? "PM" : "AM"; h = h % 12 || 12; document.getElementById("datetime").textContent = d[mke.getDay()] + " " + mo[mke.getMonth()] + " " + (mke.getDate() < 10 ? "0" : "") + mke.getDate() + " " + (h < 10 ? "0" : "") + h + ":" + mi + ":" + s + " " + ap + " " + mke.getFullYear(); }
-  var wxI = { Clear: "    \\   /    \n     .-.     \n  \u2015 (   ) \u2015  \n     '-'     \n    /   \\    ", Clouds: "    .--.    \n .-(    ).  \n(___.__)__) ", Rain: "    .--.    \n .-(    ).  \n(___.__)__) \n  \u201A'\u201A'\u201A'\u201A'  \n  \u201A'\u201A'\u201A'\u201A'  ", Snow: "    .--.    \n .-(    ).  \n(___.__)__) \n  *  *  *   \n *  *  *  * ", Fog: "             \n _ - _ - _  \n  _ - _ -   \n _ - _ - _  ", Storm: "    .--.    \n .-(    ).  \n(___.__)__) \n  \u26A1 \u201A'\u26A1'   \n  \u201A'\u201A'\u201A'\u201A'  " };
+  var wxI = { Clear: "    \\   /    \n     .-.     \n  \u2015 (   ) \u2015  \n     '-'     \n    /   \\    ", ClearNight: "         \n    *  .-.   \n   . (   )   \n     '-' *   \n   *         ", Clouds: "    .--.    \n .-(    ).  \n(___.__)__) ", Rain: "    .--.    \n .-(    ).  \n(___.__)__) \n  \u201A'\u201A'\u201A'\u201A'  \n  \u201A'\u201A'\u201A'\u201A'  ", Snow: "    .--.    \n .-(    ).  \n(___.__)__) \n  *  *  *   \n *  *  *  * ", Fog: "             \n _ - _ - _  \n  _ - _ -   \n _ - _ - _  ", Storm: "    .--.    \n .-(    ).  \n(___.__)__) \n  \u26A1 \u201A'\u26A1'   \n  \u201A'\u201A'\u201A'\u201A'  " };
   function cardDir(dg) { var a = ["N","NNE","NE","ENE","E","ESE","SE","SSE","S","SSW","SW","WSW","W","WNW","NW","NNW"]; return a[Math.round(dg / 22.5) % 16]; }
   function cToF(c) { return Math.round(c * 9 / 5 + 32); }
 
@@ -924,8 +920,31 @@
       if (p.temperature && p.temperature.value != null) { var tempF = cToF(p.temperature.value); document.getElementById("currentTemp").textContent = tempF + "\u00B0F"; wxState.temp = tempF; }
       var fl = (p.windChill && p.windChill.value != null) ? p.windChill.value : ((p.heatIndex && p.heatIndex.value != null) ? p.heatIndex.value : (p.temperature ? p.temperature.value : null));
       if (fl != null) document.getElementById("feelsLike").textContent = cToF(fl) + "\u00B0F";
-      var desc = p.textDescription || "Unknown"; document.getElementById("conditions").textContent = desc; wxState.conditions = desc;
-      var dl = desc.toLowerCase(), ik = "Clouds"; if (dl.indexOf("thunder") >= 0) ik = "Storm"; else if (dl.match(/snow|flurr|sleet|ice/)) ik = "Snow"; else if (dl.match(/rain|shower|drizzle/)) ik = "Rain"; else if (dl.match(/fog|mist|haze/)) ik = "Fog"; else if (dl.match(/clear|fair|sunny/)) ik = "Clear";
+      var desc = p.textDescription;
+      // Fallback: build description from cloud layers if textDescription is null
+      if (!desc || desc === "") {
+        if (p.cloudLayers && p.cloudLayers.length > 0) {
+          var topLayer = p.cloudLayers[p.cloudLayers.length - 1].amount;
+          if (topLayer === "OVC") desc = "Overcast";
+          else if (topLayer === "BKN") desc = "Mostly Cloudy";
+          else if (topLayer === "SCT") desc = "Partly Cloudy";
+          else if (topLayer === "FEW") desc = "Mostly Clear";
+          else if (topLayer === "CLR" || topLayer === "SKC") desc = "Clear";
+          else desc = "Fair";
+        } else { desc = "Fair"; }
+      }
+      document.getElementById("conditions").textContent = desc; wxState.conditions = desc;
+      var dl = desc.toLowerCase(), ik = "Clouds";
+      if (dl.indexOf("thunder") >= 0) ik = "Storm";
+      else if (dl.match(/snow|flurr|sleet|ice/)) ik = "Snow";
+      else if (dl.match(/rain|shower|drizzle/)) ik = "Rain";
+      else if (dl.match(/fog|mist|haze/)) ik = "Fog";
+      else if (dl.match(/overcast|mostly cloudy|cloudy|cloud/)) ik = "Clouds";
+      else if (dl.match(/clear|fair|sunny|mostly clear|partly/)) ik = "Clear";
+      // Night mode: check if it is after sunset or before sunrise
+      var nowHour = new Date(new Date().toLocaleString("en-US", {timeZone: "America/Chicago"})).getHours();
+      var isNight = nowHour >= 20 || nowHour < 6;
+      if (ik === "Clear" && isNight) ik = "ClearNight";
       document.getElementById("weatherIcon").textContent = wxI[ik] || wxI.Clouds;
       if (p.windSpeed && p.windSpeed.value != null) { var mph = p.windSpeed.value * 0.621371; wxState.windMph = mph; var w = mph.toFixed(1) + " mph"; if (p.windDirection && p.windDirection.value != null) { var dir = cardDir(p.windDirection.value); w += " " + dir; wxState.windDir = dir; } if (p.windGust && p.windGust.value != null) w += " (gusts " + (p.windGust.value * 0.621371).toFixed(0) + ")"; document.getElementById("windSpeed").textContent = w; }
       if (p.dewpoint && p.dewpoint.value != null) document.getElementById("dewPoint").textContent = cToF(p.dewpoint.value) + "\u00B0F";
@@ -999,7 +1018,11 @@
       }).catch(function(e) { console.error("Radar:", e); });
     }
     function loadTile(path, tx, ty) { return new Promise(function(res) { var url = "https://tilecache.rainviewer.com" + path + "/" + TILE_SZ + "/" + ZOOM + "/" + tx + "/" + ty + "/2/1_1.png"; var img = new Image(); img.crossOrigin = "anonymous"; img.onload = function() { res({img:img,tx:tx,ty:ty}); }; img.onerror = function() { res({img:null,tx:tx,ty:ty}); }; img.src = url; }); }
-    function animate() { var cx=sz/2,cy=sz/2,maxR=sz*0.45; returnsCtx.save(); returnsCtx.beginPath(); returnsCtx.arc(cx,cy,maxR,0,Math.PI*2); returnsCtx.clip(); returnsCtx.globalAlpha=0.008; returnsCtx.fillStyle="#000"; returnsCtx.fillRect(0,0,sz,sz); returnsCtx.globalAlpha=1.0; returnsCtx.restore(); if(amberData){var ww=Math.PI/20;returnsCtx.save();returnsCtx.beginPath();returnsCtx.arc(cx,cy,maxR,0,Math.PI*2);returnsCtx.clip();returnsCtx.beginPath();returnsCtx.moveTo(cx,cy);returnsCtx.arc(cx,cy,maxR+10,sweepAngle-ww/2,sweepAngle+ww/2);returnsCtx.closePath();returnsCtx.clip();returnsCtx.drawImage(amberData,0,0);returnsCtx.restore();} sweepCtx.clearRect(0,0,sz,sz);sweepCtx.save();sweepCtx.translate(cx,cy);sweepCtx.rotate(sweepAngle);var gr=sweepCtx.createLinearGradient(0,0,maxR,0);gr.addColorStop(0,"rgba(255,149,0,0.3)");gr.addColorStop(0.3,"rgba(255,184,77,0.5)");gr.addColorStop(1,"rgba(255,184,77,0)");sweepCtx.fillStyle=gr;sweepCtx.beginPath();sweepCtx.moveTo(0,0);sweepCtx.lineTo(maxR,-5);sweepCtx.lineTo(maxR,5);sweepCtx.closePath();sweepCtx.fill();sweepCtx.strokeStyle="rgba(255,184,77,0.8)";sweepCtx.lineWidth=2;sweepCtx.shadowBlur=8;sweepCtx.shadowColor="#FF8C00";sweepCtx.beginPath();sweepCtx.moveTo(0,0);sweepCtx.lineTo(maxR,0);sweepCtx.stroke();sweepCtx.shadowBlur=0;sweepCtx.restore();sweepAngle+=0.015;if(sweepAngle>Math.PI*2)sweepAngle=0;animFrame=requestAnimationFrame(animate); }
+    var decayFrame = 0;
+    function animate() { var cx=sz/2,cy=sz/2,maxR=sz*0.45; returnsCtx.save(); returnsCtx.beginPath(); returnsCtx.arc(cx,cy,maxR,0,Math.PI*2); returnsCtx.clip(); returnsCtx.globalAlpha=0.015; returnsCtx.fillStyle="#000"; returnsCtx.fillRect(0,0,sz,sz); returnsCtx.globalAlpha=1.0; returnsCtx.restore();
+      // Every ~3 seconds, kill any lingering dim pixels
+      decayFrame++; if (decayFrame >= 180) { decayFrame = 0; var id = returnsCtx.getImageData(0,0,sz,sz); var px = id.data; for (var pi = 0; pi < px.length; pi += 4) { if (px[pi] < 8 && px[pi+1] < 8 && px[pi+2] < 8) { px[pi]=0; px[pi+1]=0; px[pi+2]=0; px[pi+3]=0; } } returnsCtx.putImageData(id,0,0); }
+      if(amberData){var ww=Math.PI/20;returnsCtx.save();returnsCtx.beginPath();returnsCtx.arc(cx,cy,maxR,0,Math.PI*2);returnsCtx.clip();returnsCtx.beginPath();returnsCtx.moveTo(cx,cy);returnsCtx.arc(cx,cy,maxR+10,sweepAngle-ww/2,sweepAngle+ww/2);returnsCtx.closePath();returnsCtx.clip();returnsCtx.drawImage(amberData,0,0);returnsCtx.restore();} sweepCtx.clearRect(0,0,sz,sz);sweepCtx.save();sweepCtx.translate(cx,cy);sweepCtx.rotate(sweepAngle);var gr=sweepCtx.createLinearGradient(0,0,maxR,0);gr.addColorStop(0,"rgba(255,149,0,0.3)");gr.addColorStop(0.3,"rgba(255,184,77,0.5)");gr.addColorStop(1,"rgba(255,184,77,0)");sweepCtx.fillStyle=gr;sweepCtx.beginPath();sweepCtx.moveTo(0,0);sweepCtx.lineTo(maxR,-5);sweepCtx.lineTo(maxR,5);sweepCtx.closePath();sweepCtx.fill();sweepCtx.strokeStyle="rgba(255,184,77,0.8)";sweepCtx.lineWidth=2;sweepCtx.shadowBlur=8;sweepCtx.shadowColor="#FF8C00";sweepCtx.beginPath();sweepCtx.moveTo(0,0);sweepCtx.lineTo(maxR,0);sweepCtx.stroke();sweepCtx.shadowBlur=0;sweepCtx.restore();sweepAngle+=0.015;if(sweepAngle>Math.PI*2)sweepAngle=0;animFrame=requestAnimationFrame(animate); }
     return { init: initRadar, refresh: refresh };
   })();
 
