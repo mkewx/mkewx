@@ -103,8 +103,8 @@
     .radar-footer { margin-top: 15px; padding-top: 15px; border-top: 2px solid var(--dim-amber); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; font-size: 14px; }
     .radar-legend { color: var(--phosphor-amber); } .radar-timestamp { color: var(--bright-amber); }
     .radar-controls { margin-top: 15px; text-align: center; display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; }
-    .radar-button { padding: 10px 20px; background: rgba(153,102,0,0.1); border: 2px solid var(--phosphor-amber); color: var(--phosphor-amber); font-family: 'VT323', monospace; font-size: 18px; cursor: pointer; transition: all 0.2s ease; }
-    .radar-button:hover { background: var(--dim-amber); box-shadow: 0 0 15px var(--phosphor-glow); color: var(--bright-amber); }
+    .radar-button { padding: 10px 20px; background: transparent; border: 2px solid var(--phosphor-amber); color: var(--phosphor-amber); font-family: 'VT323', monospace; font-size: 18px; cursor: pointer; transition: all 0.3s ease; }
+    .radar-button:hover { box-shadow: 0 0 15px rgba(255,149,0,0.5); color: var(--bright-amber); }
     .terminal-section { border: 3px double var(--phosphor-amber); padding: 20px; margin: 30px 0; box-shadow: 0 0 20px rgba(255,149,0,0.5), 0 0 40px rgba(255,149,0,0.2); }
     .terminal-header { color: var(--bright-amber); font-size: 20px; margin-bottom: 15px; text-shadow: 0 0 8px var(--phosphor-glow); text-align: center; }
     .terminal-output { min-height: 200px; max-height: 400px; overflow-y: auto; margin-bottom: 15px; padding: 10px; background: rgba(0,0,0,0.3); border: 1px solid var(--dim-amber); }
@@ -248,7 +248,7 @@
         <canvas id="sweepCanvas"></canvas>
       </div>
       <div class="radar-footer">
-        <div class="radar-legend">IEM NEXRAD Composite (Iowa State Mesonet)</div>
+        <div class="radar-legend">RainViewer Composite Reflectivity</div>
         <div class="radar-timestamp" id="radarTimestamp">INITIALIZING...</div>
       </div>
       <div class="radar-controls"><button class="radar-button" onclick="radar.refresh()">REFRESH DATA</button></div>
@@ -986,177 +986,43 @@
   function chunkTxt(t) { var mx = window.innerWidth < 768 ? 38 : 75, w = t.split(" "), r = [], ch = ""; for (var i = 0; i < w.length; i++) { if ((ch + " " + w[i]).length > mx) { if (ch) r.push(ch.trim()); ch = w[i]; } else { ch = ch ? ch + " " + w[i] : w[i]; } } if (ch) r.push(ch.trim()); return r; }
   function typeChunk() { if (!curAlert) return; var content = document.getElementById("alertContent"); if (!content) return; var ch = alertChunks[chunkI], last = chunkI === alertChunks.length - 1, txt = ch + (last ? "" : "..."), i = 0, disp = ""; function typ() { if (i < txt.length) { disp += txt.charAt(i); i++; content.innerHTML = disp + "<span class=\"alert-cursor\"></span>"; alertTOs.push(setTimeout(typ, 30)); } else { alertTOs.push(setTimeout(function() { chunkI = (chunkI + 1) % alertChunks.length; typeChunk(); }, 5000)); } } typ(); }
 
-  // --- RADAR (Iowa State Mesonet NEXRAD tiles) ---
-  // NOTE: To revert to RainViewer if it comes back, replace this radar module
-  // with the version from the terminal-v1.2 package dated March 6 2026.
-  // RainViewer API was discontinued in Jan 2026; IEM is the replacement.
+  // --- RADAR (Zoom 7 - confirmed working) ---
   var radar = (function() {
     var CX_LAT = 43.0389, CX_LON = -87.9065, RAD = 1.2;
     var DISP_N = CX_LAT + RAD, DISP_S = CX_LAT - RAD, DISP_W = CX_LON - RAD, DISP_E = CX_LON + RAD;
-    var ZOOM = 7, TILE_SZ = 256;
+    var ZOOM = 7, TILE_SZ = 512;
     var CITIES = [{name:"MILWAUKEE",lat:43.0389,lon:-87.9065,big:true},{name:"SHEBOYGAN",lat:43.7508,lon:-87.7145},{name:"RACINE",lat:42.7261,lon:-87.7829},{name:"KENOSHA",lat:42.5847,lon:-87.8212},{name:"WAUKESHA",lat:43.0117,lon:-88.2315}];
     var gridCtx, returnsCtx, overlayCtx, sweepCtx, amberData = null, sweepAngle = 0, animFrame = null, sz = 500, inited = false;
-    var lastScanTime = null;
-
     function ll2px(lat, lon) { return { x: ((lon - DISP_W) / (DISP_E - DISP_W)) * sz, y: ((DISP_N - lat) / (DISP_N - DISP_S)) * sz }; }
     function lonToTX(lon, z) { return Math.floor((lon + 180) / 360 * Math.pow(2, z)); }
     function latToTY(lat, z) { var r = lat * Math.PI / 180; return Math.floor((1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2 * Math.pow(2, z)); }
     function txToLon(x, z) { return x / Math.pow(2, z) * 360 - 180; }
     function tyToLat(y, z) { var n = Math.PI - 2 * Math.PI * y / Math.pow(2, z); return 180 / Math.PI * Math.atan(0.5 * (Math.exp(n) - Math.exp(-n))); }
-
-    function initRadar() {
-      if (inited) { refresh(); return; }
-      var cont = document.getElementById("radarCanvasContainer");
-      sz = Math.min(cont.offsetWidth, 500);
-      var ids = ["gridCanvas","returnsCanvas","overlayCanvas","sweepCanvas"];
-      for (var i = 0; i < ids.length; i++) { var cv = document.getElementById(ids[i]); cv.width = sz; cv.height = sz; }
-      gridCtx = document.getElementById("gridCanvas").getContext("2d");
-      returnsCtx = document.getElementById("returnsCanvas").getContext("2d");
-      overlayCtx = document.getElementById("overlayCanvas").getContext("2d");
-      sweepCtx = document.getElementById("sweepCanvas").getContext("2d");
-      drawGrid(); drawOverlay(); refresh(); animate(); inited = true;
-      // Auto-refresh radar every 5 minutes
-      setInterval(function() { refresh(); }, 300000);
-    }
-
-    function drawGrid() {
-      var cx = sz/2, cy = sz/2, maxR = sz*0.45;
-      gridCtx.fillStyle = "#000"; gridCtx.fillRect(0,0,sz,sz);
-      gridCtx.fillStyle = "#080600"; gridCtx.beginPath(); gridCtx.arc(cx,cy,maxR,0,Math.PI*2); gridCtx.fill();
-      gridCtx.strokeStyle = "rgba(153,102,0,0.35)"; gridCtx.lineWidth = 1;
-      for (var i = 1; i <= 4; i++) { gridCtx.beginPath(); gridCtx.arc(cx,cy,maxR*(i/4),0,Math.PI*2); gridCtx.stroke(); }
-      gridCtx.beginPath(); gridCtx.moveTo(cx-maxR,cy); gridCtx.lineTo(cx+maxR,cy); gridCtx.moveTo(cx,cy-maxR); gridCtx.lineTo(cx,cy+maxR); gridCtx.stroke();
-      gridCtx.fillStyle = "rgba(153,102,0,0.5)"; gridCtx.font = "13px VT323"; gridCtx.textAlign = "center";
-      gridCtx.fillText("20mi",cx+maxR*0.25,cy-4); gridCtx.fillText("40mi",cx+maxR*0.5,cy-4);
-      gridCtx.fillText("60mi",cx+maxR*0.75,cy-4); gridCtx.fillText("80mi",cx+maxR*0.98,cy-4);
-    }
-
-    function drawOverlay() {
-      overlayCtx.clearRect(0,0,sz,sz);
-      var shore = [{lat:42.50,lon:-87.80},{lat:42.58,lon:-87.82},{lat:42.65,lon:-87.80},{lat:42.73,lon:-87.78},{lat:42.85,lon:-87.82},{lat:42.95,lon:-87.85},{lat:43.04,lon:-87.90},{lat:43.12,lon:-87.89},{lat:43.25,lon:-87.88},{lat:43.40,lon:-87.87},{lat:43.55,lon:-87.84},{lat:43.70,lon:-87.80},{lat:43.75,lon:-87.71},{lat:43.85,lon:-87.65},{lat:44.00,lon:-87.60},{lat:44.20,lon:-87.55}];
-      overlayCtx.strokeStyle = "#FF9500"; overlayCtx.lineWidth = 2; overlayCtx.shadowBlur = 5; overlayCtx.shadowColor = "#FF8C00";
-      overlayCtx.beginPath();
-      for (var i = 0; i < shore.length; i++) { var p = ll2px(shore[i].lat, shore[i].lon); if (i === 0) overlayCtx.moveTo(p.x, p.y); else overlayCtx.lineTo(p.x, p.y); }
-      overlayCtx.stroke(); overlayCtx.shadowBlur = 0;
-      for (var j = 0; j < CITIES.length; j++) {
-        var c = CITIES[j], p2 = ll2px(c.lat, c.lon);
-        overlayCtx.shadowBlur = 6; overlayCtx.shadowColor = "#FF8C00"; overlayCtx.fillStyle = "#FFB84D";
-        overlayCtx.beginPath(); overlayCtx.arc(p2.x, p2.y, c.big ? 5 : 3, 0, Math.PI*2); overlayCtx.fill();
-        overlayCtx.shadowBlur = 0; overlayCtx.fillStyle = "#FF9500"; overlayCtx.font = "13px VT323"; overlayCtx.textAlign = "left";
-        overlayCtx.fillText(c.name, p2.x+7, p2.y+4);
-      }
-      var lp = ll2px(43.3, -87.15);
-      overlayCtx.fillStyle = "rgba(153,102,0,0.4)"; overlayCtx.font = "13px VT323"; overlayCtx.textAlign = "center";
-      overlayCtx.fillText("LAKE", lp.x, lp.y-6); overlayCtx.fillText("MICHIGAN", lp.x, lp.y+8);
-    }
-
+    function initRadar() { if (inited) { refresh(); return; } var cont = document.getElementById("radarCanvasContainer"); sz = Math.min(cont.offsetWidth, 500); var ids = ["gridCanvas","returnsCanvas","overlayCanvas","sweepCanvas"]; for (var i = 0; i < ids.length; i++) { var cv = document.getElementById(ids[i]); cv.width = sz; cv.height = sz; } gridCtx = document.getElementById("gridCanvas").getContext("2d"); returnsCtx = document.getElementById("returnsCanvas").getContext("2d"); overlayCtx = document.getElementById("overlayCanvas").getContext("2d"); sweepCtx = document.getElementById("sweepCanvas").getContext("2d"); drawGrid(); drawOverlay(); refresh(); animate(); inited = true; }
+    function drawGrid() { var cx = sz/2, cy = sz/2, maxR = sz*0.45; gridCtx.fillStyle = "#000"; gridCtx.fillRect(0,0,sz,sz); gridCtx.fillStyle = "#080600"; gridCtx.beginPath(); gridCtx.arc(cx,cy,maxR,0,Math.PI*2); gridCtx.fill(); gridCtx.strokeStyle = "rgba(153,102,0,0.35)"; gridCtx.lineWidth = 1; for (var i = 1; i <= 4; i++) { gridCtx.beginPath(); gridCtx.arc(cx,cy,maxR*(i/4),0,Math.PI*2); gridCtx.stroke(); } gridCtx.beginPath(); gridCtx.moveTo(cx-maxR,cy); gridCtx.lineTo(cx+maxR,cy); gridCtx.moveTo(cx,cy-maxR); gridCtx.lineTo(cx,cy+maxR); gridCtx.stroke(); gridCtx.fillStyle = "rgba(153,102,0,0.5)"; gridCtx.font = "13px VT323"; gridCtx.textAlign = "center"; gridCtx.fillText("20mi",cx+maxR*0.25,cy-4); gridCtx.fillText("40mi",cx+maxR*0.5,cy-4); gridCtx.fillText("60mi",cx+maxR*0.75,cy-4); gridCtx.fillText("80mi",cx+maxR*0.98,cy-4); }
+    function drawOverlay() { overlayCtx.clearRect(0,0,sz,sz); var shore = [{lat:42.50,lon:-87.80},{lat:42.58,lon:-87.82},{lat:42.65,lon:-87.80},{lat:42.73,lon:-87.78},{lat:42.85,lon:-87.82},{lat:42.95,lon:-87.85},{lat:43.04,lon:-87.90},{lat:43.12,lon:-87.89},{lat:43.25,lon:-87.88},{lat:43.40,lon:-87.87},{lat:43.55,lon:-87.84},{lat:43.70,lon:-87.80},{lat:43.75,lon:-87.71},{lat:43.85,lon:-87.65},{lat:44.00,lon:-87.60},{lat:44.20,lon:-87.55}]; overlayCtx.strokeStyle = "#FF9500"; overlayCtx.lineWidth = 2; overlayCtx.shadowBlur = 5; overlayCtx.shadowColor = "#FF8C00"; overlayCtx.beginPath(); for (var i = 0; i < shore.length; i++) { var p = ll2px(shore[i].lat, shore[i].lon); if (i === 0) overlayCtx.moveTo(p.x, p.y); else overlayCtx.lineTo(p.x, p.y); } overlayCtx.stroke(); overlayCtx.shadowBlur = 0; for (var j = 0; j < CITIES.length; j++) { var c = CITIES[j], p2 = ll2px(c.lat, c.lon); overlayCtx.shadowBlur = 6; overlayCtx.shadowColor = "#FF8C00"; overlayCtx.fillStyle = "#FFB84D"; overlayCtx.beginPath(); overlayCtx.arc(p2.x, p2.y, c.big ? 5 : 3, 0, Math.PI*2); overlayCtx.fill(); overlayCtx.shadowBlur = 0; overlayCtx.fillStyle = "#FF9500"; overlayCtx.font = "13px VT323"; overlayCtx.textAlign = "left"; overlayCtx.fillText(c.name, p2.x+7, p2.y+4); } var lp = ll2px(43.3, -87.15); overlayCtx.fillStyle = "rgba(153,102,0,0.4)"; overlayCtx.font = "13px VT323"; overlayCtx.textAlign = "center"; overlayCtx.fillText("LAKE", lp.x, lp.y-6); overlayCtx.fillText("MICHIGAN", lp.x, lp.y+8); }
     function refresh() {
-      // IEM NEXRAD tiles use the Milwaukee radar (MKX) N0Q product
-      // Tile URL: /cache/tile.py/1.0.0/ridge::MKX-N0Q-0/{z}/{x}/{y}.png
-      // The "-0" means latest available scan
-      var minTX = lonToTX(DISP_W, ZOOM), maxTX = lonToTX(DISP_E, ZOOM);
-      var minTY = latToTY(DISP_N, ZOOM), maxTY = latToTY(DISP_S, ZOOM);
-      var promises = [];
-      // Cache bust with current time to avoid stale tiles
-      var cacheBust = Date.now();
-      for (var tx = minTX; tx <= maxTX; tx++) {
-        for (var ty = minTY; ty <= maxTY; ty++) {
-          promises.push(loadTile(tx, ty, cacheBust));
-        }
-      }
-      Promise.all(promises).then(function(tiles) {
-        var loaded = tiles.filter(function(t) { return t.img; });
-        if (loaded.length === 0) {
-          document.getElementById("radarTimestamp").textContent = "DATA UNAVAILABLE";
-          return;
-        }
-        var off = document.createElement("canvas");
-        off.width = sz; off.height = sz;
-        var octx = off.getContext("2d");
-
-        for (var i = 0; i < loaded.length; i++) {
-          var tile = loaded[i];
-          var tW = txToLon(tile.tx, ZOOM), tE = txToLon(tile.tx+1, ZOOM);
-          var tN = tyToLat(tile.ty, ZOOM), tS = tyToLat(tile.ty+1, ZOOM);
-          var tl = ll2px(tN, tW), br = ll2px(tS, tE);
-          octx.drawImage(tile.img, tl.x, tl.y, br.x-tl.x, br.y-tl.y);
-        }
-
-        // Amber conversion with NEXRAD color-aware clutter filter
-        // NEXRAD color table: dark greens (5-10 dBZ) = clutter/birds/insects
-        // Bright greens (15-20+ dBZ) = real drizzle/rain
-        // Yellow/orange/red/magenta = moderate to extreme precip
+      fetch("https://api.rainviewer.com/public/weather-maps.json").then(function(r) { if (!r.ok) throw new Error(); return r.json(); }).then(function(apiData) {
+        var latest = apiData.radar.past[apiData.radar.past.length - 1];
+        var minTX = lonToTX(DISP_W, ZOOM), maxTX = lonToTX(DISP_E, ZOOM), minTY = latToTY(DISP_N, ZOOM), maxTY = latToTY(DISP_S, ZOOM);
+        var promises = [];
+        for (var tx = minTX; tx <= maxTX; tx++) { for (var ty = minTY; ty <= maxTY; ty++) { promises.push(loadTile(latest.path, tx, ty)); } }
+        return Promise.all(promises).then(function(tiles) { return {tiles: tiles, time: latest.time}; });
+      }).then(function(result) {
+        var tiles = result.tiles, off = document.createElement("canvas"); off.width = sz; off.height = sz; var octx = off.getContext("2d");
+        for (var i = 0; i < tiles.length; i++) { var tile = tiles[i]; if (!tile.img) continue; var tW = txToLon(tile.tx, ZOOM), tE = txToLon(tile.tx+1, ZOOM), tN = tyToLat(tile.ty, ZOOM), tS = tyToLat(tile.ty+1, ZOOM); var tl = ll2px(tN, tW), br = ll2px(tS, tE); octx.drawImage(tile.img, tl.x, tl.y, br.x-tl.x, br.y-tl.y); }
         var id = octx.getImageData(0,0,sz,sz), px = id.data;
-        for (var k = 0; k < px.length; k += 4) {
-          var r = px[k], g = px[k+1], b = px[k+2], a = px[k+3];
-          var total = r + g + b;
-          // Black/near-black = no data
-          if (total < 80) { px[k]=0; px[k+1]=0; px[k+2]=0; px[k+3]=0; continue; }
-          if (a < 30) { px[k]=0; px[k+1]=0; px[k+2]=0; px[k+3]=0; continue; }
-          // Green-dominant pixels with low green value = clutter (5-10 dBZ)
-          // Real drizzle starts around g=160+ (15+ dBZ)
-          var greenDom = (g > r * 2) && (g > b * 2);
-          if (greenDom && g < 140) { px[k]=0; px[k+1]=0; px[k+2]=0; px[k+3]=0; continue; }
-          // Passed filters - this is real precipitation, convert to amber
-          var br2 = (r*0.299+g*0.587+b*0.114)/255;
-          var ar2,ag2,ab2;
-          if (br2<0.25){var t=br2/0.25;ar2=Math.round(80+t*75);ag2=Math.round(50+t*52);ab2=0;}
-          else if(br2<0.45){var t2=(br2-0.25)/0.2;ar2=Math.round(155+t2*100);ag2=Math.round(102+t2*47);ab2=0;}
-          else if(br2<0.65){var t3=(br2-0.45)/0.2;ar2=255;ag2=Math.round(149+t3*35);ab2=Math.round(t3*40);}
-          else{var t4=(br2-0.65)/0.35;ar2=255;ag2=Math.round(184+t4*50);ab2=Math.round(40+t4*130);}
-          px[k]=ar2; px[k+1]=ag2; px[k+2]=ab2;
-          px[k+3]=Math.min(255,Math.round(255*(0.5+br2*0.9)));
-        }
-        octx.putImageData(id,0,0);
-        amberData = off;
-
-        // Update timestamp
-        lastScanTime = new Date();
-        var timeStr = lastScanTime.toLocaleTimeString("en-US", {hour:"2-digit",minute:"2-digit",hour12:true,timeZone:"America/Chicago"});
-        document.getElementById("radarTimestamp").textContent = "SCAN: " + timeStr + " CST";
-      }).catch(function(e) {
-        console.error("Radar:", e);
-        // Show stale warning if we have old data
-        if (lastScanTime) {
-          var ageMin = Math.round((Date.now() - lastScanTime.getTime()) / 60000);
-          if (ageMin > 15) {
-            document.getElementById("radarTimestamp").textContent = "DATA STALE (" + ageMin + " min old)";
-          }
-        } else {
-          document.getElementById("radarTimestamp").textContent = "DATA UNAVAILABLE";
-        }
-      });
+        for (var k = 0; k < px.length; k += 4) { var r = px[k], g = px[k+1], b = px[k+2], a = px[k+3]; if (a < 30) { px[k]=0;px[k+1]=0;px[k+2]=0;px[k+3]=0; continue; } var br2 = (r*0.299+g*0.587+b*0.114)/255; if (br2 < 0.06) { px[k]=0;px[k+1]=0;px[k+2]=0;px[k+3]=0; continue; } var ar,ag,ab; if (br2<0.25){var t=br2/0.25;ar=Math.round(80+t*75);ag=Math.round(50+t*52);ab=0;}else if(br2<0.45){var t2=(br2-0.25)/0.2;ar=Math.round(155+t2*100);ag=Math.round(102+t2*47);ab=0;}else if(br2<0.65){var t3=(br2-0.45)/0.2;ar=255;ag=Math.round(149+t3*35);ab=Math.round(t3*40);}else{var t4=(br2-0.65)/0.35;ar=255;ag=Math.round(184+t4*50);ab=Math.round(40+t4*130);} px[k]=ar;px[k+1]=ag;px[k+2]=ab;px[k+3]=Math.min(255,Math.round(a*(0.5+br2*0.9))); }
+        octx.putImageData(id,0,0); amberData = off;
+        var ft = new Date(result.time * 1000); document.getElementById("radarTimestamp").textContent = "SCAN: " + ft.toLocaleTimeString("en-US", {hour:"2-digit",minute:"2-digit",hour12:true,timeZone:"America/Chicago"}) + " CST";
+      }).catch(function(e) { console.error("Radar:", e); });
     }
-
-    function loadTile(tx, ty, cacheBust) {
-      return new Promise(function(res) {
-        var url = "https://mesonet.agron.iastate.edu/cache/tile.py/1.0.0/ridge::MKX-N0Q-0/" + ZOOM + "/" + tx + "/" + ty + ".png?cb=" + cacheBust;
-        var img = new Image();
-        img.crossOrigin = "anonymous";
-        img.onload = function() { res({img:img, tx:tx, ty:ty}); };
-        img.onerror = function() { res({img:null, tx:tx, ty:ty}); };
-        img.src = url;
-      });
-    }
-
+    function loadTile(path, tx, ty) { return new Promise(function(res) { var url = "https://tilecache.rainviewer.com" + path + "/" + TILE_SZ + "/" + ZOOM + "/" + tx + "/" + ty + "/2/1_1.png"; var img = new Image(); img.crossOrigin = "anonymous"; img.onload = function() { res({img:img,tx:tx,ty:ty}); }; img.onerror = function() { res({img:null,tx:tx,ty:ty}); }; img.src = url; }); }
     var decayFrame = 0;
-    function animate() {
-      var cx=sz/2, cy=sz/2, maxR=sz*0.45;
-      returnsCtx.save(); returnsCtx.beginPath(); returnsCtx.arc(cx,cy,maxR,0,Math.PI*2); returnsCtx.clip();
-      returnsCtx.globalAlpha=0.015; returnsCtx.fillStyle="#000"; returnsCtx.fillRect(0,0,sz,sz);
-      returnsCtx.globalAlpha=1.0; returnsCtx.restore();
-      // Kill lingering dim pixels every ~3 seconds
+    function animate() { var cx=sz/2,cy=sz/2,maxR=sz*0.45; returnsCtx.save(); returnsCtx.beginPath(); returnsCtx.arc(cx,cy,maxR,0,Math.PI*2); returnsCtx.clip(); returnsCtx.globalAlpha=0.015; returnsCtx.fillStyle="#000"; returnsCtx.fillRect(0,0,sz,sz); returnsCtx.globalAlpha=1.0; returnsCtx.restore();
+      // Every ~3 seconds, kill any lingering dim pixels
       decayFrame++; if (decayFrame >= 180) { decayFrame = 0; var id = returnsCtx.getImageData(0,0,sz,sz); var px = id.data; for (var pi = 0; pi < px.length; pi += 4) { if (px[pi] < 8 && px[pi+1] < 8 && px[pi+2] < 8) { px[pi]=0; px[pi+1]=0; px[pi+2]=0; px[pi+3]=0; } } returnsCtx.putImageData(id,0,0); }
-      if(amberData){var ww=Math.PI/20;returnsCtx.save();returnsCtx.beginPath();returnsCtx.arc(cx,cy,maxR,0,Math.PI*2);returnsCtx.clip();returnsCtx.beginPath();returnsCtx.moveTo(cx,cy);returnsCtx.arc(cx,cy,maxR+10,sweepAngle-ww/2,sweepAngle+ww/2);returnsCtx.closePath();returnsCtx.clip();returnsCtx.drawImage(amberData,0,0);returnsCtx.restore();}
-      sweepCtx.clearRect(0,0,sz,sz);sweepCtx.save();sweepCtx.translate(cx,cy);sweepCtx.rotate(sweepAngle);
-      var gr=sweepCtx.createLinearGradient(0,0,maxR,0);gr.addColorStop(0,"rgba(255,149,0,0.3)");gr.addColorStop(0.3,"rgba(255,184,77,0.5)");gr.addColorStop(1,"rgba(255,184,77,0)");
-      sweepCtx.fillStyle=gr;sweepCtx.beginPath();sweepCtx.moveTo(0,0);sweepCtx.lineTo(maxR,-5);sweepCtx.lineTo(maxR,5);sweepCtx.closePath();sweepCtx.fill();
-      sweepCtx.strokeStyle="rgba(255,184,77,0.8)";sweepCtx.lineWidth=2;sweepCtx.shadowBlur=8;sweepCtx.shadowColor="#FF8C00";
-      sweepCtx.beginPath();sweepCtx.moveTo(0,0);sweepCtx.lineTo(maxR,0);sweepCtx.stroke();sweepCtx.shadowBlur=0;sweepCtx.restore();
-      sweepAngle+=0.015;if(sweepAngle>Math.PI*2)sweepAngle=0;
-      animFrame=requestAnimationFrame(animate);
-    }
-
+      if(amberData){var ww=Math.PI/20;returnsCtx.save();returnsCtx.beginPath();returnsCtx.arc(cx,cy,maxR,0,Math.PI*2);returnsCtx.clip();returnsCtx.beginPath();returnsCtx.moveTo(cx,cy);returnsCtx.arc(cx,cy,maxR+10,sweepAngle-ww/2,sweepAngle+ww/2);returnsCtx.closePath();returnsCtx.clip();returnsCtx.drawImage(amberData,0,0);returnsCtx.restore();} sweepCtx.clearRect(0,0,sz,sz);sweepCtx.save();sweepCtx.translate(cx,cy);sweepCtx.rotate(sweepAngle);var gr=sweepCtx.createLinearGradient(0,0,maxR,0);gr.addColorStop(0,"rgba(255,149,0,0.3)");gr.addColorStop(0.3,"rgba(255,184,77,0.5)");gr.addColorStop(1,"rgba(255,184,77,0)");sweepCtx.fillStyle=gr;sweepCtx.beginPath();sweepCtx.moveTo(0,0);sweepCtx.lineTo(maxR,-5);sweepCtx.lineTo(maxR,5);sweepCtx.closePath();sweepCtx.fill();sweepCtx.strokeStyle="rgba(255,184,77,0.8)";sweepCtx.lineWidth=2;sweepCtx.shadowBlur=8;sweepCtx.shadowColor="#FF8C00";sweepCtx.beginPath();sweepCtx.moveTo(0,0);sweepCtx.lineTo(maxR,0);sweepCtx.stroke();sweepCtx.shadowBlur=0;sweepCtx.restore();sweepAngle+=0.015;if(sweepAngle>Math.PI*2)sweepAngle=0;animFrame=requestAnimationFrame(animate); }
     return { init: initRadar, refresh: refresh };
   })();
 
