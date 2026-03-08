@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+
+<html><head><meta charset="UTF-8"><title>IEM Tile Pixel Diagnostic</title>
+<style>
+body { background: #111; color: #0f0; font-family: monospace; padding: 20px; font-size: 14px; }
+canvas { border: 1px solid #333; display: block; margin: 10px 0; }
+#log { white-space: pre-wrap; max-height: 600px; overflow-y: auto; background: #000; padding: 10px; border: 1px solid #333; }
+</style>
+</head><body>
+<h2>IEM NEXRAD Tile Pixel Analysis</h2>
+<p>Loading tiles for Milwaukee area (MKX radar, N0Q product, zoom 7)...</p>
+<canvas id="rawCanvas" width="512" height="512"></canvas>
+<div id="log"></div>
+<script>
+var log = document.getElementById("log");
+function L(s) { log.textContent += s + "\n"; }
+
+// Same tile coords as mkewx.com uses at zoom 7
+var ZOOM = 7;
+var tiles = [
+{tx: 32, ty: 46},
+{tx: 32, ty: 47},
+{tx: 33, ty: 46},
+{tx: 33, ty: 47}
+];
+
+var cb = Date.now();
+var loaded = 0;
+var rawCanvas = document.getElementById(“rawCanvas”);
+var ctx = rawCanvas.getContext(“2d”);
+
+tiles.forEach(function(tile) {
+var url = “https://mesonet.agron.iastate.edu/cache/tile.py/1.0.0/ridge::MKX-N0Q-0/” + ZOOM + “/” + tile.tx + “/” + tile.ty + “.png?cb=” + cb;
+L(“Loading tile (” + tile.tx + “,” + tile.ty + “): “ + url);
+
+var img = new Image();
+img.crossOrigin = “anonymous”;
+img.onload = function() {
+L(“Tile (” + tile.tx + “,” + tile.ty + “) loaded: “ + img.width + “x” + img.height);
+
+```
+// Draw on canvas to read pixels
+var offCanvas = document.createElement("canvas");
+offCanvas.width = img.width;
+offCanvas.height = img.height;
+var octx = offCanvas.getContext("2d");
+octx.drawImage(img, 0, 0);
+
+var id = octx.getImageData(0, 0, img.width, img.height);
+var px = id.data;
+
+// Analyze pixel distribution
+var colorCounts = {};
+var nonBlack = 0;
+var totalPx = img.width * img.height;
+var samples = [];
+
+for (var i = 0; i < px.length; i += 4) {
+  var r = px[i], g = px[i+1], b = px[i+2], a = px[i+3];
+  var total = r + g + b;
+  
+  if (total > 0 || a > 0) {
+    nonBlack++;
+    var key = r + "," + g + "," + b + "," + a;
+    colorCounts[key] = (colorCounts[key] || 0) + 1;
+    
+    // Sample some non-black pixels
+    if (samples.length < 50 && Math.random() < 0.01) {
+      samples.push({r:r, g:g, b:b, a:a, total:total});
+    }
+  }
+}
+
+L("  Total pixels: " + totalPx);
+L("  Non-black pixels: " + nonBlack + " (" + (nonBlack/totalPx*100).toFixed(1) + "%)");
+L("  Unique colors: " + Object.keys(colorCounts).length);
+L("");
+
+// Sort by frequency and show top colors
+var sorted = Object.entries(colorCounts).sort(function(a,b) { return b[1] - a[1]; });
+L("  TOP 20 COLORS (RGBA, count):");
+for (var j = 0; j < Math.min(sorted.length, 20); j++) {
+  var parts = sorted[j][0].split(",");
+  var r2 = parseInt(parts[0]), g2 = parseInt(parts[1]), b2 = parseInt(parts[2]), a2 = parseInt(parts[3]);
+  var br = (r2*0.299+g2*0.587+b2*0.114)/255;
+  var tot = r2+g2+b2;
+  var greenDom = (g2 > r2*2 && g2 > b2*2) ? "GREEN-DOM" : "";
+  L("    RGBA(" + r2 + "," + g2 + "," + b2 + "," + a2 + ") x" + sorted[j][1] + " | total=" + tot + " br=" + br.toFixed(3) + " " + greenDom);
+}
+L("");
+
+// Also draw the raw tile on screen for visual reference
+if (tile.tx === 32 && tile.ty === 47) {
+  ctx.drawImage(img, 0, 0, 512, 512);
+  L("  (This tile drawn on canvas above for reference)");
+}
+
+loaded++;
+if (loaded === tiles.length) {
+  L("\n=== ALL TILES LOADED ===");
+  L("The colors above show exactly what the IEM is sending.");
+  L("Use these values to calibrate the clutter filter.");
+}
+```
+
+};
+img.onerror = function() {
+L(“Tile (” + tile.tx + “,” + tile.ty + “) FAILED to load”);
+loaded++;
+};
+img.src = url;
+});
+</script>
+
+</body></html>
