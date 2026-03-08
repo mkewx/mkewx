@@ -13,7 +13,7 @@ category: weather
 
 *A librarian drops a stack of papers on the front desk.*
 
-**LIBRARIAN:** You have until 4 PM. Write an essay about what you think today's weather means to you. I'll be in the back. Don't mess with the bull, idiots, or you'll get the horns.
+**LIBRARIAN:** You have until 4 p.m. Write an essay about what you think today's weather means to you. I'll be in the back. Don't mess with the bull, idiots, or you'll get the horns.
 
 *She leaves. Silence. Nobody moves.*
 
