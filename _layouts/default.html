@@ -1051,13 +1051,12 @@
     }
 
     function refresh() {
-      // IEM NEXRAD tiles use the Milwaukee radar (MKX) N0Q product
-      // Tile URL: /cache/tile.py/1.0.0/ridge::MKX-N0Q-0/{z}/{x}/{y}.png
-      // The "-0" means latest available scan
+      // Use IEM CONUS N0Q COMPOSITE tiles (NOT single-site MKX)
+      // The composite has built-in clutter suppression
+      // Tile service: nexrad-n0q-900913 (spherical mercator NEXRAD composite)
       var minTX = lonToTX(DISP_W, ZOOM), maxTX = lonToTX(DISP_E, ZOOM);
       var minTY = latToTY(DISP_N, ZOOM), maxTY = latToTY(DISP_S, ZOOM);
       var promises = [];
-      // Cache bust with current time to avoid stale tiles
       var cacheBust = Date.now();
       for (var tx = minTX; tx <= maxTX; tx++) {
         for (var ty = minTY; ty <= maxTY; ty++) {
@@ -1082,26 +1081,17 @@
           octx.drawImage(tile.img, tl.x, tl.y, br.x-tl.x, br.y-tl.y);
         }
 
-        // Amber conversion - aggressive clutter filter for IEM NEXRAD
-        // IEM tiles include ground clutter, birds, and clear-air returns
-        // that look like precipitation noise on clear days.
-        // Strategy: require HIGH brightness to pass. Real rain is bright.
-        // Clutter is dim. We sacrifice showing very light drizzle in
-        // exchange for a clean display on clear days.
+        // Amber conversion for CONUS composite
+        // The composite already has clutter suppression applied by IEM
+        // Black pixels (0,0,0) = no echo, skip them
         var id = octx.getImageData(0,0,sz,sz), px = id.data;
         for (var k = 0; k < px.length; k += 4) {
           var r = px[k], g = px[k+1], b = px[k+2], a = px[k+3];
-          // Step 1: anything fully transparent or near-black = skip
-          if (a < 10) { px[k]=0; px[k+1]=0; px[k+2]=0; px[k+3]=0; continue; }
-          // Step 2: compute max channel value - clutter has low max
-          var maxCh = Math.max(r, g, b);
-          // Require at least one channel above 150 to be considered
-          // real precipitation. This filters out all dim clutter while
-          // keeping light rain (bright green ~200+), moderate rain
-          // (yellow/orange 200+), and heavy rain (bright red/magenta)
-          if (maxCh < 150) { px[k]=0; px[k+1]=0; px[k+2]=0; px[k+3]=0; continue; }
-          // Step 3: convert to amber
+          // Skip black/transparent (no data)
+          if (a < 10 || (r + g + b) < 20) { px[k]=0; px[k+1]=0; px[k+2]=0; px[k+3]=0; continue; }
+          // Convert to amber
           var br2 = (r*0.299+g*0.587+b*0.114)/255;
+          if (br2 < 0.04) { px[k]=0; px[k+1]=0; px[k+2]=0; px[k+3]=0; continue; }
           var ar2,ag2,ab2;
           if (br2<0.25){var t=br2/0.25;ar2=Math.round(80+t*75);ag2=Math.round(50+t*52);ab2=0;}
           else if(br2<0.45){var t2=(br2-0.25)/0.2;ar2=Math.round(155+t2*100);ag2=Math.round(102+t2*47);ab2=0;}
@@ -1119,7 +1109,6 @@
         document.getElementById("radarTimestamp").textContent = "SCAN: " + timeStr + " CST";
       }).catch(function(e) {
         console.error("Radar:", e);
-        // Show stale warning if we have old data
         if (lastScanTime) {
           var ageMin = Math.round((Date.now() - lastScanTime.getTime()) / 60000);
           if (ageMin > 15) {
@@ -1133,7 +1122,8 @@
 
     function loadTile(tx, ty, cacheBust) {
       return new Promise(function(res) {
-        var url = "https://mesonet.agron.iastate.edu/cache/tile.py/1.0.0/ridge::MKX-N0Q-0/" + ZOOM + "/" + tx + "/" + ty + ".png?cb=" + cacheBust;
+        // CONUS composite tiles - clutter-suppressed by IEM
+        var url = "https://mesonet.agron.iastate.edu/cache/tile.py/1.0.0/nexrad-n0q-900913/" + ZOOM + "/" + tx + "/" + ty + ".png?cb=" + cacheBust;
         var img = new Image();
         img.crossOrigin = "anonymous";
         img.onload = function() { res({img:img, tx:tx, ty:ty}); };
