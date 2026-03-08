@@ -1082,15 +1082,23 @@
           octx.drawImage(tile.img, tl.x, tl.y, br.x-tl.x, br.y-tl.y);
         }
 
-        // Amber conversion
+        // Amber conversion with NEXRAD color-aware clutter filter
+        // NEXRAD color table: dark greens (5-10 dBZ) = clutter/birds/insects
+        // Bright greens (15-20+ dBZ) = real drizzle/rain
+        // Yellow/orange/red/magenta = moderate to extreme precip
         var id = octx.getImageData(0,0,sz,sz), px = id.data;
         for (var k = 0; k < px.length; k += 4) {
           var r = px[k], g = px[k+1], b = px[k+2], a = px[k+3];
-          // IEM tiles: black background = no data
-          if ((r + g + b) < 15) { px[k]=0; px[k+1]=0; px[k+2]=0; px[k+3]=0; continue; }
+          var total = r + g + b;
+          // Black/near-black = no data
+          if (total < 80) { px[k]=0; px[k+1]=0; px[k+2]=0; px[k+3]=0; continue; }
           if (a < 30) { px[k]=0; px[k+1]=0; px[k+2]=0; px[k+3]=0; continue; }
+          // Green-dominant pixels with low green value = clutter (5-10 dBZ)
+          // Real drizzle starts around g=160+ (15+ dBZ)
+          var greenDom = (g > r * 2) && (g > b * 2);
+          if (greenDom && g < 140) { px[k]=0; px[k+1]=0; px[k+2]=0; px[k+3]=0; continue; }
+          // Passed filters - this is real precipitation, convert to amber
           var br2 = (r*0.299+g*0.587+b*0.114)/255;
-          if (br2 < 0.06) { px[k]=0; px[k+1]=0; px[k+2]=0; px[k+3]=0; continue; }
           var ar2,ag2,ab2;
           if (br2<0.25){var t=br2/0.25;ar2=Math.round(80+t*75);ag2=Math.round(50+t*52);ab2=0;}
           else if(br2<0.45){var t2=(br2-0.25)/0.2;ar2=Math.round(155+t2*100);ag2=Math.round(102+t2*47);ab2=0;}
