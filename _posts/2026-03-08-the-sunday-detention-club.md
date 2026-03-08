@@ -13,7 +13,7 @@ category: weather
 
 *A librarian drops a stack of papers on the front desk.*
 
-**LIBRARIAN:** You have until 4 PM. Write an essay about what you think today's weather means to you. I'll be in the back. Don't break anything.
+**LIBRARIAN:** You have until 4 PM. Write an essay about what you think today's weather means to you. I'll be in the back. Don't mess with the bull, idiots, or you'll get the horns.
 
 *She leaves. Silence. Nobody moves.*
 
@@ -21,7 +21,7 @@ category: weather
 
 **THE JOCK** leans back in his chair, arms crossed. He's wearing a Marquette hoodie and shorts despite it being March.
 
-**JOCK:** It's **59°F** out there. You know that? Fifty-nine. I should be at Bradford Beach right now throwing a football. Instead I'm in here because Coach caught me skipping study hall.
+**JOCK:** It's **59°F** out there. You know that? I should be at Bradford Beach right now throwing a Goddamn football. Instead I'm in here because Coach caught me skipping study hall.
 
 **THE NERD:** *(without looking up)* It's actually looking like we could push past **60°F** this afternoon. **Southwest winds 10 to 20 mph.** Yesterday was all wind and clouds, but today the sky just... opened up. We're running about twenty degrees above the March average. So technically, you're missing the best weather day Milwaukee has had since October.
 
@@ -39,17 +39,17 @@ category: weather
 
 *Everyone looks at her. She shrugs.*
 
-**BASKET CASE:** What? I pay attention to things.
+**BASKET CASE:** ...I pay attention to things, too.
 
 ---
 
 **THE REBEL** is carving something into the desk with a pen cap. He stops and looks out the window.
 
-**REBEL:** My old man says March weather in Milwaukee is God flipping a coin every morning. Yesterday it was **cloudy and blowing 25 mph gusts.** Today it's blue skies and nearly **60 degrees.** Tomorrow? Could be anything. Could be seventy. Could snow. That's just how it works here.
+**REBEL:** My old man says March weather in Milwaukee is God flipping a coin every morning. Yesterday it was **cloudy and blowing 25 mph gusts.** Today it's blue skies and nearly **60 degrees.** Tomorrow? Could be anything. Could be 70. Could snow. That's just how it works here.
 
 **NERD:** Tomorrow's actually looking even warmer. Models show **sunny and near 60 again** with southwest winds. And the long range has Tuesday pushing into the **mid-60s.** So this warm stretch has legs.
 
-**REBEL:** Dude. I was having a moment.
+**REBEL:** Hey. Jagoff. I was having a moment.
 
 **NERD:** Sorry.
 
@@ -69,7 +69,7 @@ category: weather
 
 **NERD:** For what it's worth, a **mostly sunny day near 60°F** in early March? Only a couple percent chance of rain? This is basically a gift. So if you had to pick a Sunday to be stuck inside with four strangers, you picked a good one. Because you can at least see what you're missing.
 
-**REBEL:** *(beat)* That's somehow the most depressing and hopeful thing anyone's ever said to me.
+**REBEL:** *(beat)* That's somehow the most depressing and hopeful thing anyone's ever said to me. Only one thing to do now: ahab, can I bum my doobage?
 
 ---
 
@@ -81,9 +81,9 @@ category: weather
 
 **JOCK:** God, I hope not.
 
-**BASKET CASE:** *(smiling)* I wouldn't mind it.
+**BASKET CASE:** *(smiling)* I wouldn't mind.
 
-*They scatter into the city. The camera pulls back. Milwaukee stretches out below, warm and bright and completely unaware that five kids just figured something out about themselves in a reading room.*
+*They scatter into the city. The camera pulls back. Milwaukee stretches out below, warm and bright and completely unaware that five kids just figured something out about themselves.*
 
 *FADE OUT.*
 
