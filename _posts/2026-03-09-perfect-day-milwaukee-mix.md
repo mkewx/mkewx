@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Perfect Day (Milwaukee Mix)"
-date: 2026-03-09 06:00:00 -0600
+date: 2026-03-09 06:00:00 -0500
 category: weather
 ---
 
