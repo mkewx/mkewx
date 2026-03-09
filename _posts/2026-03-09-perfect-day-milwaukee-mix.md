@@ -8,7 +8,7 @@ category: weather
 Just a perfect day.
 Walked out on the porch, forgot my jacket.
 Didn't need it anyway.
-**Fifty-nine degrees** before the coffee kicked in,
+**59 degrees** before the coffee kicked in,
 and the sun just... sat there,
 like it had nowhere else to be.
 
@@ -22,8 +22,8 @@ even when you're just sitting in a parking lot
 eating a gas station breakfast sandwich.
 
 Oh, it's such a perfect day.
-**Sixty-three by noon.**
-They're saying we might touch **sixty-seven**,
+**63 by noon.**
+They're saying we might touch **67**,
 which would tie some record from 2016
 that nobody remembers setting.
 But we'll remember this one.
