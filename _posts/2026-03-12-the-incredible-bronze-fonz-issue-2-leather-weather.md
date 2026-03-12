@@ -12,7 +12,7 @@ FONZ: "Ayyyy. Now this is a setup I understand. **High near 44 degrees.** Sun's 
 
 *A pigeon lands on his shoulder.*
 
-FONZ: "Careful, pal. I already work with one bird. His name was Potsie."
+FONZ: "Careful, pal. I already worked with one bird. His name was Potsie."
 
 ---
 
