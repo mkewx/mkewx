@@ -92,7 +92,7 @@ FONZ: "I had a dream, you know. Thought maybe after that 70-degree tease, this t
 
 *A beat.*
 
-FONZ: "Then Milwaukee looked me dead in the thumbs and said, 'Sit down, leather boy.'"
+FONZ: "Then Milwaukee looked me dead in the thumbs and told me to sit on it."
 
 *A longer beat.*
 
