@@ -47,7 +47,8 @@ FONZ: "Now? No mirror. No bathroom. No turning around. Third Street in front of 
 **PANEL 4:**  
 *Clouds start creeping in over downtown. A tourist couple walks up mid-selfie.*
 
-TOURIST: "Excuse me, are you the Happy Days statue?"
+TOURIST: "Excuse me, are,
+like, a Happy Days statue?"
 
 FONZ: "Baby, I'm *the* Happy Days statue."
 
