@@ -142,8 +142,6 @@
       .sun-times { flex-direction: column; gap: 10px; align-items: center; }
     }
   </style>
-  <script data-goatcounter="https://mkewx.goatcounter.com/count"
-        async src="//gc.zgo.at/count.js"></script>
 </head>
 <body>
   <div id="bootScreen">
@@ -172,7 +170,7 @@
     <div class="separator"></div>
     <div class="welcome-section">
       <div class="title">WELCOME TO MKE WX</div>
-      <p>Weather woven into tales: Meteorologists would never!</p>
+      <p>Weather woven into stories? TV folks could never.</p>
     </div>
     <div class="separator"></div>
     <div class="posts">
@@ -260,7 +258,7 @@
       <div class="terminal-header">&#9552;&#9552;&#9552; INTERACTIVE TERMINAL &#9552;&#9552;&#9552;</div>
       <div class="terminal-output" id="terminalOutput">
         <div class="terminal-line">MKE WX Terminal v1.2</div>
-        <div class="terminal-line">Try: <span class="cmd-glow">lake</span> | <span class="cmd-glow">fish</span> | <span class="cmd-glow">help</span> for all commands</div>
+        <div class="terminal-line">Try: <span class="cmd-glow">thisday</span> | <span class="cmd-glow">tides</span> | <span class="cmd-glow">sunrise</span> — type <span class="cmd-glow">help</span> for all commands</div>
         <div class="terminal-line">&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;</div>
       </div>
       <div class="terminal-input-line">
@@ -297,8 +295,47 @@
   function runBoot() { var boot = document.getElementById("bootScreen"), cont = document.getElementById("bootMessages"), msgs = shuffle(bootMsgs).slice(0, 5); for (var i = 0; i < msgs.length; i++) { (function(idx, msg) { setTimeout(function() { var l = document.createElement("div"); l.className = "boot-line"; l.textContent = "> " + msg; cont.appendChild(l); setTimeout(function() { l.classList.add("show"); }, 50); }, idx * 400); })(i, msgs[i]); } setTimeout(function() { boot.classList.add("hidden"); document.getElementById("mainContent").classList.add("loaded"); setTimeout(function() { radar.init(); }, 300); }, (msgs.length * 400) + 800); }
 
   // --- MOON PHASE ---
-  function getMoonPhase(date) { var y = date.getFullYear(), mo = date.getMonth() + 1, d = date.getDate(); if (mo <= 2) mo += 12; var a = Math.floor(y / 100), b = Math.floor(a / 4), c = 2 - a + b, e = Math.floor(365.25 * (y + 4716)), f = Math.floor(30.6001 * (mo + 1)); var jd = c + d + e + f - 1524.5, phase = ((jd - 2451550.1) / 29.530588853) % 1, pf = phase < 0 ? phase + 1 : phase, pd = Math.round(pf * 29.530588853); var name, sym; if (pd <= 1 || pd >= 29) { name = "NEW MOON"; sym = "\u25CB"; } else if (pd <= 6) { name = "WAXING CRESCENT"; sym = "\u25D7"; } else if (pd <= 8) { name = "FIRST QUARTER"; sym = "\u25D0"; } else if (pd <= 13) { name = "WAXING GIBBOUS"; sym = "\u25D5"; } else if (pd <= 16) { name = "FULL MOON"; sym = "\u25CF"; } else if (pd <= 21) { name = "WANING GIBBOUS"; sym = "\u25D4"; } else if (pd <= 23) { name = "LAST QUARTER"; sym = "\u25D1"; } else { name = "WANING CRESCENT"; sym = "\u25D7"; } return { day: pd, name: name, symbol: sym, illumination: Math.round((1 - Math.cos(pf * 2 * Math.PI)) / 2 * 100) }; }
-  function upcomingPhases() { var targets = [{d:0,n:"NEW MOON",s:"\u25CB"},{d:7,n:"FIRST QUARTER",s:"\u25D0"},{d:15,n:"FULL MOON",s:"\u25CF"},{d:22,n:"LAST QUARTER",s:"\u25D1"}], found = [], today = new Date(); for (var i = 0; i < 35; i++) { var ck = new Date(today); ck.setDate(ck.getDate() + i); var p = getMoonPhase(ck); for (var j = 0; j < targets.length; j++) { var x = targets[j]; if (Math.abs(p.day - x.d) <= 1 && !found.some(function(f) { return f.name === x.n; })) { found.push({name: x.n, symbol: x.s, date: ck.toLocaleDateString("en-US", {weekday:"short",month:"short",day:"numeric"})}); } } } return found; }
+  function getMoonPhase(date) {
+    var y = date.getFullYear(), mo = date.getMonth() + 1, d = date.getDate();
+    if (mo <= 2) { mo += 12; y -= 1; }
+    var a = Math.floor(y / 100), b = Math.floor(a / 4), c = 2 - a + b;
+    var e = Math.floor(365.25 * (y + 4716)), f = Math.floor(30.6001 * (mo + 1));
+    var jd = c + d + e + f - 1524.5;
+    var synodic = 29.530588853;
+    var daysSince = jd - 2451550.26;
+    var pf = (daysSince / synodic) % 1;
+    if (pf < 0) pf += 1;
+    var illum = Math.round((1 - Math.cos(pf * 2 * Math.PI)) / 2 * 100);
+    var name, sym;
+    if (pf < 0.05 || pf >= 0.95) { name = "NEW MOON"; sym = "\u25CB"; }
+    else if (pf < 0.20) { name = "WAXING CRESCENT"; sym = "\u25D7"; }
+    else if (pf < 0.30) { name = "FIRST QUARTER"; sym = "\u25D0"; }
+    else if (pf < 0.45) { name = "WAXING GIBBOUS"; sym = "\u25D5"; }
+    else if (pf < 0.55) { name = "FULL MOON"; sym = "\u25CF"; }
+    else if (pf < 0.68) { name = "WANING GIBBOUS"; sym = "\u25D4"; }
+    else if (pf < 0.82) { name = "LAST QUARTER"; sym = "\u25D1"; }
+    else { name = "WANING CRESCENT"; sym = "\u25D7"; }
+    return { phase: pf, name: name, symbol: sym, illumination: illum };
+  }
+  function upcomingPhases() {
+    var targets = [{p:0.0,n:"NEW MOON",s:"\u25CB"},{p:0.25,n:"FIRST QUARTER",s:"\u25D0"},{p:0.5,n:"FULL MOON",s:"\u25CF"},{p:0.75,n:"LAST QUARTER",s:"\u25D1"}];
+    var found = [], today = new Date();
+    for (var i = 0; i < 35; i++) {
+      var ck = new Date(today); ck.setDate(ck.getDate() + i);
+      var m = getMoonPhase(ck);
+      for (var j = 0; j < targets.length; j++) {
+        var x = targets[j];
+        if (!found.some(function(f) { return f.name === x.n; })) {
+          var dist = Math.abs(m.phase - x.p);
+          if (dist > 0.5) dist = 1 - dist;
+          if (dist < 0.05) {
+            found.push({name: x.n, symbol: x.s, date: ck.toLocaleDateString("en-US", {weekday:"short",month:"short",day:"numeric"})});
+          }
+        }
+      }
+    }
+    return found;
+  }
 
   // --- SUNRISE/TWILIGHT CALCULATOR ---
   function calcSolar(date, lat, lng) {
@@ -419,6 +456,8 @@
       case "snow": cmdSnow(); break;
       case "ferry": cmdFerry(); break;
       case "shipping": cmdShipping(); break;
+      case "cruises": cmdCruises(); break;
+      case "webcam": cmdWebcam(); break;
       case "flight": cmdFlight(); break;
       case "thisday": cmdThisDay(); break;
       case "tides": cmdTides(); break;
@@ -450,6 +489,7 @@
     addHTML("  <span class='cmd-glow'>tides</span>      Water level &amp; wave data");
     addHTML("  <span class='cmd-glow'>fish</span>       Fishing forecast &amp; species");
     addHTML("  <span class='cmd-glow'>ferry</span>      Lake Express crossing conditions");
+    addHTML("  <span class='cmd-glow'>cruises</span>    Lake Michigan cruise info");
     addHTML("  <span class='cmd-glow'>shipping</span>   Great Lakes freighter tracking");
     addLine("");
     addHTML("<span class='cmd-glow'>ASTRONOMY &amp; OUTDOORS:</span>");
@@ -461,6 +501,7 @@
     addHTML("<span class='cmd-glow'>MILWAUKEE:</span>");
     addHTML("  <span class='cmd-glow'>flight</span>     Mitchell Airport status");
     addHTML("  <span class='cmd-glow'>thisday</span>    Historical records for today");
+    addHTML("  <span class='cmd-glow'>webcam</span>     Live Milwaukee camera feeds");
     addHTML("  <span class='cmd-glow'>custard</span>    Frozen custard forecast");
     addHTML("  <span class='cmd-glow'>beer</span>       Brewery weather pairing");
     addHTML("  <span class='cmd-glow'>packers</span>    Lambeau Field weather");
@@ -654,6 +695,81 @@
     var month = new Date().getMonth() + 1;
     if (month >= 1 && month <= 3) addLine("NOTE: Shipping season is limited. Ice may restrict traffic.");
     else addLine("Shipping season is active on Lake Michigan.");
+    addLine(""); addLine(SEP);
+  }
+
+  function cmdCruises() {
+    var month = new Date().getMonth() + 1;
+    addLine(SEP); addLine("      LAKE MICHIGAN CRUISES"); addLine(SEP); addLine("");
+    addLine("CRUISE OPERATORS:");
+    addLine("");
+    addLine("  Milwaukee Boat Line");
+    addLine("    Sightseeing, dining, and party cruises");
+    addLine("    Departs: Milwaukee River & harbor");
+    addLine("    Season: May - October");
+    addLine("    mkeboat.com");
+    addLine("");
+    addLine("  Edelweiss Cruise Dining");
+    addLine("    Lunch, brunch, and dinner cruises");
+    addLine("    Departs: 1110 N Old World Third St");
+    addLine("    Season: April - November");
+    addLine("    edelweissboats.com");
+    addLine("");
+    addLine("  Vista King");
+    addLine("    Sightseeing along the Milwaukee River");
+    addLine("    Departs: Pere Marquette Park");
+    addLine("    Season: May - October");
+    addLine("");
+    addLine("  Lake Michigan Car Ferry (SS Badger)");
+    addLine("    Manitowoc, WI to Ludington, MI (~60mi N)");
+    addLine("    Season: May - October");
+    addLine("    ssbadger.com");
+    addLine("");
+    if (month >= 5 && month <= 10) {
+      addLine("STATUS: Cruise season is ACTIVE.");
+      addLine("Current conditions for cruising:");
+      addLine("  Wind: " + document.getElementById("windSpeed").textContent);
+      addLine("  Temp: " + document.getElementById("currentTemp").textContent);
+      var mph = wxState.windMph || 0;
+      if (mph > 25) addLine("  Advisory: Rough water likely. Check with operator.");
+      else if (mph > 15) addLine("  Conditions: Some chop. Dress warm on deck.");
+      else addLine("  Conditions: Smooth sailing expected.");
+    } else {
+      addLine("STATUS: Most cruises are OFF-SEASON.");
+      addLine("Cruise season runs May through October.");
+    }
+    addLine("");
+    addLine("LIVE VESSEL TRACKING: marinetraffic.com");
+    addLine(""); addLine(SEP);
+  }
+
+  function cmdWebcam() {
+    addLine(SEP); addLine("       MILWAUKEE WEBCAMS"); addLine(SEP); addLine("");
+    addLine("LIVE CAMERA FEEDS:");
+    addLine("");
+    addLine("  NWS Radar Tower Camera");
+    addLine("    weather.gov/mkx/mkx-tower-cam");
+    addLine("    View from the NWS Sullivan radar site");
+    addLine("");
+    addLine("  Milwaukee Riverwalk (EarthCam)");
+    addLine("    earthcam.com/usa/wisconsin/milwaukee");
+    addLine("    Downtown river + Bronze Fonz statue");
+    addLine("");
+    addLine("  Lakefront Cam");
+    addLine("    lakefrontcam.com");
+    addLine("    Controllable cam: north shore, south shore,");
+    addLine("    Bradford Beach, Hoan Bridge, marina views");
+    addLine("");
+    addLine("  Milwaukee Harbor Cam");
+    addLine("    UWM School of Freshwater Sciences");
+    addLine("    Inner harbor + downtown skyline");
+    addLine("");
+    addLine("  511 Wisconsin DOT Cameras");
+    addLine("    511wi.gov/cctv");
+    addLine("    I-94, I-43, I-794 traffic cams");
+    addLine("");
+    addLine("Amber-filtered image display coming in a");
+    addLine("future terminal update. Stay tuned.");
     addLine(""); addLine(SEP);
   }
 
@@ -1022,12 +1138,11 @@
     }
 
     function drawGrid() {
+      // Static base: just the dark circle background
       var cx = sz/2, cy = sz/2, maxR = sz*0.45;
       gridCtx.fillStyle = "#000"; gridCtx.fillRect(0,0,sz,sz);
       gridCtx.fillStyle = "#080600"; gridCtx.beginPath(); gridCtx.arc(cx,cy,maxR,0,Math.PI*2); gridCtx.fill();
-      gridCtx.strokeStyle = "rgba(153,102,0,0.35)"; gridCtx.lineWidth = 1;
-      for (var i = 1; i <= 4; i++) { gridCtx.beginPath(); gridCtx.arc(cx,cy,maxR*(i/4),0,Math.PI*2); gridCtx.stroke(); }
-      gridCtx.beginPath(); gridCtx.moveTo(cx-maxR,cy); gridCtx.lineTo(cx+maxR,cy); gridCtx.moveTo(cx,cy-maxR); gridCtx.lineTo(cx,cy+maxR); gridCtx.stroke();
+      // Distance labels (static, dim)
       gridCtx.fillStyle = "rgba(153,102,0,0.5)"; gridCtx.font = "13px VT323"; gridCtx.textAlign = "center";
       gridCtx.fillText("20mi",cx+maxR*0.25,cy-4); gridCtx.fillText("40mi",cx+maxR*0.5,cy-4);
       gridCtx.fillText("60mi",cx+maxR*0.75,cy-4); gridCtx.fillText("80mi",cx+maxR*0.98,cy-4);
@@ -1137,17 +1252,66 @@
     var decayFrame = 0;
     function animate() {
       var cx=sz/2, cy=sz/2, maxR=sz*0.45;
+
+      // --- Radar data decay ---
       returnsCtx.save(); returnsCtx.beginPath(); returnsCtx.arc(cx,cy,maxR,0,Math.PI*2); returnsCtx.clip();
       returnsCtx.globalAlpha=0.015; returnsCtx.fillStyle="#000"; returnsCtx.fillRect(0,0,sz,sz);
       returnsCtx.globalAlpha=1.0; returnsCtx.restore();
-      // Kill lingering dim pixels every ~3 seconds
       decayFrame++; if (decayFrame >= 180) { decayFrame = 0; var id = returnsCtx.getImageData(0,0,sz,sz); var px = id.data; for (var pi = 0; pi < px.length; pi += 4) { if (px[pi] < 8 && px[pi+1] < 8 && px[pi+2] < 8) { px[pi]=0; px[pi+1]=0; px[pi+2]=0; px[pi+3]=0; } } returnsCtx.putImageData(id,0,0); }
+
+      // --- Paint radar data behind sweep ---
       if(amberData){var ww=Math.PI/20;returnsCtx.save();returnsCtx.beginPath();returnsCtx.arc(cx,cy,maxR,0,Math.PI*2);returnsCtx.clip();returnsCtx.beginPath();returnsCtx.moveTo(cx,cy);returnsCtx.arc(cx,cy,maxR+10,sweepAngle-ww/2,sweepAngle+ww/2);returnsCtx.closePath();returnsCtx.clip();returnsCtx.drawImage(amberData,0,0);returnsCtx.restore();}
-      sweepCtx.clearRect(0,0,sz,sz);sweepCtx.save();sweepCtx.translate(cx,cy);sweepCtx.rotate(sweepAngle);
-      var gr=sweepCtx.createLinearGradient(0,0,maxR,0);gr.addColorStop(0,"rgba(255,149,0,0.3)");gr.addColorStop(0.3,"rgba(255,184,77,0.5)");gr.addColorStop(1,"rgba(255,184,77,0)");
+
+      // --- Sweep line + dynamic grid glow ---
+      sweepCtx.clearRect(0,0,sz,sz);
+
+      // Draw grid rings with glow that follows the sweep
+      // Rings are brightest right behind sweep, fade over ~210 degrees
+      var glowSpan = 3.7; // radians (~210 degrees of visible ring)
+      for (var ri = 1; ri <= 4; ri++) {
+        var ringR = maxR * (ri / 4);
+        // Draw the ring as many small arcs with varying opacity
+        var segments = 60;
+        for (var seg = 0; seg < segments; seg++) {
+          var segAngle = (seg / segments) * Math.PI * 2;
+          var segEnd = ((seg + 1) / segments) * Math.PI * 2;
+          // How far behind the sweep is this segment? (0 = right behind, positive = further behind)
+          var behind = sweepAngle - segAngle;
+          if (behind < 0) behind += Math.PI * 2;
+          if (behind > Math.PI * 2) behind -= Math.PI * 2;
+          // Only glow within the span behind the sweep
+          if (behind > glowSpan) continue;
+          var glow = 1.0 - (behind / glowSpan); // 1.0 at sweep, 0.0 at tail
+          glow = glow * glow; // ease out for smoother fade
+          var alpha = 0.1 + glow * 0.6; // range from 0.1 to 0.7
+          var green = Math.round(102 + glow * 82); // 102 to 184
+          var red = Math.round(153 + glow * 102); // 153 to 255
+          sweepCtx.strokeStyle = "rgba(" + red + "," + green + ",0," + alpha + ")";
+          sweepCtx.lineWidth = 1 + glow * 0.5;
+          if (glow > 0.7) { sweepCtx.shadowBlur = 4; sweepCtx.shadowColor = "#FF8C00"; }
+          else { sweepCtx.shadowBlur = 0; }
+          sweepCtx.beginPath();
+          sweepCtx.arc(cx, cy, ringR, segAngle, segEnd);
+          sweepCtx.stroke();
+        }
+      }
+      sweepCtx.shadowBlur = 0;
+
+      // Draw crosshairs with same glow logic (simplified - just use constant dim)
+      sweepCtx.strokeStyle = "rgba(153,102,0,0.2)";
+      sweepCtx.lineWidth = 1;
+      sweepCtx.beginPath(); sweepCtx.moveTo(cx-maxR,cy); sweepCtx.lineTo(cx+maxR,cy);
+      sweepCtx.moveTo(cx,cy-maxR); sweepCtx.lineTo(cx,cy+maxR); sweepCtx.stroke();
+
+      // Draw the sweep line itself
+      sweepCtx.save(); sweepCtx.translate(cx,cy); sweepCtx.rotate(sweepAngle);
+      var gr=sweepCtx.createLinearGradient(0,0,maxR,0);
+      gr.addColorStop(0,"rgba(255,149,0,0.3)");gr.addColorStop(0.3,"rgba(255,184,77,0.5)");gr.addColorStop(1,"rgba(255,184,77,0)");
       sweepCtx.fillStyle=gr;sweepCtx.beginPath();sweepCtx.moveTo(0,0);sweepCtx.lineTo(maxR,-5);sweepCtx.lineTo(maxR,5);sweepCtx.closePath();sweepCtx.fill();
       sweepCtx.strokeStyle="rgba(255,184,77,0.8)";sweepCtx.lineWidth=2;sweepCtx.shadowBlur=8;sweepCtx.shadowColor="#FF8C00";
-      sweepCtx.beginPath();sweepCtx.moveTo(0,0);sweepCtx.lineTo(maxR,0);sweepCtx.stroke();sweepCtx.shadowBlur=0;sweepCtx.restore();
+      sweepCtx.beginPath();sweepCtx.moveTo(0,0);sweepCtx.lineTo(maxR,0);sweepCtx.stroke();
+      sweepCtx.shadowBlur=0;sweepCtx.restore();
+
       sweepAngle+=0.015;if(sweepAngle>Math.PI*2)sweepAngle=0;
       animFrame=requestAnimationFrame(animate);
     }
