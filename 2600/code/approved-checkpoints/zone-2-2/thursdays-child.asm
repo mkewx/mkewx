@@ -390,6 +390,7 @@ hudStagePtr    ds 2         ; stage copy scratch, then score thousands digit
 hudHundredsPtr ds 2         ; score hundreds digit copied outside the kernel
 optionalXAdjusted ds 1     ; stage-authored optional X plus positioning bias
 optionalFineMotion ds 1   ; precomputed HMP1 nibble for the upper object
+dirAccumHi      ds 1         ; BeginCapture gravity-spin cross-product, high byte
 
 ; ---------------------------------------------------------------------------
 ; BANK 0 — gravity, collision and mission state.
@@ -761,6 +762,64 @@ MeasureBeaconDistance:
         sec
         rts
 
+; Signed 8x8->16 multiply used only by BeginCapture's gravity-spin direction
+; math. In: A=multiplicand, Y=multiplier (both signed, -128..127). Out:
+; delta:temp = signed 16-bit product (delta=low byte, temp=high byte).
+; Reuses the shared bestDistance/bestBeacon/temp/delta scratch, which
+; CheckBeaconRange already resets every frame before BeginCapture can run,
+; instead of adding new persistent RAM. Clobbers A, X, Y, bestDistance,
+; bestBeacon, temp, delta.
+Multiply8x8Signed:
+        sta bestDistance        ; abs(multiplicand)
+        sty bestBeacon          ; abs(multiplier)
+        ldy #0                   ; Y = sign flag (0=positive, 1=negate result)
+        lda bestDistance
+        bpl .aNonNeg
+        eor #$FF
+        clc
+        adc #1
+        sta bestDistance
+        iny
+.aNonNeg:
+        lda bestBeacon
+        bpl .bNonNeg
+        eor #$FF
+        clc
+        adc #1
+        sta bestBeacon
+        tya
+        eor #1
+        tay
+.bNonNeg:
+        lda #0
+        sta delta                ; product low byte
+        sta temp                 ; product high byte
+        ldx #8
+.mulLoop:
+        lsr bestBeacon
+        bcc .noAdd
+        lda temp
+        clc
+        adc bestDistance
+        sta temp
+.noAdd:
+        ror temp
+        ror delta
+        dex
+        bne .mulLoop
+
+        cpy #0
+        beq .signDone
+        sec
+        lda #0
+        sbc delta
+        sta delta
+        lda #0
+        sbc temp
+        sta temp
+.signDone:
+        rts
+
 BeginCapture:
         lda #STATE_ORBIT
         sta gameState
@@ -793,12 +852,64 @@ BeginCapture:
         lda #0
         sta orbitDirection
         sta orbitHalfStep
+
+        ; Gravity spin direction now follows Major Tom's actual approach
+        ; velocity, not just his static side of the beacon. Sign of the
+        ; angular-momentum cross product L = relX*velY - relY*velX gives the
+        ; physically-continuous spin direction (screen Y increases downward,
+        ; so positive L is clockwise here rather than the usual math
+        ; convention). relX/relY are Tom's center relative to the beacon
+        ; center, both always inside CAPTURE_RANGE, so they fit signed bytes.
+        ; L accumulates in temp2 (low) / dirAccumHi (high) across both terms;
+        ; Multiply8x8Signed itself returns each term in delta (low) / temp
+        ; (high), reusing scratch rather than adding new persistent RAM.
+        lda #0
+        sta temp2
+        sta dirAccumHi
+
+        lda tomXHi
+        clc
+        adc #ASTRONAUT_HALF_W
+        sec
+        sbc beaconX
+        ldy velYHi
+        jsr Multiply8x8Signed
+        lda temp2
+        clc
+        adc delta
+        sta temp2
+        lda dirAccumHi
+        adc temp
+        sta dirAccumHi
+
+        lda tomYHi
+        clc
+        adc #ASTRONAUT_HALF_H
+        sec
+        sbc beaconY
+        ldy velXHi
+        jsr Multiply8x8Signed
+        lda temp2
+        sec
+        sbc delta
+        sta temp2               ; L low byte
+        lda dirAccumHi
+        sbc temp                ; A = L high byte
+        bmi .setCounterclockwise
+        bne .directionChosen
+        lda temp2
+        bne .directionChosen
+
+        ; L == 0: Tom's velocity points directly at (or away from) the
+        ; beacon, so angular momentum can't pick a side. Fall back to the
+        ; original static approach-side rule for this degenerate case only.
         lda tomXHi
         clc
         adc #ASTRONAUT_HALF_W
         cmp beaconX
         bcc .directionChosen
         beq .directionChosen
+.setCounterclockwise:
         lda #$FF
         sta orbitDirection
 .directionChosen:

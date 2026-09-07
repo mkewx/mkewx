@@ -118,24 +118,52 @@ until asked.
    general RAM-carryover discipline between stages/screens has already
    proven to be a real source of bugs this project).
 
-## Orbit-direction: confirmed NOT a whole-game blocker, but the underlying code is still shared
+## Orbit-direction: fixed at the source, 2026-09-07
 
-Jason confirmed the satellite capture/orbit spin direction ("gravity spin")
-felt correct throughout Chapter One's five stages. That's real evidence
-it isn't broken everywhere — but `BeginCapture`'s `.chooseEntry` direction
-logic (picks clockwise/counterclockwise from Major Tom's static X position
-relative to the beacon at the instant of capture, never his velocity) is
-shared code, used identically by Chapter One and every Chapter Two zone.
-Chapter One working does not prove that routine is correct; it more likely
-means Chapter One's zone layouts don't happen to produce the diagonal
-approach angles where the static left/right rule diverges from the
-physically-natural continuation of Major Tom's actual trajectory. Zone 2-3
-was specifically reported as feeling backwards on some approaches. Treat
-this as a real, live discrepancy in shared code, not a Zone 2-3-local bug,
-when it's next prioritized — see the chat record for the two considered
-fix paths (velocity-aware angular-momentum-sign fix at the source, which
-changes shared/approved-adjacent behavior, vs. a Zone-2-3-local patch that
-leaves the shared bug live everywhere else).
+`BeginCapture`'s `.chooseEntry` direction logic no longer picks
+clockwise/counterclockwise from Major Tom's static X position relative to
+the beacon. It now uses the sign of the angular-momentum cross product
+`L = relX*velY - relY*velX` (relX/relY = Tom's center relative to the
+beacon center; velX/velY = his live free-flight velocity at the instant of
+capture; screen Y increases downward, so positive L is clockwise here). On
+the one degenerate case (`L == 0`, velocity pointing straight at/away from
+the beacon), it falls back to the original static rule, since angular
+momentum can't pick a side there.
+
+Applied identically, byte-for-byte, to all three places that had their own
+copy of this logic: `code/current/src/thursdays-child.asm` (so every future
+zone inherits it, including Zone 2-3), `code/approved-checkpoints/chapter-one/thursdays-child-chapter-one.asm`,
+and `code/approved-checkpoints/zone-2-2/thursdays-child.asm`. Nothing else
+in any of the three files changed.
+
+A signed 8x8->16 multiply (`Multiply8x8Signed`) was added to support this,
+reusing the existing `temp`/`temp2`/`delta`/`bestDistance`/`bestBeacon`
+scratch bytes rather than growing RAM usage — except for one new byte,
+`dirAccumHi`, added at the very end of each file's RAM block (after
+`optionalFineMotion`/`hudHundredsPtr`) to avoid disturbing every other
+symbol's address. The dev-source audio verifier's stack-safety check
+(`hudHundredsPtr` must end at or before $F4) caught a real mistake on the
+first attempt — placing new bytes earlier in the block pushed that symbol
+past the limit — before it ever reached a build.
+
+Verification: `make verify-thursday` passes 100% clean on the dev source.
+Zone 2-2's shared verify-script suite (raster x5, objects, stages, audio,
+motion) also passes 100% clean. Chapter One's own dedicated integration
+verifier passes; a few of the shared dev-suite scripts report failures
+against Chapter One specifically, but those were confirmed, by rebuilding
+the untouched original source and running the identical checks, to be
+pre-existing mismatches between that integrated file and the newer shared
+scripts — not something this change introduced. Real headless Stella runs
+confirm no regression: Chapter One played cleanly through credits -> title
+-> terminal (3x fire) -> gameplay -> three stage transitions with correct
+scoring and zero bounce-backs; Zone 2-2 (built with `-DCHAPTER2_ZONE2_LAB=1`)
+showed its actual orange elastic terrain, sustained a capture/orbit cycle
+across 20 fire presses, with no crash.
+
+Still to do: a human playtest of the actual gravity-spin *feel* across
+diagonal approaches (especially Zone 2-3, the zone that originally
+surfaced this as "backwards") — the math is derived and verified, but
+only play can confirm it matches Jason's creative intent.
 
 ## Zone 2-3 authored design (candidate)
 
