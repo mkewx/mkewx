@@ -5640,6 +5640,19 @@ Stage1ServiceDishCFinish:
         ORG $7E00
         RORG $FE00
 GameplayResume:
+        ; The terminal's third-fire jump to this gameplay entry (see
+        ; TerminalToGameplayGate) fires from inside a jsr'd subroutine via a
+        ; plain jmp, never executing its matching rts. That orphans the
+        ; jsr's return address on the hardware stack. Left uncorrected, once
+        ; gameplay's own call depth unwinds back to that stack level, an rts
+        ; pops the stale address instead of its real caller, sending
+        ; execution into unmapped memory until a stray zero byte reads as
+        ; BRK and every bank's identical interrupt vector redirects back
+        ; through Reset into credits -- reproducibly, regardless of input
+        ; method or emulator. Reset the stack here, the same defensive reset
+        ; Reset itself performs, so no stale entry survives into gameplay.
+        ldx #$FF
+        txs
         lda #0
         sta AUDV0
         sta AUDV1

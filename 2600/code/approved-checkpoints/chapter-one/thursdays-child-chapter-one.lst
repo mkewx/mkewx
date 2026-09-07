@@ -1,4 +1,4 @@
-------- FILE src/thursdays-child-chapter-one.asm LEVEL 1 PASS 2
+------- FILE thursdays-child-chapter-one.asm LEVEL 1 PASS 2
       1  7ffa					      processor	6502
       2  8000 ????
       3  8000 ????						; ---------------------------------------------------------------------------
@@ -2576,7 +2576,7 @@
     152  1cc0				   TitleWallLimit
     153  1cc0		       0c 0c 0c 10*	      byte.b	$0C,$0C,$0C,$10,$10,$10,$10,$14,$14,$14,$14,$18,$18,$18,$18,$18,$18,$18,$18,$18,$18,$18,$18,$18,$18,$18,$18,$18,$14,$14,$14,$14,$14,$14,$14,$18,$18,$18,$18,$1C,$1C,$1C,$1C
 ------- FILE thursdays-child-title-bank.inc
-------- FILE src/thursdays-child-chapter-one.asm
+------- FILE thursdays-child-chapter-one.asm
    1994  1ceb
    1995  1ceb							; Bank 2's credits screen selects Bank 1 at $FFB0; instruction fetch
    1996  1ceb							; continues here after the hotspot read.
@@ -2736,7 +2736,7 @@
     121  20c7		       60		      rts
     122  20c8				   .cr_consoleReset
     123  20c8		       4c e8 ff 	      jmp	$FFE8
-------- FILE src/thursdays-child-chapter-one.asm
+------- FILE thursdays-child-chapter-one.asm
 ------- FILE thursdays-child-terminal-bank.inc LEVEL 2 PASS 2
       0  20cb					      include	"thursdays-child-terminal-bank.inc"
       1  20cb							; Integrated Bank 2 form of the approved three-page NASA briefing.
@@ -3340,7 +3340,7 @@
     264  2ec0				   TerminalFlow
     265  2ec0		       c4 c6 c8 ca*	      byte.b	$C4,$C6,$C8,$CA,$C8,$C6,$C4,$C2,$C4,$C6,$C8,$CA,$C8,$C6,$C4,$C2
 ------- FILE thursdays-child-terminal-bank.inc
-------- FILE src/thursdays-child-chapter-one.asm
+------- FILE thursdays-child-chapter-one.asm
 ------- FILE thursdays-child-credits-compact.inc LEVEL 2 PASS 2
       0  2ed0					      include	"thursdays-child-credits-compact.inc"
       1  2ed0							; Generated compact credits rows; do not hand-edit.
@@ -3361,7 +3361,7 @@
      16  2f66
      17  2f66				   CreditsCompactPF2R
      18  2f66		       01 00 00 01*	      byte.b	$01,$00,$00,$01,$00,$0E,$02,$06,$02,$0E,$00,$00,$00,$00,$00,$06,$0A,$06,$0A,$0A,$00,$00,$00,$00,$00,$00,$00,$00,$00,$0A
-------- FILE src/thursdays-child-chapter-one.asm
+------- FILE thursdays-child-chapter-one.asm
    2031  2f84
    2032  2f84							; Power-on entry from fixed Bank 7.
    2033  2fa3					      ORG	$2FA3
@@ -6974,62 +6974,75 @@
    5640  7e00					      ORG	$7E00
    5641  7e00					      RORG	$FE00
    5642  7e00				   GameplayResume
-   5643  7e00		       a9 00		      lda	#0
-   5644  7e02		       85 19		      sta	AUDV0
-   5645  7e04		       85 1a		      sta	AUDV1
-   5646  7e06		       85 04		      sta	NUSIZ0
-   5647  7e08		       85 26		      sta	VDELP1
-   5648  7e0a		       85 09		      sta	COLUBK
-   5649  7e0c		       85 0d		      sta	PF0
-   5650  7e0e		       85 0e		      sta	PF1
-   5651  7e10		       85 0f		      sta	PF2
-   5652  7e12		       85 1b		      sta	GRP0
-   5653  7e14		       85 1c		      sta	GRP1
-   5654  7e16		       85 1d		      sta	ENAM0
-   5655  7e18		       85 1e		      sta	ENAM1
-   5656  7e1a		       85 1f		      sta	ENABL
-   5657  7e1c		       85 ec		      sta	currentStage
-   5658  7e1e		       85 f0		      sta	scoreTens
-   5659  7e20		       a9 20		      lda	#$20
-   5660  7e22		       85 05		      sta	NUSIZ1
-   5661  7e24		       a9 01		      lda	#1
-   5662  7e26		       85 25		      sta	VDELP0
-   5663  7e28		       85 0a		      sta	CTRLPF
-   5664  7e2a		       a9 0e		      lda	#SUIT_COLOR
-   5665  7e2c		       85 06		      sta	COLUP0
-   5666  7e2e		       a9 8c		      lda	#SIGNAL_COLOR
-   5667  7e30		       85 07		      sta	COLUP1
-   5668  7e32		       a9 40		      lda	#$40
-   5669  7e34		       85 ef		      sta	stageSetupPending
-   5670  7e36		       4c 6e f0 	      jmp	Frame
-   5671  7e39
-   5672  7e39							; Fixed presentation gates. Each hotspot read changes banks and the
-   5673  7e39							; selected bank supplies a JMP at the following virtual address.
-   5674  7fa0					      ORG	$7FA0
-   5675  7fa0					      RORG	$FFA0
-   5676  7fa0				   EnterCreditsGate
-   5677  7fa0		       ad f6 ff 	      lda	$FFF6
-   5678  7fa3
-   5679  7fa3							; Fixed bank-call gate. The hotspot switches to bank 0 at $FFD0. Bank 0 runs
-   5680  7fa3							; physics at $FFD3, switches back, and execution resumes at this RTS.
-   5681  7fd0					      ORG	$7FD0
-   5682  7fd0					      RORG	$FFD0
-   5683  7fd0				   CallPhysics
-   5684  7fd0		       ad f4 ff 	      lda	$FFF4
-   5685  7fd3		       ea ea ea ea*	      ds	6,$EA
-   5686  7fd9				   PhysicsBankReturn
-   5687  7fd9		       60		      rts
-   5688  7fda
-   5689  7fe3					      ORG	$7FE3
-   5690  7fe3					      RORG	$FFE3
-   5691  7fe3				   GameplayEntryLanding
-   5692  7fe3		       4c 00 fe 	      jmp	GameplayResume
-   5693  7fe6
-   5694  7feb					      ORG	$7FEB
-   5695  7feb					      RORG	$FFEB
-   5696  7feb				   PresentationResetLanding
-   5697  7feb		       4c 06 f0 	      jmp	Reset
-   5698  7fee
-   5699  7ffa					      ORG	$7FFA
-   5700  7ffa					      RORG	$FFFA
-   5701  7ffa		       00 f0 00 f0*	      word.w	$F000,$F000,$F000
+   5643  7e00							; The terminal's third-fire jump to this gameplay entry (see
+   5644  7e00							; TerminalToGameplayGate) fires from inside a jsr'd subroutine via a
+   5645  7e00							; plain jmp, never executing its matching rts. That orphans the
+   5646  7e00							; jsr's return address on the hardware stack. Left uncorrected, once
+   5647  7e00							; gameplay's own call depth unwinds back to that stack level, an rts
+   5648  7e00							; pops the stale address instead of its real caller, sending
+   5649  7e00							; execution into unmapped memory until a stray zero byte reads as
+   5650  7e00							; BRK and every bank's identical interrupt vector redirects back
+   5651  7e00							; through Reset into credits -- reproducibly, regardless of input
+   5652  7e00							; method or emulator. Reset the stack here, the same defensive reset
+   5653  7e00							; Reset itself performs, so no stale entry survives into gameplay.
+   5654  7e00		       a2 ff		      ldx	#$FF
+   5655  7e02		       9a		      txs
+   5656  7e03		       a9 00		      lda	#0
+   5657  7e05		       85 19		      sta	AUDV0
+   5658  7e07		       85 1a		      sta	AUDV1
+   5659  7e09		       85 04		      sta	NUSIZ0
+   5660  7e0b		       85 26		      sta	VDELP1
+   5661  7e0d		       85 09		      sta	COLUBK
+   5662  7e0f		       85 0d		      sta	PF0
+   5663  7e11		       85 0e		      sta	PF1
+   5664  7e13		       85 0f		      sta	PF2
+   5665  7e15		       85 1b		      sta	GRP0
+   5666  7e17		       85 1c		      sta	GRP1
+   5667  7e19		       85 1d		      sta	ENAM0
+   5668  7e1b		       85 1e		      sta	ENAM1
+   5669  7e1d		       85 1f		      sta	ENABL
+   5670  7e1f		       85 ec		      sta	currentStage
+   5671  7e21		       85 f0		      sta	scoreTens
+   5672  7e23		       a9 20		      lda	#$20
+   5673  7e25		       85 05		      sta	NUSIZ1
+   5674  7e27		       a9 01		      lda	#1
+   5675  7e29		       85 25		      sta	VDELP0
+   5676  7e2b		       85 0a		      sta	CTRLPF
+   5677  7e2d		       a9 0e		      lda	#SUIT_COLOR
+   5678  7e2f		       85 06		      sta	COLUP0
+   5679  7e31		       a9 8c		      lda	#SIGNAL_COLOR
+   5680  7e33		       85 07		      sta	COLUP1
+   5681  7e35		       a9 40		      lda	#$40
+   5682  7e37		       85 ef		      sta	stageSetupPending
+   5683  7e39		       4c 6e f0 	      jmp	Frame
+   5684  7e3c
+   5685  7e3c							; Fixed presentation gates. Each hotspot read changes banks and the
+   5686  7e3c							; selected bank supplies a JMP at the following virtual address.
+   5687  7fa0					      ORG	$7FA0
+   5688  7fa0					      RORG	$FFA0
+   5689  7fa0				   EnterCreditsGate
+   5690  7fa0		       ad f6 ff 	      lda	$FFF6
+   5691  7fa3
+   5692  7fa3							; Fixed bank-call gate. The hotspot switches to bank 0 at $FFD0. Bank 0 runs
+   5693  7fa3							; physics at $FFD3, switches back, and execution resumes at this RTS.
+   5694  7fd0					      ORG	$7FD0
+   5695  7fd0					      RORG	$FFD0
+   5696  7fd0				   CallPhysics
+   5697  7fd0		       ad f4 ff 	      lda	$FFF4
+   5698  7fd3		       ea ea ea ea*	      ds	6,$EA
+   5699  7fd9				   PhysicsBankReturn
+   5700  7fd9		       60		      rts
+   5701  7fda
+   5702  7fe3					      ORG	$7FE3
+   5703  7fe3					      RORG	$FFE3
+   5704  7fe3				   GameplayEntryLanding
+   5705  7fe3		       4c 00 fe 	      jmp	GameplayResume
+   5706  7fe6
+   5707  7feb					      ORG	$7FEB
+   5708  7feb					      RORG	$FFEB
+   5709  7feb				   PresentationResetLanding
+   5710  7feb		       4c 06 f0 	      jmp	Reset
+   5711  7fee
+   5712  7ffa					      ORG	$7FFA
+   5713  7ffa					      RORG	$FFFA
+   5714  7ffa		       00 f0 00 f0*	      word.w	$F000,$F000,$F000
