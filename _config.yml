@@ -39,3 +39,4 @@ exclude:
   - DEPLOYMENT-GUIDE.md
   - vendor/
   - node_modules/
+  - 2600/
