@@ -100,6 +100,43 @@ and physics gates) and verify physical bytes on both sides of the hotspot.
 
 Avoid rewriting the engine or repeatedly patching symptom locations.
 
+## Known issues — confirmed, deferred by Jason, not urgent
+
+Found during Jason's playtest of the stack-corruption-fixed Chapter One
+build on 2026-09-07. Real, confirmed, but explicitly not to be worked on
+until asked.
+
+1. **Post-stage manifest screens did not appear** between stages during
+   play, even though the approved-checkpoint description says Chapter One
+   includes a "post-zone manifest" after every stage. Needs investigation
+   into whether this regressed, was never wired into this specific build,
+   or is gated behind a condition that didn't trigger.
+2. **Score did not accumulate** across stages during play. Needs
+   investigation into whether score state is being reset somewhere it
+   shouldn't be (a natural place to check first, given the session's other
+   finding: `GameplayResume` only clears `scoreTens`, not `scoreOnes`, and
+   general RAM-carryover discipline between stages/screens has already
+   proven to be a real source of bugs this project).
+
+## Orbit-direction: confirmed NOT a whole-game blocker, but the underlying code is still shared
+
+Jason confirmed the satellite capture/orbit spin direction ("gravity spin")
+felt correct throughout Chapter One's five stages. That's real evidence
+it isn't broken everywhere — but `BeginCapture`'s `.chooseEntry` direction
+logic (picks clockwise/counterclockwise from Major Tom's static X position
+relative to the beacon at the instant of capture, never his velocity) is
+shared code, used identically by Chapter One and every Chapter Two zone.
+Chapter One working does not prove that routine is correct; it more likely
+means Chapter One's zone layouts don't happen to produce the diagonal
+approach angles where the static left/right rule diverges from the
+physically-natural continuation of Major Tom's actual trajectory. Zone 2-3
+was specifically reported as feeling backwards on some approaches. Treat
+this as a real, live discrepancy in shared code, not a Zone 2-3-local bug,
+when it's next prioritized — see the chat record for the two considered
+fix paths (velocity-aware angular-momentum-sign fix at the source, which
+changes shared/approved-adjacent behavior, vs. a Zone-2-3-local patch that
+leaves the shared bug live everywhere else).
+
 ## Zone 2-3 authored design (candidate)
 
 The requested Zone 2-3 design is intentionally more aggressive while retaining
