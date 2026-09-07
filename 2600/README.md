@@ -1,14 +1,20 @@
-# [Working Title]
+# Thursday's Child
 
 Atari 2600 game project. Lives in this repo as an isolated subfolder — excluded from the
 Jekyll build (`_config.yml`), so nothing here touches the live mkewx.com site.
 
+**Start with `CLAUDE_HANDOFF.md`** — it has the current project state, what's approved
+vs. experimental, and the active bug.
+
 ## Layout
 
-- `src/` — assembly (or batari Basic) source. The actual game.
-- `docs/` — design docs: what the game is supposed to be, current known issues,
-  decisions made and why.
-- `reference/` — art/style inspiration (small images, palettes, links). Not game assets.
-- `build/` — gitignored. Assembled `.bin`/`.lst`/`.sym` output, regenerated from `src/`.
-
-ROMs aren't committed as source — they're a build artifact of whatever's in `src/`.
+- `code/current/` — latest development source (may not build/run correctly).
+- `code/approved-checkpoints/` — known-good, user-playtested source. Treat as immutable
+  unless a regression test proves an experimental change is byte-for-byte equivalent.
+- `code/experimental/` — preserved candidates, explicitly not approved.
+- `binaries/approved/` — user-playtested ROM builds.
+- `binaries/experimental/` — latest builds that may be broken; evidence, not releases.
+- `docs/` — design docs, audits, regression notes.
+- `graphics/` — TIA asset/layout notes and reference captures.
+- `tools/` — verification/analysis scripts (Python) used by the Makefile's `make verify-*`.
+- `build/` — gitignored. Scratch output from our own assemble/emulate/verify runs.

@@ -1,0 +1,544 @@
+DASM ?= dasm
+
+BUILD_DIR := build
+ROM := $(BUILD_DIR)/floating.bin
+LISTING := $(BUILD_DIR)/floating.lst
+SYMBOLS := $(BUILD_DIR)/floating.sym
+SANDBOX_ROM := $(BUILD_DIR)/prototype-d-sandbox.bin
+SANDBOX_LISTING := $(BUILD_DIR)/prototype-d-sandbox.lst
+SANDBOX_SYMBOLS := $(BUILD_DIR)/prototype-d-sandbox.sym
+D2_ROM := $(BUILD_DIR)/prototype-d2-sandbox.bin
+D2_LISTING := $(BUILD_DIR)/prototype-d2-sandbox.lst
+D2_SYMBOLS := $(BUILD_DIR)/prototype-d2-sandbox.sym
+FOUNDATION1_ROM := $(BUILD_DIR)/production-foundation-phase1.bin
+FOUNDATION1_LISTING := $(BUILD_DIR)/production-foundation-phase1.lst
+FOUNDATION1_SYMBOLS := $(BUILD_DIR)/production-foundation-phase1.sym
+FOUNDATION2_ROM := $(BUILD_DIR)/production-foundation-phase2.bin
+FOUNDATION2_LISTING := $(BUILD_DIR)/production-foundation-phase2.lst
+FOUNDATION2_SYMBOLS := $(BUILD_DIR)/production-foundation-phase2.sym
+FOUNDATION3A_ROM := $(BUILD_DIR)/production-foundation-phase3a.bin
+FOUNDATION3A_LISTING := $(BUILD_DIR)/production-foundation-phase3a.lst
+FOUNDATION3A_SYMBOLS := $(BUILD_DIR)/production-foundation-phase3a.sym
+FOUNDATION3B_ROM := $(BUILD_DIR)/production-foundation-phase3b.bin
+FOUNDATION3B_LISTING := $(BUILD_DIR)/production-foundation-phase3b.lst
+FOUNDATION3B_SYMBOLS := $(BUILD_DIR)/production-foundation-phase3b.sym
+FOUNDATION4A_ROM := $(BUILD_DIR)/production-foundation-phase4a.bin
+FOUNDATION4A_LISTING := $(BUILD_DIR)/production-foundation-phase4a.lst
+FOUNDATION4A_SYMBOLS := $(BUILD_DIR)/production-foundation-phase4a.sym
+FOUNDATION4B_ROM := $(BUILD_DIR)/production-foundation-phase4b.bin
+FOUNDATION4B_LISTING := $(BUILD_DIR)/production-foundation-phase4b.lst
+FOUNDATION4B_SYMBOLS := $(BUILD_DIR)/production-foundation-phase4b.sym
+FOUNDATION5A_ROM := $(BUILD_DIR)/production-foundation-phase5a.bin
+FOUNDATION5A_LISTING := $(BUILD_DIR)/production-foundation-phase5a.lst
+FOUNDATION5A_SYMBOLS := $(BUILD_DIR)/production-foundation-phase5a.sym
+FOUNDATION5B_ROM := $(BUILD_DIR)/production-foundation-phase5b.bin
+FOUNDATION5B_LISTING := $(BUILD_DIR)/production-foundation-phase5b.lst
+FOUNDATION5B_SYMBOLS := $(BUILD_DIR)/production-foundation-phase5b.sym
+FOUNDATION6A_ROM := $(BUILD_DIR)/production-foundation-phase6a.bin
+FOUNDATION6A_LISTING := $(BUILD_DIR)/production-foundation-phase6a.lst
+FOUNDATION6A_SYMBOLS := $(BUILD_DIR)/production-foundation-phase6a.sym
+FOUNDATION6B_ROM := $(BUILD_DIR)/production-foundation-phase6b.bin
+FOUNDATION6B_LISTING := $(BUILD_DIR)/production-foundation-phase6b.lst
+FOUNDATION6B_SYMBOLS := $(BUILD_DIR)/production-foundation-phase6b.sym
+FOUNDATION6C_ROM := $(BUILD_DIR)/production-foundation-phase6c.bin
+FOUNDATION6C_LISTING := $(BUILD_DIR)/production-foundation-phase6c.lst
+FOUNDATION6C_SYMBOLS := $(BUILD_DIR)/production-foundation-phase6c.sym
+FOUNDATION6CB_ROM := $(BUILD_DIR)/production-foundation-phase6c-b.bin
+FOUNDATION6CB_LISTING := $(BUILD_DIR)/production-foundation-phase6c-b.lst
+FOUNDATION6CB_SYMBOLS := $(BUILD_DIR)/production-foundation-phase6c-b.sym
+FOUNDATION6CC_ROM := $(BUILD_DIR)/production-foundation-phase6c-c.bin
+FOUNDATION6CC_LISTING := $(BUILD_DIR)/production-foundation-phase6c-c.lst
+FOUNDATION6CC_SYMBOLS := $(BUILD_DIR)/production-foundation-phase6c-c.sym
+FOUNDATION6DA_ROM := $(BUILD_DIR)/production-foundation-phase6d-a.bin
+FOUNDATION6DA_LISTING := $(BUILD_DIR)/production-foundation-phase6d-a.lst
+FOUNDATION6DA_SYMBOLS := $(BUILD_DIR)/production-foundation-phase6d-a.sym
+FOUNDATION6DB_ROM := $(BUILD_DIR)/production-foundation-phase6d-b.bin
+FOUNDATION6DB_LISTING := $(BUILD_DIR)/production-foundation-phase6d-b.lst
+FOUNDATION6DB_SYMBOLS := $(BUILD_DIR)/production-foundation-phase6d-b.sym
+FOUNDATION6DB2_ROM := $(BUILD_DIR)/production-foundation-phase6d-b2.bin
+FOUNDATION6DB2_LISTING := $(BUILD_DIR)/production-foundation-phase6d-b2.lst
+FOUNDATION6DB2_SYMBOLS := $(BUILD_DIR)/production-foundation-phase6d-b2.sym
+FOUNDATION6DB3_ROM := $(BUILD_DIR)/production-foundation-phase6d-b3.bin
+FOUNDATION6DB3_LISTING := $(BUILD_DIR)/production-foundation-phase6d-b3.lst
+FOUNDATION6DB3_SYMBOLS := $(BUILD_DIR)/production-foundation-phase6d-b3.sym
+FOUNDATION6DB4_ROM := $(BUILD_DIR)/production-foundation-phase6d-b4.bin
+FOUNDATION6DB4_LISTING := $(BUILD_DIR)/production-foundation-phase6d-b4.lst
+FOUNDATION6DB4_SYMBOLS := $(BUILD_DIR)/production-foundation-phase6d-b4.sym
+FOUNDATION6DB5_ROM := $(BUILD_DIR)/production-foundation-phase6d-b5.bin
+FOUNDATION6DB5_LISTING := $(BUILD_DIR)/production-foundation-phase6d-b5.lst
+FOUNDATION6DB5_SYMBOLS := $(BUILD_DIR)/production-foundation-phase6d-b5.sym
+FOUNDATION6E_ROM := $(BUILD_DIR)/production-foundation-phase6e.bin
+FOUNDATION6E_LISTING := $(BUILD_DIR)/production-foundation-phase6e.lst
+FOUNDATION6E_SYMBOLS := $(BUILD_DIR)/production-foundation-phase6e.sym
+BLACKSTAR_ROM := $(BUILD_DIR)/blackstar-proof.bin
+BLACKSTAR_LISTING := $(BUILD_DIR)/blackstar-proof.lst
+BLACKSTAR_SYMBOLS := $(BUILD_DIR)/blackstar-proof.sym
+THURSDAY_ROM := $(BUILD_DIR)/thursdays-child.bin
+THURSDAY_LISTING := $(BUILD_DIR)/thursdays-child.lst
+THURSDAY_SYMBOLS := $(BUILD_DIR)/thursdays-child.sym
+CHAPTERONE_ROM := $(BUILD_DIR)/thursdays-child-chapter-one.bin
+CHAPTERONE_LISTING := $(BUILD_DIR)/thursdays-child-chapter-one.lst
+CHAPTERONE_SYMBOLS := $(BUILD_DIR)/thursdays-child-chapter-one.sym
+STARLAB_ROM := $(BUILD_DIR)/thursdays-child-starfield-lab.bin
+STARLAB_LISTING := $(BUILD_DIR)/thursdays-child-starfield-lab.lst
+STARLAB_SYMBOLS := $(BUILD_DIR)/thursdays-child-starfield-lab.sym
+THURSDAY_BASELINE := outputs/thursdays-child-0.6a-approved-production.bin
+THURSDAY_07A_BASELINE := outputs/thursdays-child-0.7a-approved-f4.bin
+HUDLAB_ROM := $(BUILD_DIR)/thursdays-child-hud-lab.bin
+HUDLAB_LISTING := $(BUILD_DIR)/thursdays-child-hud-lab.lst
+HUDLAB_SYMBOLS := $(BUILD_DIR)/thursdays-child-hud-lab.sym
+HUDNUMBER_ROM := $(BUILD_DIR)/thursdays-child-hud-numeric-proof.bin
+HUDNUMBER_LISTING := $(BUILD_DIR)/thursdays-child-hud-numeric-proof.lst
+HUDNUMBER_SYMBOLS := $(BUILD_DIR)/thursdays-child-hud-numeric-proof.sym
+HUDINDICATOR_ROM := $(BUILD_DIR)/thursdays-child-hud-indicator-proof.bin
+HUDINDICATOR_LISTING := $(BUILD_DIR)/thursdays-child-hud-indicator-proof.lst
+HUDINDICATOR_SYMBOLS := $(BUILD_DIR)/thursdays-child-hud-indicator-proof.sym
+CHAPTERCARD_ROM := $(BUILD_DIR)/thursdays-child-chapter-card-lab.bin
+CHAPTERCARD_LISTING := $(BUILD_DIR)/thursdays-child-chapter-card-lab.lst
+CHAPTERCARD_SYMBOLS := $(BUILD_DIR)/thursdays-child-chapter-card-lab.sym
+CHAPTERTEXT_ROM := $(BUILD_DIR)/thursdays-child-chapter-text-proof.bin
+CHAPTERTEXT_LISTING := $(BUILD_DIR)/thursdays-child-chapter-text-proof.lst
+CHAPTERTEXT_SYMBOLS := $(BUILD_DIR)/thursdays-child-chapter-text-proof.sym
+TITLELAB_ROM := $(BUILD_DIR)/thursdays-child-title-lab.bin
+TITLELAB_LISTING := $(BUILD_DIR)/thursdays-child-title-lab.lst
+TITLELAB_SYMBOLS := $(BUILD_DIR)/thursdays-child-title-lab.sym
+CREDITSLAB_ROM := $(BUILD_DIR)/thursdays-child-credits-lab.bin
+CREDITSLAB_LISTING := $(BUILD_DIR)/thursdays-child-credits-lab.lst
+CREDITSLAB_SYMBOLS := $(BUILD_DIR)/thursdays-child-credits-lab.sym
+TERMINALLAB_ROM := $(BUILD_DIR)/thursdays-child-terminal-lab.bin
+TERMINALLAB_LISTING := $(BUILD_DIR)/thursdays-child-terminal-lab.lst
+TERMINALLAB_SYMBOLS := $(BUILD_DIR)/thursdays-child-terminal-lab.sym
+ZONEMANIFEST_ROM := $(BUILD_DIR)/thursdays-child-zone-manifest-lab.bin
+ZONEMANIFEST_LISTING := $(BUILD_DIR)/thursdays-child-zone-manifest-lab.lst
+ZONEMANIFEST_SYMBOLS := $(BUILD_DIR)/thursdays-child-zone-manifest-lab.sym
+CHAPTERTWO_TERMINAL_ROM := $(BUILD_DIR)/thursdays-child-chapter-two-terminal.bin
+CHAPTERTWO_TERMINAL_LISTING := $(BUILD_DIR)/thursdays-child-chapter-two-terminal.lst
+CHAPTERTWO_TERMINAL_SYMBOLS := $(BUILD_DIR)/thursdays-child-chapter-two-terminal.sym
+CHAPTERTWO_ZONE1_ROM := $(BUILD_DIR)/thursdays-child-chapter-two-zone1.bin
+CHAPTERTWO_ZONE1_LISTING := $(BUILD_DIR)/thursdays-child-chapter-two-zone1.lst
+CHAPTERTWO_ZONE1_SYMBOLS := $(BUILD_DIR)/thursdays-child-chapter-two-zone1.sym
+CHAPTERTWO_ZONE2_ROM := $(BUILD_DIR)/thursdays-child-chapter-two-zone2.bin
+CHAPTERTWO_ZONE2_LISTING := $(BUILD_DIR)/thursdays-child-chapter-two-zone2.lst
+CHAPTERTWO_ZONE2_SYMBOLS := $(BUILD_DIR)/thursdays-child-chapter-two-zone2.sym
+CHAPTERTWO_ZONE3_ROM := $(BUILD_DIR)/thursdays-child-chapter-two-zone3.bin
+CHAPTERTWO_ZONE3_LISTING := $(BUILD_DIR)/thursdays-child-chapter-two-zone3.lst
+CHAPTERTWO_ZONE3_SYMBOLS := $(BUILD_DIR)/thursdays-child-chapter-two-zone3.sym
+
+.PHONY: all clean verify sandbox verify-sandbox d2 verify-d2 foundation1 verify-foundation1 foundation2 verify-foundation2 foundation3a verify-foundation3a foundation3b verify-foundation3b foundation4a verify-foundation4a foundation4b verify-foundation4b foundation5a verify-foundation5a foundation5b verify-foundation5b foundation6a verify-foundation6a foundation6b verify-foundation6b foundation6c verify-foundation6c foundation6cb verify-foundation6cb foundation6cc verify-foundation6cc foundation6da verify-foundation6da foundation6db verify-foundation6db foundation6db2 verify-foundation6db2 foundation6db3 verify-foundation6db3 foundation6db4 verify-foundation6db4 foundation6db5 verify-foundation6db5 foundation6e verify-foundation6e blackstar verify-blackstar thursday verify-thursday chapter-one verify-chapter-one starfield-lab verify-starfield-lab hudlab verify-hudlab hudnumber verify-hudnumber hudindicator verify-hudindicator chapter-card-lab verify-chapter-card-lab chapter-text-proof verify-chapter-text-proof title-lab verify-title-lab credits-lab verify-credits-lab terminal-lab verify-terminal-lab zone-manifest-lab verify-zone-manifest-lab chapter-two-terminal verify-chapter-two-terminal
+
+all: $(ROM)
+
+$(ROM): src/floating.asm
+	mkdir -p $(BUILD_DIR)
+	$(DASM) src/floating.asm -Isrc -f3 -o$(ROM) -l$(LISTING) -s$(SYMBOLS)
+
+verify: $(ROM)
+	python3 tools/verify_rom.py $(ROM)
+
+sandbox: $(SANDBOX_ROM)
+
+$(SANDBOX_ROM): src/prototype-d-sandbox.asm
+	mkdir -p $(BUILD_DIR)
+	$(DASM) src/prototype-d-sandbox.asm -Isrc -f3 -o$(SANDBOX_ROM) -l$(SANDBOX_LISTING) -s$(SANDBOX_SYMBOLS)
+
+verify-sandbox: $(SANDBOX_ROM)
+	python3 tools/verify_rom.py $(SANDBOX_ROM)
+
+d2: $(D2_ROM)
+
+$(D2_ROM): src/prototype-d2-sandbox.asm
+	mkdir -p $(BUILD_DIR)
+	$(DASM) src/prototype-d2-sandbox.asm -Isrc -f3 -o$(D2_ROM) -l$(D2_LISTING) -s$(D2_SYMBOLS)
+
+verify-d2: $(D2_ROM)
+	python3 tools/verify_rom.py $(D2_ROM)
+
+foundation1: $(FOUNDATION1_ROM)
+
+$(FOUNDATION1_ROM): src/production-foundation-phase1.asm
+	mkdir -p $(BUILD_DIR)
+	$(DASM) src/production-foundation-phase1.asm -Isrc -f3 -o$(FOUNDATION1_ROM) -l$(FOUNDATION1_LISTING) -s$(FOUNDATION1_SYMBOLS)
+
+verify-foundation1: $(FOUNDATION1_ROM)
+	python3 tools/verify_rom.py $(FOUNDATION1_ROM)
+
+foundation2: $(FOUNDATION2_ROM)
+
+$(FOUNDATION2_ROM): src/production-foundation-phase2.asm
+	mkdir -p $(BUILD_DIR)
+	$(DASM) src/production-foundation-phase2.asm -Isrc -f3 -o$(FOUNDATION2_ROM) -l$(FOUNDATION2_LISTING) -s$(FOUNDATION2_SYMBOLS)
+
+verify-foundation2: $(FOUNDATION2_ROM)
+	python3 tools/verify_rom.py $(FOUNDATION2_ROM)
+
+foundation3a: $(FOUNDATION3A_ROM)
+
+$(FOUNDATION3A_ROM): src/production-foundation-phase3a.asm
+	mkdir -p $(BUILD_DIR)
+	$(DASM) src/production-foundation-phase3a.asm -Isrc -f3 -o$(FOUNDATION3A_ROM) -l$(FOUNDATION3A_LISTING) -s$(FOUNDATION3A_SYMBOLS)
+
+verify-foundation3a: $(FOUNDATION3A_ROM)
+	python3 tools/verify_rom.py $(FOUNDATION3A_ROM)
+
+foundation3b: $(FOUNDATION3B_ROM)
+
+$(FOUNDATION3B_ROM): src/production-foundation-phase3b.asm
+	mkdir -p $(BUILD_DIR)
+	$(DASM) src/production-foundation-phase3b.asm -Isrc -f3 -o$(FOUNDATION3B_ROM) -l$(FOUNDATION3B_LISTING) -s$(FOUNDATION3B_SYMBOLS)
+
+verify-foundation3b: $(FOUNDATION3B_ROM)
+	python3 tools/verify_rom.py $(FOUNDATION3B_ROM)
+
+foundation4a: $(FOUNDATION4A_ROM)
+
+$(FOUNDATION4A_ROM): src/production-foundation-phase4a.asm
+	mkdir -p $(BUILD_DIR)
+	$(DASM) src/production-foundation-phase4a.asm -Isrc -f3 -o$(FOUNDATION4A_ROM) -l$(FOUNDATION4A_LISTING) -s$(FOUNDATION4A_SYMBOLS)
+
+verify-foundation4a: $(FOUNDATION4A_ROM)
+	python3 tools/verify_rom.py $(FOUNDATION4A_ROM)
+
+foundation4b: $(FOUNDATION4B_ROM)
+
+$(FOUNDATION4B_ROM): src/production-foundation-phase4b.asm
+	mkdir -p $(BUILD_DIR)
+	$(DASM) src/production-foundation-phase4b.asm -Isrc -f3 -o$(FOUNDATION4B_ROM) -l$(FOUNDATION4B_LISTING) -s$(FOUNDATION4B_SYMBOLS)
+
+verify-foundation4b: $(FOUNDATION4B_ROM)
+	python3 tools/verify_rom.py $(FOUNDATION4B_ROM)
+
+foundation5a: $(FOUNDATION5A_ROM)
+
+$(FOUNDATION5A_ROM): src/production-foundation-phase5a.asm
+	mkdir -p $(BUILD_DIR)
+	$(DASM) src/production-foundation-phase5a.asm -Isrc -f3 -o$(FOUNDATION5A_ROM) -l$(FOUNDATION5A_LISTING) -s$(FOUNDATION5A_SYMBOLS)
+
+verify-foundation5a: $(FOUNDATION5A_ROM)
+	python3 tools/verify_rom.py $(FOUNDATION5A_ROM)
+
+foundation5b: $(FOUNDATION5B_ROM)
+
+$(FOUNDATION5B_ROM): src/production-foundation-phase5b.asm
+	mkdir -p $(BUILD_DIR)
+	$(DASM) src/production-foundation-phase5b.asm -Isrc -f3 -o$(FOUNDATION5B_ROM) -l$(FOUNDATION5B_LISTING) -s$(FOUNDATION5B_SYMBOLS)
+
+verify-foundation5b: $(FOUNDATION5B_ROM)
+	python3 tools/verify_rom.py $(FOUNDATION5B_ROM)
+
+foundation6a: $(FOUNDATION6A_ROM)
+
+$(FOUNDATION6A_ROM): src/production-foundation-phase6a-stabilityfix.asm
+	mkdir -p $(BUILD_DIR)
+	$(DASM) src/production-foundation-phase6a-stabilityfix.asm -Isrc -f3 -o$(FOUNDATION6A_ROM) -l$(FOUNDATION6A_LISTING) -s$(FOUNDATION6A_SYMBOLS)
+
+verify-foundation6a: $(FOUNDATION6A_ROM)
+	python3 tools/verify_rom.py $(FOUNDATION6A_ROM)
+
+foundation6b: $(FOUNDATION6B_ROM)
+
+$(FOUNDATION6B_ROM): src/production-foundation-phase6b.asm
+	mkdir -p $(BUILD_DIR)
+	$(DASM) src/production-foundation-phase6b.asm -Isrc -f3 -o$(FOUNDATION6B_ROM) -l$(FOUNDATION6B_LISTING) -s$(FOUNDATION6B_SYMBOLS)
+
+verify-foundation6b: $(FOUNDATION6B_ROM)
+	python3 tools/verify_rom.py $(FOUNDATION6B_ROM)
+
+foundation6c: $(FOUNDATION6C_ROM)
+
+$(FOUNDATION6C_ROM): src/production-foundation-phase6c.asm
+	mkdir -p $(BUILD_DIR)
+	$(DASM) src/production-foundation-phase6c.asm -Isrc -f3 -o$(FOUNDATION6C_ROM) -l$(FOUNDATION6C_LISTING) -s$(FOUNDATION6C_SYMBOLS)
+
+verify-foundation6c: $(FOUNDATION6C_ROM)
+	python3 tools/verify_rom.py $(FOUNDATION6C_ROM)
+
+foundation6cb: $(FOUNDATION6CB_ROM)
+
+$(FOUNDATION6CB_ROM): src/production-foundation-phase6c-b.asm
+	mkdir -p $(BUILD_DIR)
+	$(DASM) src/production-foundation-phase6c-b.asm -Isrc -f3 -o$(FOUNDATION6CB_ROM) -l$(FOUNDATION6CB_LISTING) -s$(FOUNDATION6CB_SYMBOLS)
+
+verify-foundation6cb: $(FOUNDATION6CB_ROM)
+	python3 tools/verify_rom.py $(FOUNDATION6CB_ROM)
+
+foundation6cc: $(FOUNDATION6CC_ROM)
+
+$(FOUNDATION6CC_ROM): src/production-foundation-phase6c-c.asm
+	mkdir -p $(BUILD_DIR)
+	$(DASM) src/production-foundation-phase6c-c.asm -Isrc -f3 -o$(FOUNDATION6CC_ROM) -l$(FOUNDATION6CC_LISTING) -s$(FOUNDATION6CC_SYMBOLS)
+
+verify-foundation6cc: $(FOUNDATION6CC_ROM)
+	python3 tools/verify_rom.py $(FOUNDATION6CC_ROM)
+
+foundation6da: $(FOUNDATION6DA_ROM)
+
+$(FOUNDATION6DA_ROM): src/production-foundation-phase6d-a.asm
+	mkdir -p $(BUILD_DIR)
+	$(DASM) src/production-foundation-phase6d-a.asm -Isrc -f3 -o$(FOUNDATION6DA_ROM) -l$(FOUNDATION6DA_LISTING) -s$(FOUNDATION6DA_SYMBOLS)
+
+verify-foundation6da: $(FOUNDATION6DA_ROM)
+	python3 tools/verify_f4_rom.py $(FOUNDATION6DA_ROM)
+
+foundation6db: $(FOUNDATION6DB_ROM)
+
+$(FOUNDATION6DB_ROM): src/production-foundation-phase6d-b.asm
+	mkdir -p $(BUILD_DIR)
+	$(DASM) src/production-foundation-phase6d-b.asm -Isrc -f3 -o$(FOUNDATION6DB_ROM) -l$(FOUNDATION6DB_LISTING) -s$(FOUNDATION6DB_SYMBOLS)
+
+verify-foundation6db: $(FOUNDATION6DB_ROM)
+	python3 tools/verify_f4_audio_rom.py $(FOUNDATION6DB_ROM)
+
+foundation6db2: $(FOUNDATION6DB2_ROM)
+
+$(FOUNDATION6DB2_ROM): src/production-foundation-phase6d-b2.asm
+	mkdir -p $(BUILD_DIR)
+	$(DASM) src/production-foundation-phase6d-b2.asm -Isrc -f3 -o$(FOUNDATION6DB2_ROM) -l$(FOUNDATION6DB2_LISTING) -s$(FOUNDATION6DB2_SYMBOLS)
+
+verify-foundation6db2: $(FOUNDATION6DB2_ROM)
+	python3 tools/verify_f4_audio_rom.py $(FOUNDATION6DB2_ROM)
+
+foundation6db3: $(FOUNDATION6DB3_ROM)
+
+$(FOUNDATION6DB3_ROM): src/production-foundation-phase6d-b3.asm
+	mkdir -p $(BUILD_DIR)
+	$(DASM) src/production-foundation-phase6d-b3.asm -Isrc -f3 -o$(FOUNDATION6DB3_ROM) -l$(FOUNDATION6DB3_LISTING) -s$(FOUNDATION6DB3_SYMBOLS)
+
+verify-foundation6db3: $(FOUNDATION6DB3_ROM)
+	python3 tools/verify_f4_audio_rom.py $(FOUNDATION6DB3_ROM)
+
+foundation6db4: $(FOUNDATION6DB4_ROM)
+
+$(FOUNDATION6DB4_ROM): src/production-foundation-phase6d-b4.asm
+	mkdir -p $(BUILD_DIR)
+	$(DASM) src/production-foundation-phase6d-b4.asm -Isrc -f3 -o$(FOUNDATION6DB4_ROM) -l$(FOUNDATION6DB4_LISTING) -s$(FOUNDATION6DB4_SYMBOLS)
+
+verify-foundation6db4: $(FOUNDATION6DB4_ROM)
+	python3 tools/verify_f4_audio_rom.py $(FOUNDATION6DB4_ROM)
+
+foundation6db5: $(FOUNDATION6DB5_ROM)
+
+$(FOUNDATION6DB5_ROM): src/production-foundation-phase6d-b5.asm
+	mkdir -p $(BUILD_DIR)
+	$(DASM) src/production-foundation-phase6d-b5.asm -Isrc -f3 -o$(FOUNDATION6DB5_ROM) -l$(FOUNDATION6DB5_LISTING) -s$(FOUNDATION6DB5_SYMBOLS)
+
+verify-foundation6db5: $(FOUNDATION6DB5_ROM)
+	python3 tools/verify_f4_audio_rom.py $(FOUNDATION6DB5_ROM)
+
+foundation6e: $(FOUNDATION6E_ROM)
+
+$(FOUNDATION6E_ROM): src/production-foundation-phase6e.asm
+	mkdir -p $(BUILD_DIR)
+	$(DASM) src/production-foundation-phase6e.asm -Isrc -f3 -o$(FOUNDATION6E_ROM) -l$(FOUNDATION6E_LISTING) -s$(FOUNDATION6E_SYMBOLS)
+
+verify-foundation6e: $(FOUNDATION6E_ROM)
+	python3 tools/verify_f4_phase6e_rom.py $(FOUNDATION6E_ROM)
+
+blackstar: $(BLACKSTAR_ROM)
+
+$(BLACKSTAR_ROM): src/blackstar-proof.asm
+	mkdir -p $(BUILD_DIR)
+	$(DASM) src/blackstar-proof.asm -Isrc -f3 -o$(BLACKSTAR_ROM) -l$(BLACKSTAR_LISTING) -s$(BLACKSTAR_SYMBOLS)
+
+verify-blackstar: $(BLACKSTAR_ROM)
+	python3 tools/verify_f8_blackstar_rom.py $(BLACKSTAR_ROM)
+	python3 tools/verify_blackstar_raster.py $(BLACKSTAR_SYMBOLS)
+
+thursday: $(THURSDAY_ROM)
+
+$(THURSDAY_ROM): src/thursdays-child.asm src/thursdays-child-stage1-objects.inc src/thursdays-child-stage2-objects.inc src/thursdays-child-stage3-objects.inc src/thursdays-child-stage4-objects.inc src/thursdays-child-stage5-objects.inc
+	mkdir -p $(BUILD_DIR)
+	$(DASM) src/thursdays-child.asm -Isrc -f3 -o$(THURSDAY_ROM) -l$(THURSDAY_LISTING) -s$(THURSDAY_SYMBOLS)
+
+verify-thursday: $(THURSDAY_ROM)
+	python3 tools/verify_f4_thursdays_child_07b.py $(THURSDAY_ROM) $(THURSDAY_SYMBOLS) $(THURSDAY_07A_BASELINE)
+	python3 tools/verify_thursdays_child_raster.py $(THURSDAY_ROM) $(THURSDAY_SYMBOLS)
+	python3 tools/verify_thursdays_child_raster.py $(THURSDAY_ROM) $(THURSDAY_SYMBOLS) stage2
+	python3 tools/verify_thursdays_child_raster.py $(THURSDAY_ROM) $(THURSDAY_SYMBOLS) stage3
+	python3 tools/verify_thursdays_child_raster.py $(THURSDAY_ROM) $(THURSDAY_SYMBOLS) stage4
+	python3 tools/verify_thursdays_child_raster.py $(THURSDAY_ROM) $(THURSDAY_SYMBOLS) stage5
+	python3 tools/verify_thursdays_child_motion.py src/thursdays-child.asm
+	python3 tools/verify_thursdays_child_objects.py $(THURSDAY_ROM) $(THURSDAY_SYMBOLS) src/thursdays-child.asm
+	python3 tools/verify_thursdays_child_audio.py $(THURSDAY_ROM) $(THURSDAY_SYMBOLS) src/thursdays-child.asm
+	python3 tools/verify_thursdays_child_stages.py $(THURSDAY_ROM) $(THURSDAY_SYMBOLS) src/thursdays-child.asm
+	python3 tools/verify_thursdays_child_score.py $(THURSDAY_ROM) $(THURSDAY_SYMBOLS) src/thursdays-child.asm
+
+chapter-one: $(CHAPTERONE_ROM)
+
+$(CHAPTERONE_ROM): src/thursdays-child-chapter-one.asm src/thursdays-child-title-bank.inc src/thursdays-child-title-lab.inc src/thursdays-child-credits-bank.inc src/thursdays-child-credits-compact.inc src/thursdays-child-terminal-bank.inc src/thursdays-child-terminal-lab.inc src/thursdays-child-stage1-objects.inc src/thursdays-child-stage2-objects.inc src/thursdays-child-stage3-objects.inc src/thursdays-child-stage4-objects.inc src/thursdays-child-stage5-objects.inc
+	mkdir -p $(BUILD_DIR)
+	$(DASM) src/thursdays-child-chapter-one.asm -Isrc -f3 -o$(CHAPTERONE_ROM) -l$(CHAPTERONE_LISTING) -s$(CHAPTERONE_SYMBOLS)
+
+verify-chapter-one: $(CHAPTERONE_ROM)
+	python3 tools/verify_thursdays_child_chapter_one.py $(CHAPTERONE_ROM) $(CHAPTERONE_SYMBOLS) outputs/chapter-one-integration-baseline-2026-09-04/chapter-one-approved.bin
+	python3 tools/verify_thursdays_child_raster.py $(CHAPTERONE_ROM) $(CHAPTERONE_SYMBOLS)
+	python3 tools/verify_thursdays_child_raster.py $(CHAPTERONE_ROM) $(CHAPTERONE_SYMBOLS) stage2
+	python3 tools/verify_thursdays_child_raster.py $(CHAPTERONE_ROM) $(CHAPTERONE_SYMBOLS) stage3
+	python3 tools/verify_thursdays_child_raster.py $(CHAPTERONE_ROM) $(CHAPTERONE_SYMBOLS) stage4
+	python3 tools/verify_thursdays_child_raster.py $(CHAPTERONE_ROM) $(CHAPTERONE_SYMBOLS) stage5
+	python3 tools/verify_thursdays_child_motion.py src/thursdays-child-chapter-one.asm
+	python3 tools/verify_thursdays_child_objects.py $(CHAPTERONE_ROM) $(CHAPTERONE_SYMBOLS) src/thursdays-child-chapter-one.asm
+	python3 tools/verify_thursdays_child_audio.py $(CHAPTERONE_ROM) $(CHAPTERONE_SYMBOLS) src/thursdays-child-chapter-one.asm
+	python3 tools/verify_thursdays_child_stages.py $(CHAPTERONE_ROM) $(CHAPTERONE_SYMBOLS) src/thursdays-child-chapter-one.asm
+	python3 tools/verify_thursdays_child_score.py $(CHAPTERONE_ROM) $(CHAPTERONE_SYMBOLS) src/thursdays-child-chapter-one.asm
+
+starfield-lab: $(STARLAB_ROM)
+
+$(STARLAB_ROM): src/thursdays-child.asm
+	mkdir -p $(BUILD_DIR)
+	$(DASM) src/thursdays-child.asm -Isrc -DSTARFIELD_LAB=1 -f3 -o$(STARLAB_ROM) -l$(STARLAB_LISTING) -s$(STARLAB_SYMBOLS)
+
+verify-starfield-lab: $(STARLAB_ROM)
+	python3 tools/verify_f4_thursdays_child_07b.py $(STARLAB_ROM) $(STARLAB_SYMBOLS) $(THURSDAY_07A_BASELINE)
+	python3 tools/verify_thursdays_child_raster.py $(STARLAB_ROM) $(STARLAB_SYMBOLS)
+	python3 tools/verify_thursdays_child_raster.py $(STARLAB_ROM) $(STARLAB_SYMBOLS) stage2
+	python3 tools/verify_thursdays_child_raster.py $(STARLAB_ROM) $(STARLAB_SYMBOLS) stage3
+	python3 tools/verify_thursdays_child_raster.py $(STARLAB_ROM) $(STARLAB_SYMBOLS) stage4
+	python3 tools/verify_thursdays_child_raster.py $(STARLAB_ROM) $(STARLAB_SYMBOLS) stage5
+	python3 tools/verify_thursdays_child_motion.py src/thursdays-child.asm
+	python3 tools/verify_thursdays_child_objects.py $(STARLAB_ROM) $(STARLAB_SYMBOLS) src/thursdays-child.asm
+	python3 tools/verify_thursdays_child_audio.py $(STARLAB_ROM) $(STARLAB_SYMBOLS) src/thursdays-child.asm
+	python3 tools/verify_thursdays_child_stages.py $(STARLAB_ROM) $(STARLAB_SYMBOLS) src/thursdays-child.asm
+
+hudlab: $(HUDLAB_ROM)
+
+$(HUDLAB_ROM): src/thursdays-child-hud-lab.asm
+	mkdir -p $(BUILD_DIR)
+	$(DASM) src/thursdays-child-hud-lab.asm -Isrc -f3 -o$(HUDLAB_ROM) -l$(HUDLAB_LISTING) -s$(HUDLAB_SYMBOLS)
+
+verify-hudlab: $(HUDLAB_ROM)
+	python3 tools/verify_rom.py $(HUDLAB_ROM)
+
+hudnumber: $(HUDNUMBER_ROM)
+
+$(HUDNUMBER_ROM): src/thursdays-child-hud-numeric-proof.asm
+	mkdir -p $(BUILD_DIR)
+	$(DASM) src/thursdays-child-hud-numeric-proof.asm -Isrc -f3 -o$(HUDNUMBER_ROM) -l$(HUDNUMBER_LISTING) -s$(HUDNUMBER_SYMBOLS)
+
+verify-hudnumber: $(HUDNUMBER_ROM)
+	python3 tools/verify_rom.py $(HUDNUMBER_ROM)
+
+hudindicator: $(HUDINDICATOR_ROM)
+
+$(HUDINDICATOR_ROM): src/thursdays-child-hud-indicator-proof.asm
+	mkdir -p $(BUILD_DIR)
+	$(DASM) src/thursdays-child-hud-indicator-proof.asm -Isrc -f3 -o$(HUDINDICATOR_ROM) -l$(HUDINDICATOR_LISTING) -s$(HUDINDICATOR_SYMBOLS)
+
+verify-hudindicator: $(HUDINDICATOR_ROM)
+	python3 tools/verify_rom.py $(HUDINDICATOR_ROM)
+
+chapter-card-lab: $(CHAPTERCARD_ROM)
+
+$(CHAPTERCARD_ROM): src/thursdays-child-chapter-card-lab.asm src/thursdays-child-briefing-text.inc
+	mkdir -p $(BUILD_DIR)
+	$(DASM) src/thursdays-child-chapter-card-lab.asm -Isrc -f3 -o$(CHAPTERCARD_ROM) -l$(CHAPTERCARD_LISTING) -s$(CHAPTERCARD_SYMBOLS)
+
+verify-chapter-card-lab: $(CHAPTERCARD_ROM)
+	python3 tools/verify_rom.py $(CHAPTERCARD_ROM)
+
+chapter-text-proof: $(CHAPTERTEXT_ROM)
+
+src/thursdays-child-chapter-text-proof.inc: tools/generate_chapter_text_proof.py
+	python3 tools/generate_chapter_text_proof.py
+
+$(CHAPTERTEXT_ROM): src/thursdays-child-chapter-text-proof.asm src/thursdays-child-chapter-text-proof.inc
+	mkdir -p $(BUILD_DIR)
+	$(DASM) src/thursdays-child-chapter-text-proof.asm -Isrc -f3 -o$(CHAPTERTEXT_ROM) -l$(CHAPTERTEXT_LISTING) -s$(CHAPTERTEXT_SYMBOLS)
+
+verify-chapter-text-proof: $(CHAPTERTEXT_ROM)
+	python3 tools/verify_rom.py $(CHAPTERTEXT_ROM)
+
+title-lab: $(TITLELAB_ROM)
+
+src/thursdays-child-title-lab.inc: tools/generate_title_screen.py
+	python3 tools/generate_title_screen.py
+
+$(TITLELAB_ROM): src/thursdays-child-title-lab.asm src/thursdays-child-title-lab.inc
+	mkdir -p $(BUILD_DIR)
+	$(DASM) src/thursdays-child-title-lab.asm -Isrc -f3 -o$(TITLELAB_ROM) -l$(TITLELAB_LISTING) -s$(TITLELAB_SYMBOLS)
+
+verify-title-lab: $(TITLELAB_ROM)
+	python3 tools/verify_rom.py $(TITLELAB_ROM)
+
+credits-lab: $(CREDITSLAB_ROM)
+
+src/thursdays-child-credits-lab.inc: tools/generate_credits_intro.py
+	python3 tools/generate_credits_intro.py
+
+$(CREDITSLAB_ROM): src/thursdays-child-credits-lab.asm src/thursdays-child-credits-lab.inc
+	mkdir -p $(BUILD_DIR)
+	$(DASM) src/thursdays-child-credits-lab.asm -Isrc -f3 -o$(CREDITSLAB_ROM) -l$(CREDITSLAB_LISTING) -s$(CREDITSLAB_SYMBOLS)
+
+verify-credits-lab: $(CREDITSLAB_ROM)
+	python3 tools/verify_rom.py $(CREDITSLAB_ROM)
+
+terminal-lab: $(TERMINALLAB_ROM)
+
+src/thursdays-child-terminal-lab.inc: tools/generate_terminal_briefing.py
+	python3 tools/generate_terminal_briefing.py
+
+$(TERMINALLAB_ROM): src/thursdays-child-terminal-lab.asm src/thursdays-child-terminal-lab.inc
+	mkdir -p $(BUILD_DIR)
+	$(DASM) src/thursdays-child-terminal-lab.asm -Isrc -f3 -o$(TERMINALLAB_ROM) -l$(TERMINALLAB_LISTING) -s$(TERMINALLAB_SYMBOLS)
+
+verify-terminal-lab: $(TERMINALLAB_ROM)
+	python3 tools/verify_rom.py $(TERMINALLAB_ROM)
+
+chapter-two-terminal: $(CHAPTERTWO_TERMINAL_ROM)
+
+src/thursdays-child-chapter-two-terminal.inc: tools/generate_terminal_briefing.py
+	python3 tools/generate_terminal_briefing.py --chapter two
+
+$(CHAPTERTWO_TERMINAL_ROM): src/thursdays-child-chapter-two-terminal.asm src/thursdays-child-terminal-lab.asm src/thursdays-child-chapter-two-terminal.inc
+	mkdir -p $(BUILD_DIR)
+	$(DASM) src/thursdays-child-chapter-two-terminal.asm -Isrc -f3 -o$(CHAPTERTWO_TERMINAL_ROM) -l$(CHAPTERTWO_TERMINAL_LISTING) -s$(CHAPTERTWO_TERMINAL_SYMBOLS)
+
+verify-chapter-two-terminal: $(CHAPTERTWO_TERMINAL_ROM)
+	python3 tools/verify_rom.py $(CHAPTERTWO_TERMINAL_ROM)
+
+chapter-two-zone1: $(CHAPTERTWO_ZONE1_ROM)
+
+$(CHAPTERTWO_ZONE1_ROM): src/thursdays-child-chapter-two-zone1.asm src/thursdays-child.asm src/thursdays-child-stage1-objects.inc src/thursdays-child-stage2-objects.inc src/thursdays-child-stage3-objects.inc src/thursdays-child-stage4-objects.inc src/thursdays-child-stage5-objects.inc
+	mkdir -p $(BUILD_DIR)
+	$(DASM) src/thursdays-child-chapter-two-zone1.asm -Isrc -f3 -o$(CHAPTERTWO_ZONE1_ROM) -l$(CHAPTERTWO_ZONE1_LISTING) -s$(CHAPTERTWO_ZONE1_SYMBOLS)
+
+verify-chapter-two-zone1: $(CHAPTERTWO_ZONE1_ROM)
+	python3 tools/verify_f4_rom.py $(CHAPTERTWO_ZONE1_ROM)
+	python3 tools/verify_thursdays_child_raster.py $(CHAPTERTWO_ZONE1_ROM) $(CHAPTERTWO_ZONE1_SYMBOLS) chapter2-zone1
+	python3 tools/analyze_chapter_two_zone1_idle.py $(CHAPTERTWO_ZONE1_ROM) $(CHAPTERTWO_ZONE1_SYMBOLS)
+
+chapter-two-zone2: $(CHAPTERTWO_ZONE2_ROM)
+
+$(CHAPTERTWO_ZONE2_ROM): src/thursdays-child-chapter-two-zone2.asm src/thursdays-child.asm src/thursdays-child-stage1-objects.inc src/thursdays-child-stage2-objects.inc src/thursdays-child-stage3-objects.inc src/thursdays-child-stage4-objects.inc src/thursdays-child-stage5-objects.inc
+	mkdir -p $(BUILD_DIR)
+	$(DASM) src/thursdays-child-chapter-two-zone2.asm -Isrc -f3 -o$(CHAPTERTWO_ZONE2_ROM) -l$(CHAPTERTWO_ZONE2_LISTING) -s$(CHAPTERTWO_ZONE2_SYMBOLS)
+
+verify-chapter-two-zone2: $(CHAPTERTWO_ZONE2_ROM)
+	python3 tools/verify_f4_rom.py $(CHAPTERTWO_ZONE2_ROM)
+	python3 tools/verify_thursdays_child_raster.py $(CHAPTERTWO_ZONE2_ROM) $(CHAPTERTWO_ZONE2_SYMBOLS) chapter2-zone2
+	python3 tools/analyze_chapter_two_zone2.py $(CHAPTERTWO_ZONE2_ROM) $(CHAPTERTWO_ZONE2_SYMBOLS)
+
+chapter-two-zone3: $(CHAPTERTWO_ZONE3_ROM)
+
+$(CHAPTERTWO_ZONE3_ROM): src/thursdays-child-chapter-two-zone3.asm src/thursdays-child.asm src/thursdays-child-stage3-zone2-3-objects.inc
+	mkdir -p $(BUILD_DIR)
+	$(DASM) src/thursdays-child-chapter-two-zone3.asm -Isrc -f3 -o$(CHAPTERTWO_ZONE3_ROM) -l$(CHAPTERTWO_ZONE3_LISTING) -s$(CHAPTERTWO_ZONE3_SYMBOLS)
+
+verify-chapter-two-zone3: $(CHAPTERTWO_ZONE3_ROM)
+	python3 tools/verify_f4_rom.py $(CHAPTERTWO_ZONE3_ROM)
+	python3 tools/verify_thursdays_child_raster.py $(CHAPTERTWO_ZONE3_ROM) $(CHAPTERTWO_ZONE3_SYMBOLS) chapter2-zone3
+	python3 tools/analyze_chapter_two_zone3.py $(CHAPTERTWO_ZONE3_ROM) $(CHAPTERTWO_ZONE3_SYMBOLS)
+
+zone-manifest-lab: $(ZONEMANIFEST_ROM)
+
+src/thursdays-child-zone-manifest-lab.inc: tools/generate_zone_manifest.py
+	python3 tools/generate_zone_manifest.py
+
+$(ZONEMANIFEST_ROM): src/thursdays-child-zone-manifest-lab.asm src/thursdays-child-zone-manifest-lab.inc
+	mkdir -p $(BUILD_DIR)
+	$(DASM) src/thursdays-child-zone-manifest-lab.asm -Isrc -f3 -o$(ZONEMANIFEST_ROM) -l$(ZONEMANIFEST_LISTING) -s$(ZONEMANIFEST_SYMBOLS)
+
+verify-zone-manifest-lab: $(ZONEMANIFEST_ROM)
+	python3 tools/verify_rom.py $(ZONEMANIFEST_ROM)
+
+clean:
+	rm -f $(ROM) $(LISTING) $(SYMBOLS) $(SANDBOX_ROM) $(SANDBOX_LISTING) $(SANDBOX_SYMBOLS) $(D2_ROM) $(D2_LISTING) $(D2_SYMBOLS) $(FOUNDATION1_ROM) $(FOUNDATION1_LISTING) $(FOUNDATION1_SYMBOLS) $(FOUNDATION2_ROM) $(FOUNDATION2_LISTING) $(FOUNDATION2_SYMBOLS) $(FOUNDATION3A_ROM) $(FOUNDATION3A_LISTING) $(FOUNDATION3A_SYMBOLS) $(FOUNDATION4A_ROM) $(FOUNDATION4A_LISTING) $(FOUNDATION4A_SYMBOLS) $(FOUNDATION4B_ROM) $(FOUNDATION4B_LISTING) $(FOUNDATION4B_SYMBOLS) $(FOUNDATION5A_ROM) $(FOUNDATION5A_LISTING) $(FOUNDATION5A_SYMBOLS) $(FOUNDATION5B_ROM) $(FOUNDATION5B_LISTING) $(FOUNDATION5B_SYMBOLS) $(FOUNDATION6A_ROM) $(FOUNDATION6A_LISTING) $(FOUNDATION6A_SYMBOLS) $(FOUNDATION6B_ROM) $(FOUNDATION6B_LISTING) $(FOUNDATION6B_SYMBOLS) $(FOUNDATION6C_ROM) $(FOUNDATION6C_LISTING) $(FOUNDATION6C_SYMBOLS) $(FOUNDATION6CB_ROM) $(FOUNDATION6CB_LISTING) $(FOUNDATION6CB_SYMBOLS) $(FOUNDATION6CC_ROM) $(FOUNDATION6CC_LISTING) $(FOUNDATION6CC_SYMBOLS) $(FOUNDATION6DA_ROM) $(FOUNDATION6DA_LISTING) $(FOUNDATION6DA_SYMBOLS) $(FOUNDATION6DB_ROM) $(FOUNDATION6DB_LISTING) $(FOUNDATION6DB_SYMBOLS) $(FOUNDATION6DB2_ROM) $(FOUNDATION6DB2_LISTING) $(FOUNDATION6DB2_SYMBOLS) $(FOUNDATION6DB3_ROM) $(FOUNDATION6DB3_LISTING) $(FOUNDATION6DB3_SYMBOLS) $(FOUNDATION6DB4_ROM) $(FOUNDATION6DB4_LISTING) $(FOUNDATION6DB4_SYMBOLS) $(FOUNDATION6DB5_ROM) $(FOUNDATION6DB5_LISTING) $(FOUNDATION6DB5_SYMBOLS) $(FOUNDATION6E_ROM) $(FOUNDATION6E_LISTING) $(FOUNDATION6E_SYMBOLS) $(HUDLAB_ROM) $(HUDLAB_LISTING) $(HUDLAB_SYMBOLS) $(ZONEMANIFEST_ROM) $(ZONEMANIFEST_LISTING) $(ZONEMANIFEST_SYMBOLS)
