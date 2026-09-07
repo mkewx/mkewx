@@ -11,13 +11,13 @@ MAX_FALL = 0x00E0
 LEFT_LIMIT, RIGHT_LIMIT = 16, 136
 TOP_LIMIT, BOTTOM_LIMIT = 8, 154
 ASTRONAUT_W, ASTRONAUT_H = 8, 14
-LEFT_INSETS = (80, 24, 20, 16, 20, 24, 28, 32, 40, 48, 36,
-               44, 32, 24, 20, 16, 24, 28, 32, 36, 28, 80)
+LEFT_INSETS = (80, 24, 20, 16, 20, 24, 28, 48, 48, 48, 36,
+               48, 48, 48, 48, 16, 24, 28, 32, 36, 28, 80)
 RIGHT_INSETS = (80, 28, 32, 36, 28, 24, 20, 16, 16, 16, 16,
                 16, 16, 16, 16, 16, 20, 24, 28, 32, 36, 80)
 PLATFORMS = ((64, 96, 64, 72), (64, 96, 80, 88), (64, 96, 104, 112))
 BEACONS = ((79, 34), (121, 88), (79, 138))
-JUNK = ((81, 49), (102, 99), (81, 147))
+JUNK = ((77, 49), (90, 89), (77, 149))
 RELIC = (24, 11)
 
 
@@ -105,8 +105,8 @@ def main():
         "StageVelocityXHi": (0, 0, 0xFF), "StageVelocityXLo": (0x60, 0x60, 0x70),
         "StageVelocityYHi": (0xFF, 0xFF, 0xFF), "StageVelocityYLo": (0xA0, 0xA0, 0xA0),
         "Dish0XByStage": (96, 75, 75), "Dish1XByStage": (102, 90, 117),
-        "Dish2XByStage": (96, 96, 75), "Collect0XByStage": (102, 114, 81),
-        "Collect1XByStage": (75, 78, 102), "Collect2XByStage": (84, 102, 81),
+        "Dish2XByStage": (96, 96, 75), "Collect0XByStage": (102, 114, 77),
+        "Collect1XByStage": (75, 78, 90), "Collect2XByStage": (84, 102, 77),
         "OptionalXByStage": (130, 100, 24), "ExitXByStage": (78, 90, 99),
     }
     for name, values in expected.items():

@@ -7,3 +7,4 @@ _site/
 # Scoped to our own scratch build dir only — checkpoint .lst/.sym files
 # under 2600/code/ and 2600/binaries/ are deliberately tracked evidence.
 2600/build/
+__pycache__/

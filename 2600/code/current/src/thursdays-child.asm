@@ -253,12 +253,18 @@ STAGE3_BEACON_CX       = 79
 STAGE3_BEACON_CY       = 138
 STAGE3_OPTIONAL_LEFT   = 24
 STAGE3_OPTIONAL_TOP    = 11
-STAGE3_COLLECT_0_LEFT  = 81
-STAGE3_COLLECT_1_LEFT  = 102
-STAGE3_COLLECT_2_LEFT  = 81
+; Nudged from the originally authored (81,49)/(102,99)/(81,147) after fixing
+; the Zone 2-3 bounce trap: once Major Tom could actually leave the trapped
+; pocket, his unassisted spawn trajectory swept through all three original
+; positions within the first 1200 frames (confirmed by simulation), which
+; the design's own rule against unattended pickup forbids. These positions
+; were found by searching the smallest offset clear of that swept path.
+STAGE3_COLLECT_0_LEFT  = 77
+STAGE3_COLLECT_1_LEFT  = 90
+STAGE3_COLLECT_2_LEFT  = 77
 STAGE3_COLLECT_0_TOP   = 49
-STAGE3_COLLECT_1_TOP   = 99
-STAGE3_COLLECT_2_TOP   = 147
+STAGE3_COLLECT_1_TOP   = 89
+STAGE3_COLLECT_2_TOP   = 149
 STAGE3_EXIT_LEFT       = 99
 STAGE3_EXIT_TOP        = 163
         ELSE
@@ -2348,8 +2354,16 @@ Stage2RightInsetByBand:
         ENDIF
 Stage3LeftInsetByBand:
         IFCONST CHAPTER2_ZONE3_LAB
-        byte 80,24,20,16,20,24,28,32,40,48,36
-        byte 44,32,24,20,16,24,28,32,36,28,80
+        ; Bands 7-9 and 11-14 are buttressed flush to the elastic platforms'
+        ; corners (Y64-72 and Y104-112) at the max renderable wall depth
+        ; (48). Their open, non-buttressed originals let Major Tom's 8x14
+        ; sprite graze each platform's exposed corner from the wall pocket,
+        ; where the elastic collision resonated into a permanent unassisted
+        ; bounce loop with no satellite in capture range (found via replay
+        ; and confirmed by simulation before this fix; band 9 was already at
+        ; max depth, so it needed no change).
+        byte 80,24,20,16,20,24,28,48,48,48,36
+        byte 48,48,48,48,16,24,28,32,36,28,80
         ELSE
         byte 80,24,20,16,20,28,36,28,20,16,24
         byte 36,44,32,24,16,20,28,36,28,20,80
@@ -3705,14 +3719,14 @@ Stage3TerrainLeftPF1:
         ds 8,$80
         ds 8,$C0
         ds 8,$E0
-        ds 8,$F0
-        ds 8,$FC
+        ds 8,$FF
+        ds 8,$FF
         ds 8,$FF
         ds 8,$F8
-        ds 8,$FE
-        ds 8,$F0
-        ds 8,$C0
-        ds 8,$80
+        ds 8,$FF
+        ds 8,$FF
+        ds 8,$FF
+        ds 8,$FF
         ds 8,$00
         ds 8,$C0
         ds 8,$E0
