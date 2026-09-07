@@ -2443,6 +2443,18 @@ PhysicsBankEntry:
         jsr UpdatePhysics
         lda $FFFB
 
+; Fixed cross-bank continuation for stage loading. Bank 7 switches at $FFE0;
+; execution arrives here at $FFE3, loads the current stage through the same
+; LoadCurrentStage path production transitions use, then selects bank 7 and
+; lands on CallLoadStage's RTS. Mirrors the CallPhysics/PhysicsBankEntry gate
+; above — a plain same-bank JSR to LoadCurrentStage from Bank 7 does not
+; switch banks and previously ran Bank 7's bytes as code.
+        ORG $0FE3
+        RORG $FFE3
+LoadStageBankEntry:
+        jsr LoadCurrentStage
+        lda $FFFB
+
         ORG $0FFA
         RORG $FFFA
         word $F000,$F000,$F000
@@ -4780,12 +4792,12 @@ Reset:
         IFCONST CHAPTER2_ZONE2_LAB
         lda #1
         sta currentStage
-        jsr LoadCurrentStage
+        jsr CallLoadStage
         ENDIF
         IFCONST CHAPTER2_ZONE3_LAB
         lda #2
         sta currentStage
-        jsr LoadCurrentStage
+        jsr CallLoadStage
         ENDIF
 
         ; Static HUD outlines are prepared once, outside all frame timing.
@@ -6295,6 +6307,19 @@ CallPhysics:
         lda $FFF4
         ds 6,$EA
 PhysicsBankReturn:
+        rts
+
+; Fixed bank-call gate for stage loading. The hotspot switches to bank 0 at
+; $FFE0. Bank 0 runs LoadCurrentStage at $FFE3, switches back, and execution
+; resumes at this RTS. Replaces the plain `jsr LoadCurrentStage` that used to
+; run directly from Bank 7's Reset code, which does not switch banks and
+; previously executed Bank 7's own bytes as 6502 instructions.
+        ORG $7FE0
+        RORG $FFE0
+CallLoadStage:
+        lda $FFF4
+        ds 6,$EA
+CallLoadStageReturn:
         rts
 
         ORG $7FFA
