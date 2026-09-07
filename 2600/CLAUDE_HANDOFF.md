@@ -160,6 +160,21 @@ scoring and zero bounce-backs; Zone 2-2 (built with `-DCHAPTER2_ZONE2_LAB=1`)
 showed its actual orange elastic terrain, sustained a capture/orbit cycle
 across 20 fire presses, with no crash.
 
+`binaries/approved/thursdays-child-chapter-one.bin` and
+`code/approved-checkpoints/chapter-one/thursdays-child-chapter-one.bin` were
+rebuilt from the fixed source (SHA-256
+`1222d4737a0eeb7189e09eacf34573dcf3af85b24fc899990447ff5ad497bfee`) and
+substituted in place, the same as the stack-corruption fix earlier this
+session — **not yet human-playtested**, treat as a strong candidate rather
+than a re-approved checkpoint. Zone 2-2's shipped
+`thursdays-child-zone2-2-mechanics-approved.bin` was deliberately left
+untouched: per `VERIFICATION-NOTES.md`, a source rebuild of that checkpoint
+has never reproduced the shipped binary byte-for-byte (a pre-existing,
+unrelated discrepancy), so overwriting it would replace known-good ground
+truth with an unproven artifact. Its `.asm` source has the fix; a fresh
+build from it would need the same behavioral verification before anyone
+promotes it to replace the approved binary.
+
 Still to do: a human playtest of the actual gravity-spin *feel* across
 diagonal approaches (especially Zone 2-3, the zone that originally
 surfaced this as "backwards") — the math is derived and verified, but
